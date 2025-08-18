@@ -1,0 +1,51 @@
+/**
+ * plugins/vuetify.js
+ *
+ * Framework documentation: https://vuetifyjs.com`
+ */
+
+// https://vuetifyjs.com/en/introduction/why-vuetify/#feature-guides
+
+import { createVuetify } from 'vuetify'
+import { VFileUpload } from 'vuetify/labs/VFileUpload'
+import { VTimePicker } from 'vuetify/labs/VTimePicker'
+// Composables
+import colors from 'vuetify/lib/util/colors'
+import { es } from 'vuetify/locale'
+// Styles
+import '@mdi/font/css/materialdesignicons.css'
+import 'vuetify/styles'
+
+export default createVuetify({
+  theme: {
+    defaultTheme: 'dark',
+    themes: {
+      light: {
+        dark: false,
+        colors: {
+          primary: colors.blue.lighten4,
+          secondary: colors.blue.lighten4,
+        },
+      },
+      dark: {
+        dark: true,
+        colors: {
+          primary: colors.blue.darken4,
+          secondary: colors.blue.darken4,
+          surface: '#000000',
+          green_color: colors.green.darken4,
+          yellow_color: colors.yellow.darken4,
+          red_color: colors.red.darken4,
+        },
+      },
+    },
+  },
+  locale: {
+    locale: 'es', // Set default locale to Spanish
+    messages: { es }, // Provide Spanish messages
+  },
+  components: {
+    VTimePicker,
+    VFileUpload,
+  },
+})

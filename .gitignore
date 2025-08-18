@@ -1,0 +1,7 @@
+# Python
+__pycache__/
+venv/
+
+# Node (Vue)
+node_modules/
+%userprofile%

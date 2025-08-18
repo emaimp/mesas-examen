@@ -1,0 +1,96 @@
+<template>
+  <v-expansion-panel>
+    <v-expansion-panel-title class="text-h6">
+      Notas del Estudiante
+    </v-expansion-panel-title>
+
+    <v-expansion-panel-text>
+      <div>
+        <v-table density="compact">
+          <thead>
+            <tr>
+              <th class="text-left small-text">Materia</th>
+              <th class="text-left small-text">1° Evaluación</th>
+              <th class="text-left small-text">Recuperatorio</th>
+              <th class="text-left small-text">2° Evaluación</th>
+              <th class="text-left small-text">Recuperatorio</th>
+              <th class="text-left small-text">3° Evaluación</th>
+              <th class="text-left small-text">Recuperatorio</th>
+              <th class="text-left small-text">Promedio</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="nota in notasData" :key="nota.id">
+              <td class="text-left">{{ nota.materia }}</td>
+              <td class="text-center">{{ formatNota(nota.eval_1) }}</td>
+              <td class="text-center">{{ formatNota(nota.rec_1) }}</td>
+              <td class="text-center">{{ formatNota(nota.eval_2) }}</td>
+              <td class="text-center">{{ formatNota(nota.rec_2) }}</td>
+              <td class="text-center">{{ formatNota(nota.eval_3) }}</td>
+              <td class="text-center">{{ formatNota(nota.rec_3) }}</td>
+              <td class="text-center">{{ formatNota(nota.nota_prom) }}</td>
+            </tr>
+          </tbody>
+        </v-table>
+        <v-divider class="my-4" />
+      </div>
+    </v-expansion-panel-text>
+  </v-expansion-panel>
+</template>
+
+<script setup>
+  // Define las propiedades que este componente puede recibir
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const props = defineProps({
+    notasData: {
+      type: Array,
+      required: true, // notasData es una propiedad requerida
+      // Validador para asegurar que cada elemento en notasData tenga la estructura esperada
+      validator: value => {
+        return Array.isArray(value) && value.every(nota =>
+          (typeof nota.id === 'number' || nota.id === null || typeof nota.id === 'string' || nota.id === undefined)
+          && (typeof nota.estudiante_id === 'number' || nota.estudiante_id === null || typeof nota.estudiante_id === 'string' || nota.estudiante_id === undefined)
+          && (typeof nota.materia_carrera_id === 'number' || nota.materia_carrera_id === null || typeof nota.materia_carrera_id === 'string' || nota.materia_carrera_id === undefined)
+          && (typeof nota.eval_1 === 'number' || nota.eval_1 === null || typeof nota.eval_1 === 'string' || nota.eval_1 === undefined)
+          && (typeof nota.rec_1 === 'number' || nota.rec_1 === null || typeof nota.rec_1 === 'string' || nota.rec_1 === undefined)
+          && (typeof nota.eval_2 === 'number' || nota.eval_2 === null || typeof nota.eval_2 === 'string' || nota.eval_2 === undefined)
+          && (typeof nota.rec_2 === 'number' || nota.rec_2 === null || typeof nota.rec_2 === 'string' || nota.rec_2 === undefined)
+          && (typeof nota.eval_3 === 'number' || nota.eval_3 === null || typeof nota.eval_3 === 'string' || nota.eval_3 === undefined)
+          && (typeof nota.rec_3 === 'number' || nota.rec_3 === null || typeof nota.rec_3 === 'string' || nota.rec_3 === undefined)
+          && (typeof nota.nota_prom === 'number' || nota.nota_prom === null || typeof nota.nota_prom === 'string' || nota.nota_prom === undefined),
+        )
+      },
+    },
+  })
+
+  /**
+   * Formatea la nota para mostrar 'N/A' si no hay nota disponible
+   * @param {number|string|null|undefined} nota - La nota a formatear
+   * @returns {string} La nota formateada o 'N/A'
+   */
+  const formatNota = nota => {
+    if (nota === null || nota === undefined || String(nota).trim() === '' || String(nota).toUpperCase() === 'N/A') {
+      return 'N/A'
+    }
+    return String(nota)
+  }
+</script>
+
+<style scoped>
+/* Estilos para el panel de expansión */
+.v-expansion-panel {
+  background-color: transparent !important; /* Hace que el panel tenga un fondo transparente */
+  margin-bottom: 10px; /* Añade espacio entre paneles */
+}
+
+/* Estilos para la tabla dentro del panel */
+.v-table {
+  background-color: transparent !important; /* La tabla dentro del contenido también es transparente */
+}
+
+/* Clase para reducir el tamaño del texto en los encabezados de la tabla */
+.small-text {
+  font-size: 1rem !important; /* Ajusta el tamaño de fuente según sea necesario */
+  font-weight: bold !important; /* Resalta el texto del encabezado */
+}
+</style>

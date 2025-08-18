@@ -1,0 +1,58 @@
+/**
+ * src/styles/settings.scss
+ *
+ * Configures SASS variables and Vuetify overwrites
+ */
+
+// https://vuetifyjs.com/features/sass-variables/
+
+@use 'vuetify/settings' with (
+  $color-pack: false
+);
+
+/* Gradiente para el v-overlay (desenfoque) */
+.v-overlay__scrim {
+  background: linear-gradient(to right, #1576be, #2271b3) !important;
+  opacity: 0.93 !important;
+}
+
+/* Gradiente para el v-application (fondo de la página) */
+.v-application {
+  background: linear-gradient(to right,  #1576be, #2271b3) !important;
+}
+
+/* Gradiente para el v-card (containers) */
+.v-card {
+  background: linear-gradient(to right, #1f5d8b, #0e4c7a) !important;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.8) !important;
+}
+
+/* Gradiente para el v-expansion-panel-title (titulo del expansion-panel) */
+.v-expansion-panel-title {
+  background: linear-gradient(to right, #31446f, #0096d2) !important
+}
+
+/* Transpariencia para el v-list (lista de elementos) */
+.v-list {
+  background: linear-gradient(to right, #1f5d8b, #0e4c7a) !important;
+}
+
+/* Transpariencia para el v-navigation-drawer (barra lateral) */
+.v-navigation-drawer {
+  background: linear-gradient(to right, #1f5d8b, #0e4c7a) !important;
+}
+
+/* Transpariencia para el v-file-upload (carga de archivos) */
+.v-file-upload {
+  background: rgba(255, 255, 255, 0.0) !important;
+}
+
+/* Estilo para botones de acción */
+.action-button {
+  background: #3eb3e9 !important;
+}
+
+/* Estilo para botones de cancelación */
+.cancel-button {
+  background: #800000 !important;
+}
