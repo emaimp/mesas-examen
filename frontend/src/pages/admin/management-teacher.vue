@@ -43,7 +43,7 @@
           </v-card-text>
         </v-card>
       </v-col>
-    </v-row>
+    </v-row>cle
   </v-container>
 </template>
 
