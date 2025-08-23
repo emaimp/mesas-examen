@@ -8,7 +8,7 @@
           <img alt="IESN6 Logo" class="login-logo" src="@/assets/iesn6_icon.png">
           <v-card-text class="px-3 py-5">
 
-            <p class="mb-8 text-center">Ingresa tu usuario y contraseña.</p>
+            <p class="mb-8 text-center">Ingrese su usuario y contraseña.</p>
 
             <!-- Formulario de login con validación y envío -->
             <v-form ref="loginForm" @submit.prevent="submitLogin">

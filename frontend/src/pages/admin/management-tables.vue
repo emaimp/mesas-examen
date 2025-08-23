@@ -33,16 +33,28 @@
               label="Profesor"
             />
 
-            <DateTimePicker
-              v-model="selectedDateTime"
-              class="mb-4"
-              label="Fecha y Hora"
-            />
+            <div class="form-section">
+              <h3>Primer Llamado</h3>
+              <DateTimePicker
+                v-model="selectedDateTime"
+                class="mb-4"
+                label="Fecha y Hora del primer llamado"
+              />
+            </div>
+
+            <div class="form-section">
+              <h3>Segundo Llamado</h3>
+              <DateTimePicker
+                v-model="selectedDateTime2nd"
+                class="mb-4"
+                label="Fecha y hora del segundo llamado"
+              />
+            </div>
 
             <v-btn
               block
               class="mt-4 action-button"
-              :disabled="!selectedSubjectId || !selectedProfessorId"
+              :disabled="!selectedSubjectId || !selectedProfessorId || !selectedDateTime || !selectedDateTime2nd"
               variant="outlined"
               @click="handlecreateTable"
             >
@@ -72,17 +84,18 @@
   import { useCrearMesa } from '../../services/admin/useCreateTable'
 
   // Estados reactivos para los campos del formulario
-  const loading = ref(false) // Estado para controlar la visibilidad del indicador de carga
-  const selectedCareerId = ref(null) // ID de la carrera seleccionada
-  const selectedSubjectId = ref(null) // ID de la materia seleccionada
-  const selectedProfessorId = ref(null) // ID del profesor seleccionado
-  const selectedDateTime = ref(null) // Fecha y hora seleccionadas
+  const loading = ref(false)
+  const selectedCareerId = ref(null)
+  const selectedSubjectId = ref(null)
+  const selectedProfessorId = ref(null)
+  const selectedDateTime = ref(null)
+  const selectedDateTime2nd = ref(null)
 
   // Estado reactivo para la barra de notificación (snackbar)
   const snackbar = ref({
-    show: false, // Controla la visibilidad del snackbar
-    message: '', // Mensaje a mostrar en el snackbar
-    color: '', // Color del snackbar (ej. 'success', 'error', 'warning')
+    show: false,
+    message: '',
+    color: '',
   })
 
   // Inicializa el servicio para crear mesas.
@@ -95,15 +108,15 @@
    */
   const formatDateToBackend = date => {
     const year = date.getFullYear()
-    const month = String(date.getMonth() + 1).padStart(2, '0') // Meses son 0-indexados
+    const month = String(date.getMonth() + 1).padStart(2, '0')
     const day = String(date.getDate()).padStart(2, '0')
     const hours = String(date.getHours()).padStart(2, '0')
     const minutes = String(date.getMinutes()).padStart(2, '0')
     const seconds = String(date.getSeconds()).padStart(2, '0')
-    const offset = date.getTimezoneOffset() // Diferencia en minutos entre UTC y la hora local
+    const offset = date.getTimezoneOffset()
     const offsetHours = String(Math.abs(Math.floor(offset / 60))).padStart(2, '0')
     const offsetMinutes = String(Math.abs(offset % 60)).padStart(2, '0')
-    const offsetSign = offset > 0 ? '-' : '+' // Signo del offset
+    const offsetSign = offset > 0 ? '-' : '+'
     return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}${offsetSign}${offsetHours}:${offsetMinutes}`
   }
 
@@ -112,7 +125,7 @@
    */
   const handlecreateTable = async () => {
     // Valida que todos los campos requeridos estén seleccionados
-    if (!selectedSubjectId.value || !selectedProfessorId.value || !selectedDateTime.value) {
+    if (!selectedSubjectId.value || !selectedProfessorId.value || !selectedDateTime.value || !selectedDateTime2nd.value) {
       snackbar.value.message = 'Por favor, selecciona Materia, Profesor y Fecha/Hora.'
       snackbar.value.color = 'warning'
       snackbar.value.show = true
@@ -125,15 +138,16 @@
       dateToFormat = new Date(selectedDateTime.value)
     }
 
-    const formattedDate = formatDateToBackend(dateToFormat) // Formatea la fecha para el backend
+    const formattedDate = formatDateToBackend(dateToFormat)
     // Prepara los datos de la mesa para enviar a la API
     const mesaData = {
       materia_carrera_id: Number.parseInt(selectedSubjectId.value),
       profesor_id: Number.parseInt(selectedProfessorId.value),
       fecha: formattedDate,
+      fecha_segundo_llamado: formatDateToBackend(selectedDateTime2nd.value),
     }
 
-    loading.value = true // Muestra el indicador de carga
+    loading.value = true
 
     try {
       // Llama al servicio para crear la mesa
@@ -146,6 +160,7 @@
       selectedSubjectId.value = null
       selectedProfessorId.value = null
       selectedDateTime.value = null
+      selectedDateTime2nd.value = null
       snackbar.value.show = true
     } catch (error) {
       // Maneja errores de la API o de conexión
@@ -158,7 +173,7 @@
       }
       snackbar.value.show = true
     } finally {
-      loading.value = false // Oculta el indicador de carga
+      loading.value = false
     }
   }
 </script>
@@ -166,9 +181,12 @@
 <style scoped>
 /* Estilos para centrar la barra de notificación (snackbar) */
 .centered-snackbar {
-  left: 50% !important; /* Centra horizontalmente */
-  transform: translateX(-50%) !important; /* Ajuste para centrado perfecto */
-  text-align: center; /* Centra el texto */
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  text-align: center;
+}
+.form-section {
+  text-align: center; /* Centra el contenido horizontalmente */
 }
 </style>
 
