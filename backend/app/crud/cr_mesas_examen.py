@@ -71,9 +71,9 @@ def mesas_examen_por_nota(estudiante_id: int, session: Session) -> List[schemas.
 # Devuelve las mesas de examen por id de profesor
 #
 def mesas_examen_por_profesor(profesor_id: int, session: Session) -> List[schemas.ExamDetailWithStudents]:
-    # Consulta mesas de examen y estudiantes inscritos
+    # Consulta mesas de examen, estudiantes inscritos y el estado de la inscripción
     statement = (
-        select(models.Mesas_Examen, models.Usuarios)
+        select(models.Mesas_Examen, models.Usuarios, models.Inscripciones_Examen)
         .join(models.Inscripciones_Examen, models.Mesas_Examen.id == models.Inscripciones_Examen.mesa_examen_id)
         .join(models.Usuarios, models.Inscripciones_Examen.estudiante_id == models.Usuarios.id)
         .where(models.Mesas_Examen.profesor_id == profesor_id)
@@ -95,9 +95,10 @@ def mesas_examen_por_profesor(profesor_id: int, session: Session) -> List[schema
             carrera_nombre=mesa_examen.carrera_nombre,
             estudiante_nombre=usuario_estudiante.nombre,
             dni=usuario_estudiante.dni,
-            libreta=usuario_estudiante.libreta
+            libreta=usuario_estudiante.libreta,
+            estado=inscripcion.estado
         )
-        for mesa_examen, usuario_estudiante in results
+        for mesa_examen, usuario_estudiante, inscripcion in results
     ]
 
 #
@@ -140,18 +141,28 @@ def crear_mesa_examen(session: Session, data: schemas.TableExamCreate) -> models
     else:
         ultimo_dia_mes = fecha_mesa.replace(month=fecha_mesa.month + 1, day=1) - timedelta(microseconds=1)
 
-    # Verifica si ya existe una mesa de examen para la misma materia/carrera en el mismo mes
-    existing_mesa_statement = select(models.Mesas_Examen).where(
+    # Extrae el año y el mes de la fecha proporcionada
+    fecha_mesa = data.fecha
+    primer_dia_mes = fecha_mesa.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    # Calcula el último día del mes
+    if fecha_mesa.month == 12:
+        ultimo_dia_mes = fecha_mesa.replace(year=fecha_mesa.year + 1, month=1, day=1) - timedelta(microseconds=1)
+    else:
+        ultimo_dia_mes = fecha_mesa.replace(month=fecha_mesa.month + 1, day=1) - timedelta(microseconds=1)
+
+    # Verifica cuántas mesas de examen existen para la misma materia/carrera en el mismo mes
+    existing_mesas_count_statement = select(models.Mesas_Examen).where(
         models.Mesas_Examen.materia_carrera_id == data.materia_carrera_id,
         models.Mesas_Examen.fecha >= primer_dia_mes,
         models.Mesas_Examen.fecha <= ultimo_dia_mes
     )
-    mesa_existente = session.exec(existing_mesa_statement).first()
+    existing_mesas = session.exec(existing_mesas_count_statement).all()
 
-    if mesa_existente:
+    # Si ya existen 2 o más mesas para esta materia/carrera en el mes, no permite crear más
+    if len(existing_mesas) >= 2:
         raise HTTPException(
             status_code=400,
-            detail="Ya existe esta mesa de examen en el mes seleccionado"
+            detail="Ya existen dos mesas de examen para esta carrera/materia en el mes seleccionado."
         )
 
     # Crea la nueva mesa de examen
@@ -275,3 +286,38 @@ def inscribir_a_mesa_examen(session: Session, data: schemas.RegistrationExamCrea
         return schemas.ApiResponse(success=False, errors=[e.detail])
     except Exception as e:
         return schemas.ApiResponse(success=False, errors=[f"Error inesperado: {str(e)}"])
+
+#
+# Actualiza el estado de una inscripción
+#
+def actualizar_estado_inscripcion(
+    inscripcion_id: int,
+    nuevo_estado: schemas.RegistrationExamUpdateStatus,
+    session: Session
+) -> schemas.ApiResponse:
+    try:
+        # 1. Busca la inscripción por ID
+        inscripcion = session.get(models.Inscripciones_Examen, inscripcion_id)
+
+        # Si la inscripción no existe, retorna un error
+        if not inscripcion:
+            return schemas.ApiResponse(success=False, errors=["Inscripción a examen no encontrada"])
+
+        # 2. Actualiza el estado de la inscripción
+        inscripcion.estado = nuevo_estado.estado
+        session.add(inscripcion)
+        session.commit()
+        session.refresh(inscripcion)
+
+        return schemas.ApiResponse(
+            success=True,
+            message=f"Estado de inscripción {inscripcion_id} actualizado a '{inscripcion.estado}'",
+            data={
+                "id": inscripcion.id,
+                "estudiante_id": inscripcion.estudiante_id,
+                "mesa_examen_id": inscripcion.mesa_examen_id,
+                "estado": inscripcion.estado
+            }
+        )
+    except Exception as e:
+        return schemas.ApiResponse(success=False, errors=[f"Error inesperado al actualizar el estado de la inscripción: {str(e)}"])

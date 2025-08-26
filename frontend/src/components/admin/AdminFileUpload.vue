@@ -18,6 +18,7 @@
       <v-card-actions>
         <v-spacer />
         <v-btn
+          class="action-button"
           :disabled="!selectedFile || uploading"
           :loading="uploading"
           variant="outlined"
@@ -31,7 +32,7 @@
           variant="text"
           @click="showUploadDialog = false; clearFile()"
         >
-          Cancelar
+          Cerrar
         </v-btn>
       </v-card-actions>
     </v-card>

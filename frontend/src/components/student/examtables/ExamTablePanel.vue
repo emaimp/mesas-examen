@@ -46,7 +46,7 @@
 
     <v-dialog v-model="showInscripcionDialog" max-width="500">
       <v-card>
-        <v-card-title class="text-h5 text-center">
+        <v-card-title class="text-h5 text-center mt-2 mx-2">
           Confirmar Inscripción
         </v-card-title>
         <v-card-text v-if="selectedMesa">
@@ -72,7 +72,7 @@
             </v-list-item>
           </v-list>
         </v-card-text>
-        <v-card-actions>
+        <v-card-actions class="mb-2 mx-2">
           <v-spacer />
           <v-btn
             class="action-button"
@@ -88,7 +88,7 @@
             variant="text"
             @click="showInscripcionDialog = false"
           >
-            Cancelar
+            Cerrar
           </v-btn>
         </v-card-actions>
       </v-card>

@@ -49,7 +49,7 @@
       title: 'Instituto', // Título del enlace
     },
     {
-      href: '', // URL vacía, para documentación futura
+      href: 'https://github.com/emaimp/mesas-examen', // URL vacía, para documentación futura
       icon: 'mdi-file-document', // Icono de Material Design para el enlace
       subtitle: 'Página de la documentación.', // Subtítulo descriptivo
       title: 'Documentación', // Título del enlace

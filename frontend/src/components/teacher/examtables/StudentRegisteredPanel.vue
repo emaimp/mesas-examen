@@ -46,7 +46,7 @@
 
     <v-dialog v-model="showInscripcionDialog" max-width="500">
       <v-card>
-        <v-card-title class="text-h5 text-center">
+        <v-card-title class="text-h5 text-center mt-2 mx-2">
           Resgistrar Nota del Estudiante
         </v-card-title>
         <v-card-text v-if="selectedEstudiante">
@@ -88,7 +88,7 @@
             </v-list-item>
           </v-list>
         </v-card-text>
-        <v-card-actions class="pt-0">
+        <v-card-actions class="mb-2 mx-2">
           <v-spacer />
           <v-btn
             class="action-button"
@@ -102,7 +102,7 @@
             variant="text"
             @click="showInscripcionDialog = false"
           >
-            Cancelar
+            Cerrar
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -202,9 +202,15 @@
     }
     loading.value = true // Inicia el estado de carga
     try {
-      const responseData = await fetchExamTables(currentTeacherId) // Usa el nuevo servicio
-      // Agrupa los estudiantes por año de la fecha de la mesa
-      const groupedEstudiantes = responseData.reduce((acc, estudiante) => {
+      const responseData = await fetchExamTables(currentTeacherId)
+
+      // Filtra los estudiantes para mostrar solo aquellos con estado de inscripción activo
+      const activeEstudiantes = responseData.filter(
+        estudiante => estudiante.estado === 'active',
+      )
+
+      // Agrupa los estudiantes activos por año de la fecha de la mesa
+      const groupedEstudiantes = activeEstudiantes.reduce((acc, estudiante) => {
         const anio = new Date(estudiante.fecha).getFullYear()
         if (!acc[anio]) {
           acc[anio] = { anio, estudiantes: [] }
@@ -224,17 +230,21 @@
 
   // Hook que se ejecuta cuando el componente se monta
   onMounted(async () => {
-    await fetchAuthUser() // Carga los datos del usuario autenticado
-    await loadEstudiantes(teacherId.value) // Carga los estudiantes registrados usando el ID del profesor
-    // Abre el primer panel de expansión si hay estudiantes disponibles
-    openPanels.value = sortedEstudiantesAgrupadosPorAnio.value.length > 0 ? [0] : []
+    // Asegura que el usuario esté cargado si no lo está ya (el layout principal ya lo hace)
+    if (!user.value) {
+      await fetchAuthUser()
+    }
+    // La carga de estudiantes se maneja por el watcher con 'immediate: true' (para evitar llamadas duplicadas)
   })
 
   // Observa cambios en el ID del profesor y recarga los estudiantes si cambia
-  watch(teacherId, async newTeacherId => {
-    await loadEstudiantes(newTeacherId) // Recarga los estudiantes con el nuevo ID de profesor
-    // Abre el primer panel de expansión si hay estudiantes disponibles
-    openPanels.value = sortedEstudiantesAgrupadosPorAnio.value.length > 0 ? [0] : []
+  watch(teacherId, async (newTeacherId, oldTeacherId) => {
+    // Solo recarga si el ID del profesor ha cambiado o si es la carga inicial y no hay datos
+    if (newTeacherId && (newTeacherId !== oldTeacherId || estudiantesAgrupadosPorAnio.value.length === 0)) {
+      await loadEstudiantes(newTeacherId) // Recarga los estudiantes con el nuevo ID de profesor
+      // Abre el primer panel de expansión si hay estudiantes disponibles
+      openPanels.value = sortedEstudiantesAgrupadosPorAnio.value.length > 0 ? [0] : []
+    }
   }, { immediate: true }) // Ejecuta el watcher inmediatamente al montar el componente
 </script>
 

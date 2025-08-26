@@ -19,6 +19,8 @@
 
       <v-list density="compact" nav>
         <v-list-item
+          v-if="user"
+          :active="appStore.selectedSection === 'student-profile'"
           link
           prepend-icon="mdi-account-details"
           title="Perfil"
@@ -28,6 +30,8 @@
         />
 
         <v-list-item
+          v-if="user"
+          :active="appStore.selectedSection === 'ratings'"
           link
           prepend-icon="mdi-calendar-month"
           title="Calificaciones"
@@ -37,6 +41,8 @@
         />
 
         <v-list-item
+          v-if="user"
+          :active="appStore.selectedSection === 'tables-exam'"
           link
           prepend-icon="mdi-calendar-check"
           title="Mesas Disponibles"
@@ -46,6 +52,8 @@
         />
 
         <v-list-item
+          v-if="user"
+          :active="appStore.selectedSection === 'tables-registered'"
           link
           prepend-icon="mdi-check-all"
           title="Mesas Inscriptas"
@@ -55,6 +63,8 @@
         />
 
         <v-list-item
+          v-if="user"
+          :active="appStore.selectedSection === 'change-password'"
           link
           prepend-icon="mdi-key-variant"
           title="Cambiar Contraseña"
@@ -75,7 +85,11 @@
     </v-navigation-drawer>
 
     <v-main class="d-flex flex-grow-1 d-flex align-center justify-center">
-      <router-view />
+      <router-view v-slot="{ Component }">
+        <keep-alive>
+          <component :is="Component" />
+        </keep-alive>
+      </router-view>
     </v-main>
   </v-app>
 </template>

@@ -33,3 +33,14 @@ def mesa_examen_crear(mesa: schemas.TableExamCreate, session: Session = Depends(
 def mesa_examen_inscripcion(inscripcion: schemas.RegistrationExamCreate, session: Session = Depends(db.get_session)):
     result = crud.cr_mesas_examen.inscribir_a_mesa_examen(session, inscripcion)
     return result
+
+#
+# Endpoint: Modifica el estado de una inscripción
+#
+@router.patch("/inscripciones/{inscripcion_id}/estado", response_model=schemas.ApiResponse, status_code=status.HTTP_200_OK)
+def mesa_examen_estado(
+    inscripcion_id: int,
+    nuevo_estado: schemas.RegistrationExamUpdateStatus,
+    session: Session = Depends(db.get_session)
+):
+    return crud.cr_mesas_examen.actualizar_estado_inscripcion(inscripcion_id, nuevo_estado, session)

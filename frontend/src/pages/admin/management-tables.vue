@@ -8,11 +8,6 @@
           </v-card-title>
           <v-card-text>
 
-            <div v-if="loading" class="text-center py-5">
-              <v-progress-circular color="primary" indeterminate />
-              <p class="mt-2 text-white">Cargando...</p>
-            </div>
-
             <CareerAutocomplete
               v-model="selectedCareerId"
               class="mb-4"
@@ -33,11 +28,23 @@
               label="Profesor"
             />
 
-            <DateTimePicker
-              v-model="selectedDateTime"
-              class="mb-4"
-              label="Fecha y Hora"
-            />
+            <div class="form-section">
+              <h3 class="mb-2">Primer Llamado</h3>
+              <DateTimePicker
+                v-model="selectedDateTime"
+                class="mb-4"
+                label="Fecha y Hora del primer llamado"
+              />
+            </div>
+
+            <div class="form-section">
+              <h3 class="mb-2">Segundo Llamado</h3>
+              <DateTimePicker
+                v-model="selectedDateTime2nd"
+                class="mb-4"
+                label="Fecha y hora del segundo llamado"
+              />
+            </div>
 
             <v-btn
               block
@@ -72,11 +79,11 @@
   import { useCrearMesa } from '../../services/admin/useCreateTable'
 
   // Estados reactivos para los campos del formulario
-  const loading = ref(false) // Estado para controlar la visibilidad del indicador de carga
   const selectedCareerId = ref(null) // ID de la carrera seleccionada
   const selectedSubjectId = ref(null) // ID de la materia seleccionada
   const selectedProfessorId = ref(null) // ID del profesor seleccionado
-  const selectedDateTime = ref(null) // Fecha y hora seleccionadas
+  const selectedDateTime = ref(null) // Fecha y hora seleccionadas del primer llamado
+  const selectedDateTime2nd = ref(null) // Fecha y hora seleccionadas del segundo llamado
 
   // Estado reactivo para la barra de notificación (snackbar)
   const snackbar = ref({
@@ -112,53 +119,64 @@
    */
   const handlecreateTable = async () => {
     // Valida que todos los campos requeridos estén seleccionados
-    if (!selectedSubjectId.value || !selectedProfessorId.value || !selectedDateTime.value) {
-      snackbar.value.message = 'Por favor, selecciona Materia, Profesor y Fecha/Hora.'
+    if (!selectedSubjectId.value || !selectedProfessorId.value || !selectedDateTime.value || !selectedDateTime2nd.value) {
+      snackbar.value.message = 'Hay campos requeridos sin completar.'
       snackbar.value.color = 'warning'
       snackbar.value.show = true
       return
     }
 
-    let dateToFormat = selectedDateTime.value
+    // Lógica para el primer llamado
+    let dateToFormat1st = selectedDateTime.value
     // Asegura que selectedDateTime.value sea un objeto Date
-    if (!(dateToFormat instanceof Date)) {
-      dateToFormat = new Date(selectedDateTime.value)
+    if (!(dateToFormat1st instanceof Date)) {
+      dateToFormat1st = new Date(selectedDateTime.value)
     }
-
-    const formattedDate = formatDateToBackend(dateToFormat) // Formatea la fecha para el backend
+    const formattedDate1st = formatDateToBackend(dateToFormat1st) // Formatea la fecha para el backend
     // Prepara los datos de la mesa para enviar a la API
-    const mesaData = {
+    const mesaData1st = {
       materia_carrera_id: Number.parseInt(selectedSubjectId.value),
       profesor_id: Number.parseInt(selectedProfessorId.value),
-      fecha: formattedDate,
+      fecha: formattedDate1st,
     }
 
-    loading.value = true // Muestra el indicador de carga
+    // Lógica para el segundo llamado
+    let dateToFormat2nd = selectedDateTime2nd.value
+    // Asegura que selectedDateTime2nd.value sea un objeto Date
+    if (!(dateToFormat2nd instanceof Date)) {
+      dateToFormat2nd = new Date(selectedDateTime2nd.value)
+    }
+    const formattedDate2nd = formatDateToBackend(dateToFormat2nd) // Formatea la fecha para el backend
+    // Prepara los datos de la mesa para enviar a la API
+    const mesaData2nd = {
+      materia_carrera_id: Number.parseInt(selectedSubjectId.value),
+      profesor_id: Number.parseInt(selectedProfessorId.value),
+      fecha: formattedDate2nd,
+    }
 
     try {
-      // Llama al servicio para crear la mesa
-      const response = await createTable(mesaData)
+      // Llama al servicio para crear la primera mesa
+      const response1st = await createTable(mesaData1st)
+      // Llama al servicio para crear la segunda mesa
+      const response2nd = await createTable(mesaData2nd)
 
       // Muestra un mensaje de éxito y limpia el formulario
-      snackbar.value.message = response.message || 'Mesa creada con éxito.'
+      snackbar.value.message = `Primer llamado: ${response1st.message || 'Creado con éxito.'} Segundo llamado: ${response2nd.message || 'Creado con éxito.'}`
       snackbar.value.color = 'success'
       selectedCareerId.value = null
       selectedSubjectId.value = null
       selectedProfessorId.value = null
       selectedDateTime.value = null
+      selectedDateTime2nd.value = null
       snackbar.value.show = true
     } catch (error) {
-      // Maneja errores de la API o de conexión
-      if (error.response && error.response.data && error.response.data.detail) {
-        snackbar.value.message = error.response.data.detail
-        snackbar.value.color = 'error'
-      } else {
-        snackbar.value.message = 'Error de conexión o inesperado: ' + error.message
-        snackbar.value.color = 'error'
-      }
+      // Maneja errores de la API o de conexión para ambas llamadas
+      let errorMessage = '' // Inicializa el mensaje de error vacío
+      // Reemplaza el if/else con un operador ternario para el mensaje de error
+      errorMessage = (error.response && error.response.data && error.response.data.detail) ? error.response.data.detail : 'Error: ' + error.message
+      snackbar.value.message = errorMessage
+      snackbar.value.color = 'error'
       snackbar.value.show = true
-    } finally {
-      loading.value = false // Oculta el indicador de carga
     }
   }
 </script>

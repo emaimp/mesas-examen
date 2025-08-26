@@ -1,7 +1,7 @@
 <template>
   <v-col cols="12" sm="6">
     <v-card
-      class="mesa-card clickable"
+      :class="['mesa-card', 'clickable', cardClass]"
       :flat="true"
       @click="emit('open-registered-dialog', mesa)"
     >
@@ -19,7 +19,6 @@
 </template>
 
 <script setup>
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const props = defineProps({
     // Define la propiedad 'mesa' que es un objeto y es requerida
     mesa: {
@@ -27,13 +26,21 @@
       required: true,
       // Validador para asegurar que el objeto 'mesa' tenga las propiedades necesarias
       validator: value => {
-        return value && value.id && value.materia_nombre && value.fecha && value.profesor_nombre
+        return value && value.id && value.materia_nombre && value.fecha && value.profesor_nombre && value.estado
       },
     },
   })
 
   // Define los eventos que este componente puede emitir
   const emit = defineEmits(['open-registered-dialog'])
+
+  // Propiedad computada para determinar la clase CSS de la tarjeta según el estado de la inscripción
+  const cardClass = computed(() => {
+    if (props.mesa && props.mesa.estado === 'canceled') {
+      return 'mesa-card-canceled' // Clase para inscripciones canceladas
+    }
+    return 'mesa-card-active' // Clase para inscripciones activas
+  })
 
   /**
    * Formatea una cadena de fecha ISO a un formato legible en español
@@ -59,5 +66,15 @@
 /* Estilos para la tarjeta de la mesa de examen */
 .mesa-card {
   margin-bottom: 16px; /* Margen inferior para separar las tarjetas */
+}
+
+/* Estilos para tarjetas de inscripción activa */
+.v-card.mesa-card.mesa-card-active {
+  background: linear-gradient(to right, #0d730d, #008000) !important;
+}
+
+/* Estilos para tarjetas de inscripción cancelada */
+.v-card.mesa-card.mesa-card-canceled {
+  background: linear-gradient(to right, #a82424, #cd0000) !important;
 }
 </style>

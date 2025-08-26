@@ -12,6 +12,7 @@ export const useAppStore = defineStore('app', {
       email: null, // Correo electronico del usuario
       nombre: null, // Nombre completo del usuario
     },
+    selectedSection: null, // Sección actualmente seleccionada en el layout
   }),
   // Acciones (metodos) para modificar el estado
   actions: {
@@ -27,6 +28,10 @@ export const useAppStore = defineStore('app', {
       this.user.email = userData.email || null
       // Asigna el nombre del usuario, o null si no estan presente
       this.user.nombre = userData.nombre || null
+    },
+    // Acciones para establecer la sección seleccionada
+    setSelectedSection (section) {
+      this.selectedSection = section
     },
     // Acciones para limpiar los datos del usuario (cerrar sesión)
     async clearUser () {

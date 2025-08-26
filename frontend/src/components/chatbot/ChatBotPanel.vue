@@ -6,7 +6,7 @@
           <v-col class="fill-height" cols="12">
             <div class="message-area">
               <div v-for="(msg, index) in chatHistory" :key="index" :class="['message-bubble', msg.role]">
-                <p>{{ msg.content }}</p>
+                <p v-html="formatMessage(msg.content)" />
               </div>
               <div v-if="isLoadingBotResponse" class="message-bubble bot loading-indicator">
                 <v-progress-circular
@@ -66,6 +66,15 @@
   const isLoadingBotResponse = ref(false)
   // Función para enviar mensajes a Ollama
   const { sendOllamaMessage } = useOllamaChat()
+
+  // Función para formatear el mensaje y resaltar palabras en negrita con estilo en línea
+  const formatMessage = content => {
+    // Reemplaza: **texto**
+    let formattedContent = content.replace(/\*\*(.*?)\*\*/g, '<span style="color: #3eb3e9; font-weight: bold;">$1</span>')
+    // Reemplaza: ### texto **
+    formattedContent = formattedContent.replace(/\#\#\#\s*(.*?)\*\*/g, '<span style="color: #00d221; font-weight: bold;">$1</span>')
+    return formattedContent
+  }
 
   // Función para enviar un mensaje
   const sendMessage = async () => {

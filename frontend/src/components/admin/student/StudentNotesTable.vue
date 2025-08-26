@@ -22,13 +22,27 @@
           <tbody>
             <tr v-for="nota in notasData" :key="nota.id">
               <td class="text-left">{{ nota.materia }}</td>
-              <td class="text-center">{{ formatNota(nota.eval_1) }}</td>
-              <td class="text-center">{{ formatNota(nota.rec_1) }}</td>
-              <td class="text-center">{{ formatNota(nota.eval_2) }}</td>
-              <td class="text-center">{{ formatNota(nota.rec_2) }}</td>
-              <td class="text-center">{{ formatNota(nota.eval_3) }}</td>
-              <td class="text-center">{{ formatNota(nota.rec_3) }}</td>
-              <td class="text-center">{{ formatNota(nota.nota_prom) }}</td>
+              <td :class="['text-center', formatNota(nota.eval_1).class]">
+                {{ formatNota(nota.eval_1).value }}
+              </td>
+              <td :class="['text-center', formatNota(nota.rec_1).class]">
+                {{ formatNota(nota.rec_1).value }}
+              </td>
+              <td :class="['text-center', formatNota(nota.eval_2).class]">
+                {{ formatNota(nota.eval_2).value }}
+              </td>
+              <td :class="['text-center', formatNota(nota.rec_2).class]">
+                {{ formatNota(nota.rec_2).value }}
+              </td>
+              <td :class="['text-center', formatNota(nota.eval_3).class]">
+                {{ formatNota(nota.eval_3).value }}
+              </td>
+              <td :class="['text-center', formatNota(nota.rec_3).class]">
+                {{ formatNota(nota.rec_3).value }}
+              </td>
+              <td :class="['text-center', formatNota(nota.nota_prom).class]">
+                {{ formatNota(nota.nota_prom).value }}
+              </td>
             </tr>
           </tbody>
         </v-table>
@@ -64,15 +78,37 @@
   })
 
   /**
-   * Formatea la nota para mostrar 'N/A' si no hay nota disponible
-   * @param {number|string|null|undefined} nota - La nota a formatear
-   * @returns {string} La nota formateada o 'N/A'
+   * Formatea una nota y asigna una clase CSS basada en su valor.
+   * @param {number|string|null|undefined} nota - La nota a formatear.
+   * @returns {{value: string, class: string}} Un objeto con la nota formateada y la clase CSS.
    */
   const formatNota = nota => {
+    // Si la nota es nula, indefinida, vacía o "N/A", devuelve "N/A" con la clase 'nota-na'
     if (nota === null || nota === undefined || String(nota).trim() === '' || String(nota).toUpperCase() === 'N/A') {
-      return 'N/A'
+      return { value: 'N/A', class: 'nota-na' }
     }
-    return String(nota)
+
+    // Convierte la nota a número
+    const notaNum = Number.parseFloat(nota)
+    let className = ''
+
+    // Asigna una clase CSS según el valor numérico de la nota
+    if (Number.isNaN(notaNum)) {
+      // Si no es un número válido, devuelve la nota original con la clase 'nota-na'
+      return { value: String(nota), class: 'nota-na' }
+    } else if (notaNum >= 7) {
+      // Nota aprobada (7 o más)
+      className = 'nota-aprobada'
+    } else if (notaNum >= 4) {
+      // Nota regular (entre 4 y 6.99)
+      className = 'nota-regular'
+    } else {
+      // Nota desaprobada (menos de 4)
+      className = 'nota-desaprobada'
+    }
+
+    // Devuelve el valor de la nota y la clase asignada
+    return { value: String(notaNum), class: className }
   }
 </script>
 
@@ -92,5 +128,25 @@
 .small-text {
   font-size: 1rem !important; /* Ajusta el tamaño de fuente según sea necesario */
   font-weight: bold !important; /* Resalta el texto del encabezado */
+}
+
+/* Estilos para las notas */
+.nota-aprobada {
+  color: #4CAF50 !important; /* Verde para notas aprobadas (7 o más) */
+  font-weight: bold;
+}
+
+.nota-regular {
+  color: #FFC107 !important; /* Amarillo/Naranja para notas regulares (4 a 6.99) */
+  font-weight: bold;
+}
+
+.nota-desaprobada {
+  color: #FF2F1E !important; /* Rojo para notas desaprobadas (menos de 4) */
+  font-weight: bold;
+}
+
+.nota-na {
+  color: #9E9E9E !important; /* Gris para "N/A" */
 }
 </style>

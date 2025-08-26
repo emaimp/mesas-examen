@@ -18,7 +18,7 @@
 
                 <div v-if="loading" class="text-center">
                   <v-progress-circular indeterminate />
-                  <p>Cargando rendimiento...</p>
+                  <p>Cargando...</p>
                 </div>
                 <div v-else-if="error" class="text-center text-red">
                   <p>{{ error }}</p>

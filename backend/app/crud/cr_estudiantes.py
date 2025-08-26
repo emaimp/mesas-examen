@@ -146,8 +146,8 @@ def obtener_mesas_inscriptas(estudiante_id: int, session: Session) -> List[schem
 
     # Consulta para obtener las inscripciones del estudiante, cargando las mesas de examen y sus relaciones
     statement = (
-        select(models.Mesas_Examen, models.Usuarios)
-        .join(models.Inscripciones_Examen, models.Mesas_Examen.id == models.Inscripciones_Examen.mesa_examen_id)
+        select(models.Inscripciones_Examen, models.Mesas_Examen, models.Usuarios)
+        .join(models.Mesas_Examen, models.Inscripciones_Examen.mesa_examen_id == models.Mesas_Examen.id)
         .join(models.Usuarios, models.Inscripciones_Examen.estudiante_id == models.Usuarios.id)
         .where(models.Inscripciones_Examen.estudiante_id == estudiante_id)
         .options(
@@ -160,14 +160,16 @@ def obtener_mesas_inscriptas(estudiante_id: int, session: Session) -> List[schem
     # Mapea los resultados del esquema ExamRegistrationDetail para la respuesta
     return [
         schemas.ExamRegistrationDetail(
-            id=mesa.Mesas_Examen.id,
-            fecha=mesa.Mesas_Examen.fecha,
-            materia_nombre=mesa.Mesas_Examen.materia_nombre,
-            profesor_nombre=mesa.Mesas_Examen.profesor_nombre,
-            carrera_nombre=mesa.Mesas_Examen.carrera_nombre,
-            nombre_estudiante=mesa.Usuarios.nombre,
-            dni=mesa.Usuarios.dni,
-            libreta=mesa.Usuarios.libreta
+            id_inscripcion=inscripcion_obj.id,
+            estado=inscripcion_obj.estado,
+            id=mesa_obj.id,
+            fecha=mesa_obj.fecha,
+            materia_nombre=mesa_obj.materia_nombre,
+            profesor_nombre=mesa_obj.profesor_nombre,
+            carrera_nombre=mesa_obj.carrera_nombre,
+            nombre_estudiante=usuario_obj.nombre,
+            dni=usuario_obj.dni,
+            libreta=usuario_obj.libreta
         )
-        for mesa in results
+        for inscripcion_obj, mesa_obj, usuario_obj in results
     ]

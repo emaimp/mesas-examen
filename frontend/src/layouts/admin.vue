@@ -8,6 +8,7 @@
     >
       <v-list>
         <v-list-item
+          v-if="user"
           prepend-icon="mdi-account-circle"
           :subtitle="user.email"
           :title="user.username"
@@ -18,46 +19,62 @@
 
       <v-list density="compact" nav>
         <v-list-item
+          v-if="user"
+          :active="appStore.selectedSection === 'admin-home'"
           link
           prepend-icon="mdi-home"
           title="Inicio"
           to="/admin"
           value="admin-home"
+          @click="appStore.setSelectedSection('admin-home')"
         />
 
         <v-list-item
+          v-if="user"
+          :active="appStore.selectedSection === 'management-tables'"
           link
           prepend-icon="mdi-calendar-range"
           title="Gestión de Mesas"
           to="/admin/management-tables"
           value="management-tables"
+          @click="appStore.setSelectedSection('management-tables')"
         />
 
         <v-list-item
+          v-if="user"
+          :active="appStore.selectedSection === 'management-teacher'"
           link
           prepend-icon="mdi-account-tie"
           title="Gestión de Profesores"
           to="/admin/management-teacher"
           value="management-teacher"
+          @click="appStore.setSelectedSection('management-teacher')"
         />
 
         <v-list-item
+          v-if="user"
+          :active="appStore.selectedSection === 'management-student'"
           link
           prepend-icon="mdi-account-school"
           title="Gestión de Estudiantes"
           to="/admin/management-student"
           value="management-student"
+          @click="appStore.setSelectedSection('management-student')"
         />
 
         <v-list-item
+          v-if="user"
+          :active="appStore.selectedSection === 'admin-dashboard'"
           link
           prepend-icon="mdi-view-dashboard"
           title="Dashboard"
           to="/admin/dashboard"
           value="admin-dashboard"
+          @click="appStore.setSelectedSection('admin-dashboard')"
         />
 
         <v-list-item
+          v-if="user"
           class="upload-active"
           link
           prepend-icon="mdi-upload"
@@ -79,7 +96,11 @@
     </v-navigation-drawer>
 
     <v-main class="d-flex align-center justify-center">
-      <router-view />
+      <router-view v-slot="{ Component }">
+        <keep-alive>
+          <component :is="Component" />
+        </keep-alive>
+      </router-view>
       <AdminFileUpload ref="adminFileUpload" />
     </v-main>
 

@@ -46,11 +46,10 @@
 
     <v-dialog v-model="showInscripcionDialog" max-width="500">
       <v-card>
-        <v-card-title class="text-h5 text-center">
-          Cancelar Inscripción
+        <v-card-title class="text-h5 text-center mt-2 mx-2">
+          Mesa de Examen
         </v-card-title>
         <v-card-text v-if="selectedMesa">
-          Deseas dar de baja la siguiente mesa de examen?
           <v-list dense>
             <v-list-item>
               <v-list-item-title class="font-weight-bold">Estudiante:</v-list-item-title>
@@ -90,21 +89,22 @@
             </v-list-item>
           </v-list>
         </v-card-text>
-        <v-card-actions>
+        <v-card-actions class="mb-2 mx-2">
           <v-spacer />
           <v-btn
+            v-if="selectedMesa && selectedMesa.estado === 'active'"
             class="action-button"
             variant="outlined"
             @click="confirmInscripcion"
           >
-            Confirmar
+            Cancelar Inscripción
           </v-btn>
           <v-btn
             class="cancel-button"
             variant="text"
             @click="showInscripcionDialog = false"
           >
-            Cancelar
+            Cerrar
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -123,6 +123,7 @@
 
 <script setup>
   import { useTablesRegistered } from '../../../services/student/useTablesRegistered'
+  import { useTablesRegisteredState } from '../../../services/student/useTablesRegisteredState'
   import { useAuthUser } from '../../../services/user/useAuthUser'
   import MesaExamenCard from '../../student/examtables/ExamRegisteredCard.vue'
 
@@ -130,6 +131,8 @@
   const { fetchTablesRegistered } = useTablesRegistered()
   // Obtiene el usuario autenticado y la función para cargarlo
   const { user, fetchAuthUser } = useAuthUser()
+  // Obtiene las funciones del servicio para actualizar el estado de la inscripción
+  const { error: updateError, success: updateSuccess, updateRegistrationState } = useTablesRegisteredState()
   // Propiedad computada para obtener el ID del estudiante del usuario autenticado
   const studentId = computed(() => user.value?.id)
 
@@ -213,9 +216,41 @@
       return
     }
 
-    // Lógica para dar de baja la inscripción (actualmente solo cierra el diálogo)
-    // Aquí iría la llamada al servicio para desinscribir al estudiante
-    showInscripcionDialog.value = false
+    // Lógica para dar de baja la inscripción
+    try {
+      // Llama a la función para actualizar el estado de la inscripción a 'canceled' (cancelada)
+      await updateRegistrationState(selectedMesa.value.id_inscripcion, 'canceled')
+      // Si la actualización fue exitosa
+      if (updateSuccess.value) {
+        // Muestra un mensaje de éxito en el snackbar
+        snackbar.value = {
+          show: true,
+          message: 'Inscripción cancelada con éxito.',
+          color: 'success',
+        }
+        // Recarga las mesas de examen para reflejar el cambio
+        await loadMesas(studentId.value)
+      } else {
+        // Si hubo un error en la actualización, muestra un mensaje de error
+        snackbar.value = {
+          show: true,
+          message: updateError.value || 'Error al cancelar la inscripción.',
+          color: 'error',
+        }
+      }
+    } catch (error) {
+      // Captura y registra cualquier error inesperado durante el proceso
+      console.error('Error en confirmInscripcion:', error)
+      // Muestra un mensaje de error inesperado en el snackbar
+      snackbar.value = {
+        show: true,
+        message: 'Error inesperado al cancelar la inscripción.',
+        color: 'error',
+      }
+    } finally {
+      // Cierra el diálogo de inscripción
+      showInscripcionDialog.value = false
+    }
   }
 
   /**

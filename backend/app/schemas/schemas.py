@@ -241,6 +241,8 @@ class RegistrationExamCreate(SQLModel):
 
 # Devuelve datos especificos de una inscripción
 class ExamRegistrationDetail(TableExamDetail):
+    id_inscripcion: int
+    estado: str
     nombre_estudiante: str
     dni: str
     libreta: Optional[str] = None
@@ -251,6 +253,11 @@ class ExamDetailWithStudents(TableExamDetail):
     estudiante_nombre: str
     dni: str
     libreta: Optional[str] = None
+    estado: str
+
+# Actualiza el estado de una inscripción
+class RegistrationExamUpdateStatus(SQLModel):
+    estado: str
 
 """
 SCHEMAS: RENDIMIENTO DE UNA CARRERA

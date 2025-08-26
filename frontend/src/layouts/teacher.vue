@@ -19,6 +19,8 @@
 
       <v-list density="compact" nav>
         <v-list-item
+          v-if="user"
+          :active="appStore.selectedSection === 'teacher-profile'"
           link
           prepend-icon="mdi-account-details"
           title="Perfil"
@@ -28,6 +30,8 @@
         />
 
         <v-list-item
+          v-if="user"
+          :active="appStore.selectedSection === 'students-subject'"
           link
           prepend-icon="mdi-account-school"
           title="Estudiantes Asignados"
@@ -37,6 +41,8 @@
         />
 
         <v-list-item
+          v-if="user"
+          :active="appStore.selectedSection === 'tables-assigned'"
           link
           prepend-icon="mdi-calendar-check"
           title="Mesas Examen Asignadas"
@@ -46,6 +52,8 @@
         />
 
         <v-list-item
+          v-if="user"
+          :active="appStore.selectedSection === 'change-password'"
           link
           prepend-icon="mdi-key-variant"
           title="Cambiar Contraseña"
@@ -66,7 +74,11 @@
     </v-navigation-drawer>
 
     <v-main class="d-flex flex-grow-1 align-center justify-center">
-      <router-view />
+      <router-view v-slot="{ Component }">
+        <keep-alive>
+          <component :is="Component" />
+        </keep-alive>
+      </router-view>
     </v-main>
   </v-app>
 </template>
