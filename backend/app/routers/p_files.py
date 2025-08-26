@@ -23,3 +23,13 @@ def excel_notas(file: UploadFile = File(...), session: Session = Depends(db.get_
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="El archivo debe tener extensión .xlsx")
     file_bytes = file.file.read()
     return crud.u_files.cargar_notas_excel(file_bytes, session)
+
+#
+# Endpoint: Cargar archivo xlsx con los datos de carreras, materias, materia_carreras y correlativas
+#
+@router.post("/carreras_materias_correlativas/cargar_excel", response_model=schemas.ApiResponse)
+def excel_carreras_materias_correlativas(file: UploadFile = File(...), session: Session = Depends(db.get_session)):
+    if not file.filename.endswith('.xlsx'):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="El archivo debe tener extensión .xlsx")
+    file_bytes = file.file.read()
+    return crud.u_files.cargar_carreras_materias_correlativas_excel(file_bytes, session)

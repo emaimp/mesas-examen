@@ -10,7 +10,6 @@ from fastapi.middleware.cors import CORSMiddleware
 async def lifespan(app: FastAPI):
     db.create_db_and_tables()
     db.create_initial_admin_user()
-    db.insert_initial_registers()
     yield
 
 app = FastAPI(lifespan=lifespan)
