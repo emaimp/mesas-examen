@@ -1,5 +1,5 @@
 <template>
-  <v-container d-flex fill-height>
+  <v-container>
     <LoggedInTeacherCard />
   </v-container>
 </template>

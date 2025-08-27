@@ -41,7 +41,7 @@
         />
 
         <v-list-item
-          v-if="user"
+          v-if="false"
           :active="appStore.selectedSection === 'management-teacher'"
           link
           prepend-icon="mdi-account-tie"
@@ -52,7 +52,7 @@
         />
 
         <v-list-item
-          v-if="user"
+          v-if="false"
           :active="appStore.selectedSection === 'management-student'"
           link
           prepend-icon="mdi-account-school"
@@ -80,7 +80,6 @@
           prepend-icon="mdi-upload"
           title="Carga de Archivos"
           value="file-upload"
-          variant="tonal"
           @click="openAdminFileUploadDialog"
         />
 
@@ -90,6 +89,7 @@
           prepend-icon="mdi-logout"
           title="Cerrar Sesión"
           value="logout"
+          variant="tonal"
           @click="logout"
         />
       </v-list>
@@ -184,23 +184,11 @@
 
 /* Estilo para mantener siempre activo el item 'Carga de Archivos' */
 .upload-active {
-  background-color: rgba(61, 140, 64, 0.2) !important; /* Color de fondo con opacidad */
-  color: #3d8c40 !important; /* Color del texto y del icono */
-}
-
-/* Asegura que el icono de 'Carga de Archivos' también tome el color correcto */
-.upload-active .v-icon {
-  color: #3d8c40 !important;
+  color: rgba(20, 180, 20, 0.9) !important; /* Color del texto y del icono */
 }
 
 /* Estilo para mantener siempre activo el item 'Cerrar Sesión' */
 .logout-active {
-  background-color: rgba(128, 0, 0, 0.2) !important; /* Color de fondo con opacidad */
-  color: #800000 !important; /* Color del texto y del icono */
-}
-
-/* Asegura que el icono de 'Cerrar Sesión' también tome el color correcto */
-.logout-active .v-icon {
-  color: #800000 !important;
+  color: rgba(255, 0, 0, 0.9) !important; /* Color del texto y del icono */
 }
 </style>

@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <v-row justify="center">
-      <v-col class="d-flex align-center justify-center" cols="12" lg="6" md="6">
+      <v-col cols="12" lg="6" md="8" sm="10">
         <v-card class="pa-6 flex-grow-1">
           <v-card-title class="text-h5 my-7 text-center">
             Rendimiento de una Carrera

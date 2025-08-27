@@ -15,7 +15,7 @@
           @click:clear="clearFile"
         />
       </v-card-text>
-      <v-card-actions>
+      <v-card-actions class="mb-2 mx-2">
         <v-spacer />
         <v-btn
           class="action-button"

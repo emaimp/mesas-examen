@@ -10,36 +10,38 @@
   $color-pack: false
 );
 
-/* Gradiente para el v-overlay (desenfoque) */
-.v-overlay__scrim {
-  background: linear-gradient(to right, #1576be, #2271b3) !important;
-  opacity: 0.93 !important;
-}
-
 /* Gradiente para el v-application (fondo de la página) */
 .v-application {
-  background: linear-gradient(to right,  #1576be, #2271b3) !important;
+  background: url('/src/assets/backgroud.png') !important;
+  background-size: cover !important;
+}
+
+/* Gradiente para el v-overlay (desenfoque) */
+.v-overlay__scrim {
+  background: linear-gradient(to right, #4577a2, #2e6494) !important;
+  opacity: 0.93 !important;
 }
 
 /* Gradiente para el v-card (containers) */
 .v-card {
   background: linear-gradient(to right, #1f5d8b, #0e4c7a) !important;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.8) !important;
+  box-shadow: 10px 10px 5px rgba(0, 0, 0, 0.5) !important;
+  border: 1px solid white !important;
 }
 
 /* Gradiente para el v-expansion-panel-title (titulo del expansion-panel) */
 .v-expansion-panel-title {
-  background: linear-gradient(to right, #31446f, #0096d2) !important
+  background: linear-gradient(to right, #0d1c38) !important
 }
 
 /* Transpariencia para el v-list (lista de elementos) */
 .v-list {
-  background: linear-gradient(to right, #1f5d8b, #0e4c7a) !important;
+  background: linear-gradient(to right, #0d1c38) !important;
 }
 
 /* Transpariencia para el v-navigation-drawer (barra lateral) */
 .v-navigation-drawer {
-  background: linear-gradient(to right, #1f5d8b, #0e4c7a) !important;
+  background: linear-gradient(to right, #0d1c38) !important;
 }
 
 /* Transpariencia para el v-file-upload (carga de archivos) */
@@ -49,10 +51,17 @@
 
 /* Estilo para botones de acción */
 .action-button {
-  background: #3eb3e9 !important;
+  background: #0d1c38 !important;
 }
 
 /* Estilo para botones de cancelación */
 .cancel-button {
   background: #800000 !important;
+}
+
+/* Mejoras de nitidez de fuente */
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }

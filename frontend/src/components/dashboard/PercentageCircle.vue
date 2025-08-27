@@ -4,7 +4,7 @@
       :color="color"
       :model-value="animatedValue"
       :rotate="360"
-      :size="200"
+      :size="circleSize"
       :width="30"
     >
       <template #default> {{ animatedValue }} % </template>
@@ -13,6 +13,8 @@
 </template>
 
 <script setup>
+  import { useDisplay } from 'vuetify'
+
   // Define las propiedades que este componente puede recibir
   const props = defineProps({
     value: { // El valor numérico que representa el porcentaje
@@ -24,6 +26,17 @@
       type: String,
       default: 'teal',
     },
+  })
+
+  // Obtiene el objeto de display de Vuetify para acceder a los breakpoints
+  const display = useDisplay()
+
+  // Propiedad computada para determinar el tamaño del círculo basado en el tamaño de la pantalla
+  const circleSize = computed(() => {
+    if (display.smAndDown.value) {
+      return 150 // Tamaño más pequeño para pantallas pequeñas
+    }
+    return 200 // Tamaño predeterminado para pantallas medianas y grandes
   })
 
   // Estado reactivo para el valor animado del porcentaje
