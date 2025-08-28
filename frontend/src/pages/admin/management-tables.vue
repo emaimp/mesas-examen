@@ -133,12 +133,6 @@
       dateToFormat1st = new Date(selectedDateTime.value)
     }
     const formattedDate1st = formatDateToBackend(dateToFormat1st) // Formatea la fecha para el backend
-    // Prepara los datos de la mesa para enviar a la API
-    const mesaData1st = {
-      materia_carrera_id: Number.parseInt(selectedSubjectId.value),
-      profesor_id: Number.parseInt(selectedProfessorId.value),
-      fecha: formattedDate1st,
-    }
 
     // Lógica para el segundo llamado
     let dateToFormat2nd = selectedDateTime2nd.value
@@ -147,21 +141,21 @@
       dateToFormat2nd = new Date(selectedDateTime2nd.value)
     }
     const formattedDate2nd = formatDateToBackend(dateToFormat2nd) // Formatea la fecha para el backend
+
     // Prepara los datos de la mesa para enviar a la API
-    const mesaData2nd = {
+    const mesaData = {
       materia_carrera_id: Number.parseInt(selectedSubjectId.value),
       profesor_id: Number.parseInt(selectedProfessorId.value),
-      fecha: formattedDate2nd,
+      primer_llamado: formattedDate1st,
+      segundo_llamado: formattedDate2nd,
     }
 
     try {
-      // Llama al servicio para crear la primera mesa
-      const response1st = await createTable(mesaData1st)
-      // Llama al servicio para crear la segunda mesa
-      const response2nd = await createTable(mesaData2nd)
+      // Llama al servicio para crear la mesa con ambos llamados
+      const response = await createTable(mesaData)
 
       // Muestra un mensaje de éxito y limpia el formulario
-      snackbar.value.message = `Primer llamado: ${response1st.message || 'Creado con éxito.'} Segundo llamado: ${response2nd.message || 'Creado con éxito.'}`
+      snackbar.value.message = response.message || 'Primera y Segunda mesas de examen creadas con exito'
       snackbar.value.color = 'success'
       selectedCareerId.value = null
       selectedSubjectId.value = null

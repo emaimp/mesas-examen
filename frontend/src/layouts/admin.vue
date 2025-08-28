@@ -75,6 +75,17 @@
 
         <v-list-item
           v-if="user"
+          :active="appStore.selectedSection === 'change-password'"
+          link
+          prepend-icon="mdi-key-variant"
+          title="Cambiar Contraseña"
+          to="/admin/change-password"
+          value="change-password"
+          @click="appStore.setSelectedSection('change-password')"
+        />
+
+        <v-list-item
+          v-if="user"
           class="upload-active"
           link
           prepend-icon="mdi-upload"

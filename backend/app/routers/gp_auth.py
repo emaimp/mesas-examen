@@ -1,8 +1,8 @@
 from app import db, core, crud, models, schemas
 from typing import Annotated
 from sqlmodel import Session
-from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
+from fastapi import APIRouter, HTTPException, Depends, status
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
@@ -35,3 +35,25 @@ def registra_usuario(user_in: schemas.UserCreate, session: Annotated[Session, De
 @router.post("/token", response_model=schemas.Token)
 async def token_acceso(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], session: Annotated[Session, Depends(db.get_session)]):
     return await core.security.login_for_access_token(form_data, session)
+
+#
+# Endpoint: Cambia la contraseña del usuario actual
+#
+@router.put("/users/me/password", response_model=schemas.ApiResponse, status_code=status.HTTP_200_OK)
+async def change_password(
+    password_change: schemas.UserPasswordChange,
+    current_user: Annotated[models.Usuarios, Depends(core.get_current_user)],
+    session: Annotated[Session, Depends(db.get_session)]
+):
+    try:
+        crud.cr_usuarios.update_user_password(
+            session=session,
+            user_id=current_user.id,
+            current_password=password_change.current_password,
+            new_password=password_change.new_password
+        )
+        return schemas.ApiResponse(success=True, message="Contraseña actualizada exitosamente.")
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error interno del servidor: {e}")

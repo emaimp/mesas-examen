@@ -69,19 +69,37 @@
                 selectedEstudiante.materia_nombre
               }}</v-list-item-subtitle>
             </v-list-item>
+            <v-list-item>
+              <v-list-item-title class="font-weight-bold">Llamado:</v-list-item-title>
+              <v-list-item-subtitle>{{
+                selectedEstudiante.llamado_inscrito === 'primer_llamado' ? 'Primer Llamado' : 'Segundo Llamado'
+              }}</v-list-item-subtitle>
+            </v-list-item>
+            <v-list-item>
+              <v-list-item-title class="font-weight-bold">Tipo de Inscripción:</v-list-item-title>
+              <v-list-item-subtitle>{{
+                formatTipoInscripcion(selectedEstudiante.tipo_inscripcion)
+              }}</v-list-item-subtitle>
+            </v-list-item>
+            <v-list-item>
+              <v-list-item-title class="font-weight-bold">Fecha y Hora:</v-list-item-title>
+              <v-list-item-subtitle>{{
+                formatFechaHora(selectedEstudiante.fecha_llamado)
+              }}</v-list-item-subtitle>
+            </v-list-item>
             <v-list-item class="mb-10">
               <v-list-item-title class="font-weight-bold">Carrera:</v-list-item-title>
               <v-list-item-subtitle>{{
                 selectedEstudiante.carrera_nombre
               }}</v-list-item-subtitle>
             </v-list-item>
-            <v-list-item style="overflow: visible; padding-top: 10px;">
+            <v-list-item>
               <v-text-field
                 v-model="studentGrade"
                 label="Nota del Estudiante"
                 max="10"
                 min="0"
-                style="margin-top: 10px;"
+                style="margin-top: 17px;"
                 type="number"
                 variant="outlined"
               />
@@ -169,6 +187,17 @@
   }
 
   /**
+   * Formatea una fecha y hora a un string legible.
+   * @param {string | Date} fecha - La fecha a formatear.
+   * @returns {string} La fecha y hora formateada.
+   */
+  const formatFechaHora = fecha => {
+    if (!fecha) return 'N/A'
+    const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }
+    return new Date(fecha).toLocaleDateString('es-ES', options)
+  }
+
+  /**
    * Abre el diálogo de detalles con el estudiante seleccionado
    * Esta función es llamada por el evento 'open-registered-dialog' de StudentRegisteredCard
    * @param {Object} estudiante - El objeto del estudiante seleccionado
@@ -211,11 +240,27 @@
 
       // Agrupa los estudiantes activos por año de la fecha de la mesa
       const groupedEstudiantes = activeEstudiantes.reduce((acc, estudiante) => {
-        const anio = new Date(estudiante.fecha).getFullYear()
+        // Crear una copia del estudiante y ajustar las propiedades para StudentRegisteredCard
+        const estudianteParaCard = { ...estudiante }
+
+        // Mapear estudiante_nombre a nombre_estudiante
+        estudianteParaCard.nombre_estudiante = estudiante.estudiante_nombre || 'Desconocido'
+        // Directamente usar los campos del backend
+        estudianteParaCard.llamado_inscrito = estudiante.llamado_inscrito || 'Desconocido'
+        estudianteParaCard.fecha_llamado = estudiante.fecha_llamado || null
+        // Añadir libreta, dni, carrera_nombre, materia_nombre si no existen
+        estudianteParaCard.libreta = estudiante.libreta || 'N/A'
+        estudianteParaCard.dni = estudiante.dni || 'N/A'
+        estudianteParaCard.carrera_nombre = estudiante.carrera_nombre || 'Desconocida'
+        estudianteParaCard.materia_nombre = estudiante.materia_nombre || 'Desconocida'
+
+        const fechaLlamadoParaAgrupar = estudianteParaCard.fecha_llamado ? new Date(estudianteParaCard.fecha_llamado) : null
+        const anio = fechaLlamadoParaAgrupar && !Number.isNaN(fechaLlamadoParaAgrupar.getFullYear()) ? fechaLlamadoParaAgrupar.getFullYear() : 'Desconocido'
+
         if (!acc[anio]) {
           acc[anio] = { anio, estudiantes: [] }
         }
-        acc[anio].estudiantes.push(estudiante)
+        acc[anio].estudiantes.push(estudianteParaCard) // Usar el objeto modificado
         return acc
       }, {})
       // Convierte el objeto agrupado en un array de valores
@@ -246,6 +291,16 @@
       openPanels.value = sortedEstudiantesAgrupadosPorAnio.value.length > 0 ? [0] : []
     }
   }, { immediate: true }) // Ejecuta el watcher inmediatamente al montar el componente
+
+  /**
+   * Formatea el tipo de inscripción para mostrar la primera letra en mayúscula
+   * @param {string} tipo - El tipo de inscripción (ej. "libre", "regular")
+   * @returns {string} El tipo de inscripción formateado (ej. "Libre", "Regular")
+   */
+  const formatTipoInscripcion = tipo => {
+    if (!tipo) return ''
+    return tipo.charAt(0).toUpperCase() + tipo.slice(1)
+  }
 </script>
 
 <style scoped>

@@ -33,9 +33,9 @@
           <div class="transparent-expansion-panel-content">
             <v-row dense>
               <MesaExamenCard
-                v-for="mesa in anioData.mesas"
-                :key="mesa.id"
-                :mesa="mesa"
+                v-for="mesaLlamado in flatMesasPorLlamado"
+                :key="mesaLlamado.unique_key"
+                :mesa="mesaLlamado"
                 @open-inscripcion-dialog="openInscripcionDialog"
               />
             </v-row>
@@ -141,6 +141,37 @@
     )
   })
 
+  // Propiedad computada para aplanar y separar las mesas por llamado
+  const flatMesasPorLlamado = computed(() => {
+    const allLlamados = []
+    // Verifica si hay mesas agrupadas por año
+    if (Array.isArray(mesasAgrupadasPorAnio.value)) {
+      // Itera sobre cada año de mesas
+      for (const anioData of mesasAgrupadasPorAnio.value) {
+        // Itera sobre cada mesa de examen dentro de un año
+        for (const mesa of anioData.mesas) {
+          if (mesa.primer_llamado) { // Si existe un primer llamado para esta mesa...
+            allLlamados.push({ // ...agrega un nuevo objeto al array 'allLlamados'
+              ...mesa, // Copia todas las propiedades de la mesa original
+              fecha: mesa.primer_llamado, // Establece la fecha
+              tipo_llamado: 'Primer Llamado', // Indica el llamado
+              unique_key: `${mesa.id}_primer`, // Genera una clave única
+            })
+          }
+          if (mesa.segundo_llamado) { // Si existe un segundo llamado para esta mesa...
+            allLlamados.push({ // ...agrega otro nuevo objeto al array 'allLlamados'
+              ...mesa, // Copia todas las propiedades de la mesa original
+              fecha: mesa.segundo_llamado, // Establece la fecha
+              tipo_llamado: 'Segundo Llamado', // Indica el llamado
+              unique_key: `${mesa.id}_segundo`, // Genera una clave única
+            })
+          }
+        }
+      }
+    }
+    return allLlamados // Retorna la lista aplanada de todos los llamados
+  })
+
   /**
    * Formatea una cadena de fecha ISO a un formato legible en español
    * @param {string} isoString - La cadena de fecha en formato ISO
@@ -197,11 +228,12 @@
     }
 
     const mesaId = selectedMesa.value.id
+    const llamadoInscrito = selectedMesa.value.tipo_llamado === 'Primer Llamado' ? 'primer_llamado' : 'segundo_llamado'
     inscripcionLoading.value = { ...inscripcionLoading.value, [mesaId]: true } // Activa el estado de carga
 
     try {
       // Llama al servicio para registrar al estudiante
-      const result = await RegisterStudentToTable(studentId.value, mesaId)
+      const result = await RegisterStudentToTable(studentId.value, mesaId, llamadoInscrito)
 
       // Muestra un mensaje de éxito o error
       snackbar.value = {

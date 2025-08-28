@@ -9,6 +9,9 @@
         {{ mesa.materia_nombre }}
       </v-card-title>
       <v-card-subtitle class="pt-0 pb-2">
+        {{ mesa.tipo_llamado }}
+      </v-card-subtitle>
+      <v-card-subtitle class="pt-0 pb-2">
         {{ formatFechaHora(mesa.fecha) }}
       </v-card-subtitle>
     </v-card>
@@ -24,7 +27,7 @@
       required: true,
       // Validador para asegurar que el objeto 'mesa' tenga las propiedades necesarias
       validator: value => {
-        return value && value.id && value.materia_nombre && value.fecha && value.profesor_nombre
+        return value && value.id && value.materia_nombre && value.fecha && value.profesor_nombre && value.tipo_llamado
       },
     },
   })

@@ -222,12 +222,14 @@ TABLA: MESAS EXAMEN
 class Mesas_Examen(SQLModel, table=True):
     # Restricción de unicidad para asegurar que no haya dos mesas para la misma materia en la misma fecha
     __table_args__ = (
-        UniqueConstraint("materia_carrera_id", "fecha", name="uq_mesa_fecha"),
+        UniqueConstraint("materia_carrera_id", "primer_llamado", name="uq_mesa_primer_llamado"),
+        UniqueConstraint("materia_carrera_id", "segundo_llamado", name="uq_mesa_segundo_llamado"),
     )
     id: int = Field(default=None, primary_key=True)
     materia_carrera_id: int = Field(foreign_key="materia_carreras.id") # ID de materia_carrera (FK a Materia_Carreras)
     profesor_id: int = Field(foreign_key="usuarios.id") # ID del profesor (FK a Usuarios)
-    fecha: datetime
+    primer_llamado: datetime
+    segundo_llamado: datetime
 
     # Relaciones con otras tablas
     # Referencia al usuario con el rol de profesor
@@ -264,6 +266,14 @@ class Inscripciones_Examen(SQLModel, table=True):
     estudiante_id: int = Field(foreign_key="usuarios.id") # ID del estudiante (FK a Usuarios)
     mesa_examen_id: int = Field(foreign_key="mesas_examen.id") # ID de la mesa de examen (FK a Mesas_Examen)
     fecha_inscripcion: datetime = Field(default_factory=datetime.utcnow) # Fecha y hora de la inscripción
+    llamado_inscrito: str = Field(max_length=20) # "primer_llamado" o "segundo_llamado"
+
+    # Enumeración para el tipo de inscripción
+    class TipoInscripcion(str, Enum):
+        libre = "libre"
+        regular = "regular"
+
+    tipo_inscripcion: Optional[str] = Field(default=None, max_length=10) # "libre" o "regular"
 
     # Relaciones con otras tablas
     # Referencia al usuario con el rol de estudiante

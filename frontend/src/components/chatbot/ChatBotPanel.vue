@@ -1,7 +1,7 @@
 <template>
-  <v-card class="d-flex flex-column" height="100%">
+  <v-card class="d-flex flex-column chatbot-card" height="100%">
     <v-card-text class="flex-grow-1 overflow-y-auto pa-0">
-      <v-container class="fill-height" fluid>
+      <v-container class="fill-height chatbot-container" fluid>
         <v-row class="fill-height">
           <v-col class="fill-height" cols="12">
             <div class="message-area">
@@ -28,7 +28,7 @@
         v-model="message"
         auto-grow
         autocomplete="off"
-        bg-color="#009090"
+        bg-color="#4577a2"
         class="mr-0 mx-6"
         density="compact"
         placeholder="Escribe un mensaje..."
@@ -130,7 +130,7 @@
   border-radius: 4px; /* Bordes redondeados */
   display: flex; /* Usa flexbox para organizar los mensajes */
   flex-direction: column; /* Organiza los mensajes en columna */
-  background-color: rgba(25, 45, 57, 0.3); /* Color de fondo */
+  background-color: rgba(14, 76, 122); /* Color de fondo */
 }
 
 /* Burbuja de mensaje individual */
@@ -144,7 +144,7 @@
 
 /* Estilos para las burbujas de mensajes del usuario */
 .message-bubble.user {
-  background-color: #009090; /* Color de fondo para mensajes del usuario */
+  background-color: #4577a2; /* Color de fondo para mensajes del usuario */
   align-self: flex-end; /* Alinea la burbuja a la derecha */
   text-align: right; /* Alinea el texto a la derecha */
 }
@@ -162,5 +162,20 @@
   align-items: center; /* Centra verticalmente los elementos */
   font-style: italic; /* Texto en cursiva */
   color: #ffffff; /* Color del texto */
+}
+
+/* Eliminar el borde del v-card específico del chatbot */
+.chatbot-card {
+  border: none !important;
+}
+
+/* Cambia el color de fondo del v-container específico del chatbot */
+.chatbot-container {
+  background-color: #0d1c38 !important; /* Cambiar el color de fondo del v-container */
+}
+
+/* Cambia el color de fondo del v-card-actions específico del chatbot */
+.v-card-actions {
+  background-color: #0d1c38 !important; /* Cambiar el color de fondo del v-card-actions */
 }
 </style>

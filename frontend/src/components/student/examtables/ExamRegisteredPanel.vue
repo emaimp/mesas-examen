@@ -82,9 +82,21 @@
               }}</v-list-item-subtitle>
             </v-list-item>
             <v-list-item>
+              <v-list-item-title class="font-weight-bold">Llamado:</v-list-item-title>
+              <v-list-item-subtitle>{{
+                selectedMesa.llamado_inscrito === 'primer_llamado' ? 'Primer Llamado' : 'Segundo Llamado'
+              }}</v-list-item-subtitle>
+            </v-list-item>
+            <v-list-item>
+              <v-list-item-title class="font-weight-bold">Tipo de Inscripción:</v-list-item-title>
+              <v-list-item-subtitle>{{
+                formatTipoInscripcion(selectedMesa.tipo_inscripcion)
+              }}</v-list-item-subtitle>
+            </v-list-item>
+            <v-list-item>
               <v-list-item-title class="font-weight-bold">Fecha y Hora:</v-list-item-title>
               <v-list-item-subtitle>{{
-                formatFechaHora(selectedMesa.fecha)
+                formatFechaHora(selectedMesa.fecha_llamado)
               }}</v-list-item-subtitle>
             </v-list-item>
           </v-list>
@@ -268,7 +280,7 @@
       const responseData = await fetchTablesRegistered(currentStudentId)
       // Agrupa las mesas por año
       const groupedMesas = responseData.reduce((acc, mesa) => {
-        const anio = new Date(mesa.fecha).getFullYear()
+        const anio = new Date(mesa.fecha_llamado).getFullYear()
         if (!acc[anio]) {
           acc[anio] = { anio, mesas: [] }
         }
@@ -299,6 +311,16 @@
     // Abre el primer panel de expansión si hay mesas disponibles
     openPanels.value = sortedMesasAgrupadasPorAnio.value.length > 0 ? [0] : []
   })
+
+  /**
+   * Formatea el tipo de inscripción para mostrar la primera letra en mayúscula
+   * @param {string} tipo - El tipo de inscripción (ej. "libre", "regular")
+   * @returns {string} El tipo de inscripción formateado (ej. "Libre", "Regular")
+   */
+  const formatTipoInscripcion = tipo => {
+    if (!tipo) return ''
+    return tipo.charAt(0).toUpperCase() + tipo.slice(1)
+  }
 </script>
 
 <style scoped>

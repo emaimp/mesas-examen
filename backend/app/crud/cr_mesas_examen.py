@@ -29,8 +29,8 @@ def mesas_examen_por_nota(estudiante_id: int, session: Session) -> List[schemas.
         ))
         # Filtra las mesas de examen por fecha
         .where(
-            models.Mesas_Examen.fecha >= hoy,
-            models.Mesas_Examen.fecha <= tres_meses,
+            models.Mesas_Examen.primer_llamado >= hoy,
+            models.Mesas_Examen.primer_llamado <= tres_meses,
         )
         # Carga relaciones anidadas para optimizar el acceso a datos
         .options(
@@ -39,7 +39,7 @@ def mesas_examen_por_nota(estudiante_id: int, session: Session) -> List[schemas.
             selectinload(models.Mesas_Examen.profesor_usuario)
         )
         # Ordena los resultados
-        .order_by(models.Materia_Carreras.anio, models.Materias.nombre, models.Mesas_Examen.fecha)
+        .order_by(models.Materia_Carreras.anio, models.Materias.nombre, models.Mesas_Examen.primer_llamado)
     )
 
     # Ejecuta la consulta
@@ -54,7 +54,8 @@ def mesas_examen_por_nota(estudiante_id: int, session: Session) -> List[schemas.
         agrupado[anio].append(
             schemas.TableExamDetail(
                 id=mesa.id,
-                fecha=mesa.fecha,
+                primer_llamado=mesa.primer_llamado,
+                segundo_llamado=mesa.segundo_llamado,
                 materia_nombre=mesa.materia_nombre,
                 profesor_nombre=mesa.profesor_nombre,
                 carrera_nombre=mesa.carrera_nombre
@@ -88,11 +89,13 @@ def mesas_examen_por_profesor(profesor_id: int, session: Session) -> List[schema
     return [
         schemas.ExamDetailWithStudents(
             id=mesa_examen.id,
-            fecha=mesa_examen.fecha,
-            profesor_id=mesa_examen.profesor_id,
+            fecha_llamado=mesa_examen.primer_llamado if inscripcion.llamado_inscrito == "primer_llamado" else mesa_examen.segundo_llamado,
+            llamado_inscrito=inscripcion.llamado_inscrito,
+            tipo_inscripcion=inscripcion.tipo_inscripcion,
             materia_nombre=mesa_examen.materia_nombre,
             profesor_nombre=mesa_examen.profesor_nombre,
             carrera_nombre=mesa_examen.carrera_nombre,
+            profesor_id=mesa_examen.profesor_id,
             estudiante_nombre=usuario_estudiante.nombre,
             dni=usuario_estudiante.dni,
             libreta=usuario_estudiante.libreta,
@@ -132,29 +135,20 @@ def crear_mesa_examen(session: Session, data: schemas.TableExamCreate) -> models
     if not profesor_en_carrera:
         raise HTTPException(status_code=400, detail="El profesor seleccionado no está asignado a ninguna materia de esta carrera")
 
-    # Extrae el año y el mes de la fecha proporcionada
-    fecha_mesa = data.fecha
-    primer_dia_mes = fecha_mesa.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    # Extrae el año y el mes de la fecha del primer llamado
+    fecha_mesa_primer_llamado = data.primer_llamado
+    primer_dia_mes = fecha_mesa_primer_llamado.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
     # Calcula el último día del mes
-    if fecha_mesa.month == 12:
-        ultimo_dia_mes = fecha_mesa.replace(year=fecha_mesa.year + 1, month=1, day=1) - timedelta(microseconds=1)
+    if fecha_mesa_primer_llamado.month == 12:
+        ultimo_dia_mes = fecha_mesa_primer_llamado.replace(year=fecha_mesa_primer_llamado.year + 1, month=1, day=1) - timedelta(microseconds=1)
     else:
-        ultimo_dia_mes = fecha_mesa.replace(month=fecha_mesa.month + 1, day=1) - timedelta(microseconds=1)
-
-    # Extrae el año y el mes de la fecha proporcionada
-    fecha_mesa = data.fecha
-    primer_dia_mes = fecha_mesa.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-    # Calcula el último día del mes
-    if fecha_mesa.month == 12:
-        ultimo_dia_mes = fecha_mesa.replace(year=fecha_mesa.year + 1, month=1, day=1) - timedelta(microseconds=1)
-    else:
-        ultimo_dia_mes = fecha_mesa.replace(month=fecha_mesa.month + 1, day=1) - timedelta(microseconds=1)
+        ultimo_dia_mes = fecha_mesa_primer_llamado.replace(month=fecha_mesa_primer_llamado.month + 1, day=1) - timedelta(microseconds=1)
 
     # Verifica cuántas mesas de examen existen para la misma materia/carrera en el mismo mes
     existing_mesas_count_statement = select(models.Mesas_Examen).where(
         models.Mesas_Examen.materia_carrera_id == data.materia_carrera_id,
-        models.Mesas_Examen.fecha >= primer_dia_mes,
-        models.Mesas_Examen.fecha <= ultimo_dia_mes
+        models.Mesas_Examen.primer_llamado >= primer_dia_mes,
+        models.Mesas_Examen.primer_llamado <= ultimo_dia_mes
     )
     existing_mesas = session.exec(existing_mesas_count_statement).all()
 
@@ -265,8 +259,21 @@ def inscribir_a_mesa_examen(session: Session, data: schemas.RegistrationExamCrea
                 if not nota or nota.nota_prom < 4.0:
                     return schemas.ApiResponse(success=False, errors=["No cumple las correlativas"])
         
-        # 8. Registra la inscripción si todas las validaciones son correctas
-        nueva_inscripcion = models.Inscripciones_Examen.model_validate(data)
+        # 8. Determina el tipo de inscripción (libre o regular)
+        tipo_inscripcion = None
+        if nota_actual:
+            if nota_actual.nota_prom < 4.0:
+                tipo_inscripcion = models.Inscripciones_Examen.TipoInscripcion.libre.value
+            elif 4.0 <= nota_actual.nota_prom < 7.0:
+                tipo_inscripcion = models.Inscripciones_Examen.TipoInscripcion.regular.value
+        
+        # 9. Registra la inscripción si todas las validaciones son correctas
+        nueva_inscripcion = models.Inscripciones_Examen(
+            estudiante_id=data.estudiante_id,
+            mesa_examen_id=data.mesa_examen_id,
+            llamado_inscrito=data.llamado_inscrito,
+            tipo_inscripcion=tipo_inscripcion # Asigna el tipo de inscripción
+        )
         
         session.add(nueva_inscripcion)
         session.commit()
@@ -279,7 +286,9 @@ def inscribir_a_mesa_examen(session: Session, data: schemas.RegistrationExamCrea
                 "id": nueva_inscripcion.id,
                 "estudiante_id": nueva_inscripcion.estudiante_id,
                 "mesa_examen_id": nueva_inscripcion.mesa_examen_id,
-                "fecha_inscripcion": nueva_inscripcion.fecha_inscripcion.isoformat()
+                "fecha_inscripcion": nueva_inscripcion.fecha_inscripcion.isoformat(),
+                "llamado_inscrito": nueva_inscripcion.llamado_inscrito,
+                "tipo_inscripcion": nueva_inscripcion.tipo_inscripcion
             }
         )
     except HTTPException as e:

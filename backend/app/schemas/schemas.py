@@ -54,6 +54,11 @@ class UserResponse(UserBase):
     class Config:
         from_attributes = True
 
+# Cambia la contraseña de un usuario
+class UserPasswordChange(SQLModel):
+    current_password: str
+    new_password: str
+
 """
 SCHEMAS: ESTUDIANTES
 """
@@ -212,12 +217,14 @@ SCHEMAS: MESAS EXAMEN
 class TableExamCreate(SQLModel):
     materia_carrera_id: int
     profesor_id: int
-    fecha: datetime
+    primer_llamado: datetime
+    segundo_llamado: datetime
 
 # Devuelve datos especificos de una mesa
 class TableExamDetail(SQLModel):
     id: int
-    fecha: datetime
+    primer_llamado: datetime
+    segundo_llamado: datetime
     materia_nombre: str
     profesor_nombre: str
     carrera_nombre: str
@@ -238,22 +245,40 @@ SCHEMAS: INSCRIPCIONES EXAMEN
 class RegistrationExamCreate(SQLModel):
     estudiante_id: int
     mesa_examen_id: int
+    llamado_inscrito: str
+    tipo_inscripcion: Optional[str] = None
 
 # Devuelve datos especificos de una inscripción
-class ExamRegistrationDetail(TableExamDetail):
+class ExamRegistrationDetail(SQLModel):
     id_inscripcion: int
     estado: str
+    id: int
+    llamado_inscrito: str
+    tipo_inscripcion: Optional[str] = None
+    fecha_llamado: datetime
+    materia_nombre: str
+    profesor_nombre: str
+    carrera_nombre: str
     nombre_estudiante: str
     dni: str
     libreta: Optional[str] = None
 
 # Devuelve las mesas de examen con los estudiantes inscriptos
-class ExamDetailWithStudents(TableExamDetail):
+class ExamDetailWithStudents(SQLModel):
+    id: int
+    fecha_llamado: datetime
+    llamado_inscrito: str
+    tipo_inscripcion: Optional[str] = None
+    materia_nombre: str
+    profesor_nombre: str
+    carrera_nombre: str
     profesor_id: int
     estudiante_nombre: str
     dni: str
     libreta: Optional[str] = None
     estado: str
+    class Config:
+        from_attributes = True
 
 # Actualiza el estado de una inscripción
 class RegistrationExamUpdateStatus(SQLModel):

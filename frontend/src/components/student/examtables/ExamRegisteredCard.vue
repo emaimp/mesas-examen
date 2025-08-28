@@ -9,7 +9,10 @@
         {{ mesa.materia_nombre }}
       </v-card-title>
       <v-card-subtitle class="pt-0 pb-2">
-        {{ formatFechaHora(mesa.fecha) }}
+        Tipo de Inscripción: {{ formatTipoInscripcion(mesa.tipo_inscripcion) }}
+      </v-card-subtitle>
+      <v-card-subtitle class="pt-0 pb-2">
+        {{ mesa.llamado_inscrito === 'primer_llamado' ? 'Primer Llamado' : 'Segundo Llamado' }}: {{ formatFechaHora(mesa.fecha_llamado) }}
       </v-card-subtitle>
       <v-card-text class="pt-0 pb-2">
         Profesor: {{ mesa.profesor_nombre }}
@@ -26,7 +29,7 @@
       required: true,
       // Validador para asegurar que el objeto 'mesa' tenga las propiedades necesarias
       validator: value => {
-        return value && value.id && value.materia_nombre && value.fecha && value.profesor_nombre && value.estado
+        return value && value.id && value.materia_nombre && value.fecha_llamado && value.llamado_inscrito && value.profesor_nombre && value.estado && value.tipo_inscripcion
       },
     },
   })
@@ -59,6 +62,16 @@
       hour12: false,
     }
     return date.toLocaleDateString('es-ES', options)
+  }
+
+  /**
+   * Formatea el tipo de inscripción para mostrar la primera letra en mayúscula
+   * @param {string} tipo - El tipo de inscripción (ej. "libre", "regular")
+   * @returns {string} El tipo de inscripción formateado (ej. "Libre", "Regular")
+   */
+  const formatTipoInscripcion = tipo => {
+    if (!tipo) return ''
+    return tipo.charAt(0).toUpperCase() + tipo.slice(1)
   }
 </script>
 
