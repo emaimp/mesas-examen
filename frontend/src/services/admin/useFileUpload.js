@@ -172,7 +172,7 @@ export function useFileUpload () {
   }
 
   return {
-    // Expone las funciones para subir archivos de usuarios, notas y plan_estudios
+    // Expone las funciones para ser usadas en otros componentes
     uploadUsersXLSX,
     uploadGradesXLSX,
     uploadPlanEstudiosXLSX,

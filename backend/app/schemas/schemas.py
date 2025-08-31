@@ -217,24 +217,41 @@ SCHEMAS: MESAS EXAMEN
 class TableExamCreate(SQLModel):
     materia_carrera_id: int
     profesor_id: int
-    primer_llamado: datetime
-    segundo_llamado: datetime
+    primer_llamado: Optional[datetime] = None
+    segundo_llamado: Optional[datetime] = None
 
-# Devuelve datos especificos de una mesa
+# Devuelve datos especificos de una mesa de examen
 class TableExamDetail(SQLModel):
     id: int
-    primer_llamado: datetime
-    segundo_llamado: datetime
+    primer_llamado: Optional[datetime] = None
+    segundo_llamado: Optional[datetime] = None
     materia_nombre: str
     profesor_nombre: str
     carrera_nombre: str
     class Config:
         from_attributes = True
 
-# Agrupa las mesas por añio
+# Devuelve las mesas de examen agrupadas por añio
 class TablesExamPerNote(SQLModel):
     anio: int
     mesas: List[TableExamDetail]
+    class Config:
+        from_attributes = True
+
+# Devuelve datos especificos de una mesa de examen dentro de una carrera
+class TableExamPerCareerDetail(SQLModel):
+    id: int
+    primer_llamado: Optional[datetime] = None
+    segundo_llamado: Optional[datetime] = None
+    materia_nombre: str
+    profesor_nombre: str
+    class Config:
+        from_attributes = True
+
+# Devuelve las mesas de examen agrupadas por carrera
+class TablesExamPerCareer(SQLModel):
+    carrera_nombre: str
+    mesas: List[TableExamPerCareerDetail]
     class Config:
         from_attributes = True
 
@@ -250,33 +267,47 @@ class RegistrationExamCreate(SQLModel):
 
 # Devuelve datos especificos de una inscripción
 class ExamRegistrationDetail(SQLModel):
+    id: int
     id_inscripcion: int
-    estado: str
-    id: int
     llamado_inscrito: str
     tipo_inscripcion: Optional[str] = None
-    fecha_llamado: datetime
+    fecha_llamado: Optional[datetime] = None
     materia_nombre: str
-    profesor_nombre: str
     carrera_nombre: str
-    nombre_estudiante: str
-    dni: str
-    libreta: Optional[str] = None
-
-# Devuelve las mesas de examen con los estudiantes inscriptos
-class ExamDetailWithStudents(SQLModel):
-    id: int
-    fecha_llamado: datetime
-    llamado_inscrito: str
-    tipo_inscripcion: Optional[str] = None
-    materia_nombre: str
     profesor_nombre: str
-    carrera_nombre: str
-    profesor_id: int
     estudiante_nombre: str
     dni: str
     libreta: Optional[str] = None
     estado: str
+
+# Devuelve las mesas de examen inscriptas agrupadas por año
+class TablesRegisteredPerYear(SQLModel):
+    anio: int
+    mesas: List[ExamRegistrationDetail]
+    class Config:
+        from_attributes = True
+
+# Devuelve datos especificos de los estudiantes inscriptos
+class ExamWithStudentsDetail(SQLModel):
+    id: int
+    llamado_inscrito: str
+    tipo_inscripcion: Optional[str] = None
+    fecha_llamado: Optional[datetime] = None
+    materia_nombre: str
+    carrera_nombre: str
+    profesor_id: int
+    profesor_nombre: str
+    estudiante_nombre: str
+    dni: str
+    libreta: Optional[str] = None
+    estado: str
+    class Config:
+        from_attributes = True
+
+# Devuelve las mesas de examen agrupadas por carrera del profesor
+class TablesExamPerCareerForTeacher(SQLModel):
+    carrera_nombre: str
+    mesas: List[ExamWithStudentsDetail]
     class Config:
         from_attributes = True
 

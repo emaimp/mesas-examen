@@ -1,6 +1,6 @@
 from app import models, schemas
 from fastapi import HTTPException
-from typing import List, Optional
+from typing import List, Optional, Dict
 from sqlalchemy.orm import selectinload
 from sqlmodel import Session, select, col
 
@@ -133,7 +133,7 @@ def notas_con_correlativas(estudiante_id: int, session: Session) -> List[schemas
 #
 # Devuelve las mesas de examen inscriptas de un estudiante
 #
-def obtener_mesas_inscriptas(estudiante_id: int, session: Session) -> List[schemas.ExamRegistrationDetail]:
+def obtener_mesas_inscriptas(estudiante_id: int, session: Session) -> List[schemas.TablesRegisteredPerYear]:
     # Obtener el estudiante para verificar su existencia y rol
     estudiante = session.get(models.Usuarios, estudiante_id)
     if not estudiante or estudiante.role != "student":
@@ -149,29 +149,41 @@ def obtener_mesas_inscriptas(estudiante_id: int, session: Session) -> List[schem
         select(models.Inscripciones_Examen, models.Mesas_Examen, models.Usuarios)
         .join(models.Mesas_Examen, models.Inscripciones_Examen.mesa_examen_id == models.Mesas_Examen.id)
         .join(models.Usuarios, models.Inscripciones_Examen.estudiante_id == models.Usuarios.id)
+        .join(models.Materia_Carreras, models.Mesas_Examen.materia_carrera_id == models.Materia_Carreras.id)
         .where(models.Inscripciones_Examen.estudiante_id == estudiante_id)
         .options(
             selectinload(models.Mesas_Examen.materia_carrera).selectinload(models.Materia_Carreras.materia),
+            selectinload(models.Mesas_Examen.materia_carrera).selectinload(models.Materia_Carreras.carrera),
             selectinload(models.Mesas_Examen.profesor_usuario)
         )
     )
     results = session.exec(statement).all()
 
-    # Mapea los resultados del esquema ExamRegistrationDetail para la respuesta
-    return [
-        schemas.ExamRegistrationDetail(
-            id_inscripcion=inscripcion_obj.id,
-            estado=inscripcion_obj.estado,
+    # Mapea los resultados del esquema ExamRegistrationDetail para la respuesta y agrupa por año de la materia
+    agrupado: Dict[int, List[schemas.ExamRegistrationDetail]] = {}
+    for inscripcion_obj, mesa_obj, usuario_obj in results:
+        exam_detail = schemas.ExamRegistrationDetail(
             id=mesa_obj.id,
+            id_inscripcion=inscripcion_obj.id,
             llamado_inscrito=inscripcion_obj.llamado_inscrito,
             tipo_inscripcion=inscripcion_obj.tipo_inscripcion,
             fecha_llamado=mesa_obj.primer_llamado if inscripcion_obj.llamado_inscrito == "primer_llamado" else mesa_obj.segundo_llamado,
             materia_nombre=mesa_obj.materia_nombre,
-            profesor_nombre=mesa_obj.profesor_nombre,
             carrera_nombre=mesa_obj.carrera_nombre,
-            nombre_estudiante=usuario_obj.nombre,
+            profesor_nombre=mesa_obj.profesor_nombre,
+            estudiante_nombre=usuario_obj.nombre,
             dni=usuario_obj.dni,
-            libreta=usuario_obj.libreta
+            libreta=usuario_obj.libreta,
+            estado=inscripcion_obj.estado
         )
-        for inscripcion_obj, mesa_obj, usuario_obj in results
+        # Extraer el año de la materia desde Materia_Carreras
+        anio = mesa_obj.materia_carrera.anio
+        if anio not in agrupado:
+            agrupado[anio] = []
+        agrupado[anio].append(exam_detail)
+
+    # Convierte el diccionario agrupado en una lista de esquemas TablesRegisteredPerYear
+    return [
+        schemas.TablesRegisteredPerYear(anio=anio, mesas=mesas)
+        for anio, mesas in sorted(agrupado.items())
     ]

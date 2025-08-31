@@ -33,11 +33,22 @@
           v-if="user"
           :active="appStore.selectedSection === 'management-tables'"
           link
-          prepend-icon="mdi-calendar-range"
+          prepend-icon="mdi-calendar-check"
           title="Gestión de Mesas"
           to="/admin/management-tables"
           value="management-tables"
           @click="appStore.setSelectedSection('management-tables')"
+        />
+
+        <v-list-item
+          v-if="user"
+          :active="appStore.selectedSection === 'administration-tables'"
+          link
+          prepend-icon="mdi-calendar-remove"
+          title="Administración de Mesas"
+          to="/admin/administration-tables"
+          value="administration-tables"
+          @click="appStore.setSelectedSection('administration-tables')"
         />
 
         <v-list-item

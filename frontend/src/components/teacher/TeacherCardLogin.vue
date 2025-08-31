@@ -2,7 +2,7 @@
   <v-container class="d-flex align-center justify-center" fluid>
     <v-card class="teacher-card">
       <v-card-title class="text-h6 text-center text-wrap mt-4 card-title-custom">
-        {{ user ? user.carrera_nombre || 'Detalles del Profesor' : 'Detalles del Profesor' }}
+        {{ user ? user.carrera_nombre || 'Perfil del Profesor' : 'Perfil del Profesor' }}
       </v-card-title>
       <v-card-text class="pt-0 fill-height">
         <v-row align="center" justify="center">

@@ -7,18 +7,6 @@ from fastapi import APIRouter, HTTPException, Depends, status
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
 #
-# Endpoint: Obtiene la información del usuario actual
-#
-@router.get("/users/me/", response_model=schemas.UserResponse)
-async def usuario_actual(current_user: Annotated[models.Usuarios, Depends(core.get_current_user)]):
-    user_response_data = current_user.model_dump()
-    if current_user.role == "student" and current_user.asignaciones_estudiante: # Verificación para saber si el usuario es estudiante
-        user_response_data["carrera_id"] = current_user.asignaciones_estudiante[0].carrera_id # Toma solo la primera carrera del estudiante
-    else:
-        user_response_data["carrera_id"] = None
-    return schemas.UserResponse(**user_response_data)
-
-#
 # Endpoint: Registra un nuevo usuario
 #
 @router.post("/register", response_model=schemas.UserResponse)
@@ -35,6 +23,18 @@ def registra_usuario(user_in: schemas.UserCreate, session: Annotated[Session, De
 @router.post("/token", response_model=schemas.Token)
 async def token_acceso(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], session: Annotated[Session, Depends(db.get_session)]):
     return await core.security.login_for_access_token(form_data, session)
+
+#
+# Endpoint: Obtiene la información del usuario actual
+#
+@router.get("/users/me/", response_model=schemas.UserResponse)
+async def usuario_actual(current_user: Annotated[models.Usuarios, Depends(core.get_current_user)]):
+    user_response_data = current_user.model_dump()
+    if current_user.role == "student" and current_user.asignaciones_estudiante: # Verificación para saber si el usuario es estudiante
+        user_response_data["carrera_id"] = current_user.asignaciones_estudiante[0].carrera_id # Toma solo la primera carrera del estudiante
+    else:
+        user_response_data["carrera_id"] = None
+    return schemas.UserResponse(**user_response_data)
 
 #
 # Endpoint: Cambia la contraseña del usuario actual

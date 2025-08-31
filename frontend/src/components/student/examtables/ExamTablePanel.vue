@@ -32,8 +32,8 @@
         <v-expansion-panel-text>
           <div class="transparent-expansion-panel-content">
             <v-row dense>
-              <MesaExamenCard
-                v-for="mesaLlamado in flatMesasPorLlamado"
+              <ExamTableCard
+                v-for="mesaLlamado in getFlatMesasForAnio(anioData.mesas)"
                 :key="mesaLlamado.unique_key"
                 :mesa="mesaLlamado"
                 @open-inscripcion-dialog="openInscripcionDialog"
@@ -109,7 +109,7 @@
   import { useTableRegistration } from '../../../services/student/useTableRegistration'
   import { useTablesExam } from '../../../services/student/useTablesExam'
   import { useAuthUser } from '../../../services/user/useAuthUser'
-  import MesaExamenCard from '../../student/examtables/ExamTableCard.vue'
+  import ExamTableCard from '../../student/examtables/ExamTableCard.vue'
 
   // Inicializa servicios para interactuar con la API
   const { fetchTablesExamByStudentNote } = useTablesExam() // Para obtener mesas de examen
@@ -141,36 +141,40 @@
     )
   })
 
-  // Propiedad computada para aplanar y separar las mesas por llamado
-  const flatMesasPorLlamado = computed(() => {
+  /**
+   * Aplana y separa las mesas por llamado para un año específico
+   * @param {Array<Object>} mesasForAnio - La lista de mesas de examen para un año
+   * @returns {Array<Object>} La lista aplanada de todos los llamados para ese año
+   */
+  const getFlatMesasForAnio = mesasForAnio => {
     const allLlamados = []
-    // Verifica si hay mesas agrupadas por año
-    if (Array.isArray(mesasAgrupadasPorAnio.value)) {
-      // Itera sobre cada año de mesas
-      for (const anioData of mesasAgrupadasPorAnio.value) {
-        // Itera sobre cada mesa de examen dentro de un año
-        for (const mesa of anioData.mesas) {
-          if (mesa.primer_llamado) { // Si existe un primer llamado para esta mesa...
-            allLlamados.push({ // ...agrega un nuevo objeto al array 'allLlamados'
-              ...mesa, // Copia todas las propiedades de la mesa original
-              fecha: mesa.primer_llamado, // Establece la fecha
-              tipo_llamado: 'Primer Llamado', // Indica el llamado
-              unique_key: `${mesa.id}_primer`, // Genera una clave única
-            })
-          }
-          if (mesa.segundo_llamado) { // Si existe un segundo llamado para esta mesa...
-            allLlamados.push({ // ...agrega otro nuevo objeto al array 'allLlamados'
-              ...mesa, // Copia todas las propiedades de la mesa original
-              fecha: mesa.segundo_llamado, // Establece la fecha
-              tipo_llamado: 'Segundo Llamado', // Indica el llamado
-              unique_key: `${mesa.id}_segundo`, // Genera una clave única
-            })
-          }
+    // Verifica si mesasForAnio es un array
+    if (Array.isArray(mesasForAnio)) {
+      // Itera sobre cada mesa de examen
+      for (const mesa of mesasForAnio) {
+        // Si existe un primer llamado, lo añade a la lista
+        if (mesa.primer_llamado) {
+          allLlamados.push({
+            ...mesa,
+            fecha: mesa.primer_llamado,
+            tipo_llamado: 'Primer Llamado',
+            unique_key: `${mesa.id}_primer`,
+          })
+        }
+        // Si existe un segundo llamado, lo añade a la lista
+        if (mesa.segundo_llamado) {
+          allLlamados.push({
+            ...mesa,
+            fecha: mesa.segundo_llamado,
+            tipo_llamado: 'Segundo Llamado',
+            unique_key: `${mesa.id}_segundo`,
+          })
         }
       }
     }
-    return allLlamados // Retorna la lista aplanada de todos los llamados
-  })
+    // Retorna todos los llamados aplanados
+    return allLlamados
+  }
 
   /**
    * Formatea una cadena de fecha ISO a un formato legible en español

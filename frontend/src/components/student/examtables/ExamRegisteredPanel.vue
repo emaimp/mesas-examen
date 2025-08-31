@@ -199,7 +199,7 @@
     if (typeof anio !== 'number' || anio <= 0 || Number.isNaN(anio)) {
       return 'Año Desconocido'
     }
-    return `Año ${anio}`
+    return `${anio}° Año`
   }
 
   /**
@@ -278,17 +278,10 @@
     loading.value = true // Inicia el estado de carga
     try {
       const responseData = await fetchTablesRegistered(currentStudentId)
-      // Agrupa las mesas por año
-      const groupedMesas = responseData.reduce((acc, mesa) => {
-        const anio = new Date(mesa.fecha_llamado).getFullYear()
-        if (!acc[anio]) {
-          acc[anio] = { anio, mesas: [] }
-        }
-        acc[anio].mesas.push(mesa)
-        return acc
-      }, {})
-      // Convierte el objeto agrupado en un array de valores
-      mesasAgrupadasPorAnio.value = Object.values(groupedMesas)
+      // El backend ya devuelve las mesas agrupadas por año de la materia
+      mesasAgrupadasPorAnio.value = Array.isArray(responseData)
+        ? responseData
+        : []
     } catch (error) {
       console.error('Error al cargar mesas inscriptas:', error)
       mesasAgrupadasPorAnio.value = [] // Resetea los datos en caso de error

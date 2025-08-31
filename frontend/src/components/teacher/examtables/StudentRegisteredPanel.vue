@@ -8,7 +8,7 @@
     <v-alert
       v-else-if="
         !loading &&
-          (!estudiantesAgrupadosPorAnio || Object.keys(estudiantesAgrupadosPorAnio).length === 0)
+          (!estudiantesAgrupadosPorCarrera || estudiantesAgrupadosPorCarrera.length === 0)
       "
       class="mb-4"
       text="No hay estudiantes registrados para esta mesa de examen."
@@ -22,18 +22,18 @@
       variant="accordion"
     >
       <v-expansion-panel
-        v-for="anioData in sortedEstudiantesAgrupadosPorAnio"
-        :key="anioData.anio"
+        v-for="carreraData in sortedEstudiantesAgrupadosPorCarrera"
+        :key="carreraData.carrera_nombre"
       >
         <v-expansion-panel-title class="text-h6">
-          Estudiantes Registrados - {{ getAnioText(anioData.anio) }}
+          {{ carreraData.carrera_nombre }}
         </v-expansion-panel-title>
 
         <v-expansion-panel-text>
           <div class="transparent-expansion-panel-content">
             <v-row dense>
               <StudentRegisteredCard
-                v-for="estudiante in anioData.estudiantes"
+                v-for="estudiante in carreraData.mesas"
                 :key="estudiante.id"
                 :estudiante="estudiante"
                 @open-registered-dialog="openInscripcionDialog"
@@ -151,7 +151,7 @@
   const { fetchExamTables } = useTableExamTeacher()
 
   // Variables reactivas para el estado del componente
-  const estudiantesAgrupadosPorAnio = ref([]) // Almacena los estudiantes agrupados por año
+  const estudiantesAgrupadosPorCarrera = ref([]) // Almacena los estudiantes agrupados por carrera y luego por año
   const loading = ref(true) // Indica si los datos están cargando
   const snackbar = ref({
     show: false,
@@ -161,30 +161,17 @@
 
   const showInscripcionDialog = ref(false) // Controla la visibilidad del diálogo de detalles
   const selectedEstudiante = ref(null) // Almacena el estudiante seleccionado para mostrar detalles
-  const openPanels = ref([]) // Controla qué paneles de expansión están abiertos (para agrupar por año)
+  const openPanels = ref([]) // Controla qué paneles de expansión están abiertos (para agrupar por carrera)
   const studentGrade = ref(null) // Almacena la nota del estudiante
 
-  // Propiedad computada para ordenar los estudiantes agrupados por año de forma ascendente
-  const sortedEstudiantesAgrupadosPorAnio = computed(() => {
-    if (!Array.isArray(estudiantesAgrupadosPorAnio.value)) {
+  // Propiedad computada para ordenar las carreras y luego los años de forma ascendente
+  const sortedEstudiantesAgrupadosPorCarrera = computed(() => {
+    if (!Array.isArray(estudiantesAgrupadosPorCarrera.value)) {
       return []
     }
-    return [...estudiantesAgrupadosPorAnio.value].sort(
-      (a, b) => Number.parseInt(a.anio) - Number.parseInt(b.anio),
-    )
+    return [...estudiantesAgrupadosPorCarrera.value]
+      .sort((a, b) => a.carrera_nombre.localeCompare(b.carrera_nombre))
   })
-
-  /**
-   * Convierte el número del año a un formato ordinal (1° Año, 2° Año, etc.)
-   * @param {number} anio - El número del año
-   * @returns {string} El texto formateado del año
-   */
-  const getAnioText = anio => {
-    if (typeof anio !== 'number' || anio <= 0 || Number.isNaN(anio)) {
-      return 'Año Desconocido'
-    }
-    return `Año ${anio}`
-  }
 
   /**
    * Formatea una fecha y hora a un string legible.
@@ -225,49 +212,17 @@
    */
   const loadEstudiantes = async currentTeacherId => {
     if (!currentTeacherId) {
-      estudiantesAgrupadosPorAnio.value = []
+      estudiantesAgrupadosPorCarrera.value = []
       loading.value = false
       return
     }
     loading.value = true // Inicia el estado de carga
     try {
-      const responseData = await fetchExamTables(currentTeacherId)
-
-      // Filtra los estudiantes para mostrar solo aquellos con estado de inscripción activo
-      const activeEstudiantes = responseData.filter(
-        estudiante => estudiante.estado === 'active',
-      )
-
-      // Agrupa los estudiantes activos por año de la fecha de la mesa
-      const groupedEstudiantes = activeEstudiantes.reduce((acc, estudiante) => {
-        // Crear una copia del estudiante y ajustar las propiedades para StudentRegisteredCard
-        const estudianteParaCard = { ...estudiante }
-
-        // Mapear estudiante_nombre a nombre_estudiante
-        estudianteParaCard.nombre_estudiante = estudiante.estudiante_nombre || 'Desconocido'
-        // Directamente usar los campos del backend
-        estudianteParaCard.llamado_inscrito = estudiante.llamado_inscrito || 'Desconocido'
-        estudianteParaCard.fecha_llamado = estudiante.fecha_llamado || null
-        // Añadir libreta, dni, carrera_nombre, materia_nombre si no existen
-        estudianteParaCard.libreta = estudiante.libreta || 'N/A'
-        estudianteParaCard.dni = estudiante.dni || 'N/A'
-        estudianteParaCard.carrera_nombre = estudiante.carrera_nombre || 'Desconocida'
-        estudianteParaCard.materia_nombre = estudiante.materia_nombre || 'Desconocida'
-
-        const fechaLlamadoParaAgrupar = estudianteParaCard.fecha_llamado ? new Date(estudianteParaCard.fecha_llamado) : null
-        const anio = fechaLlamadoParaAgrupar && !Number.isNaN(fechaLlamadoParaAgrupar.getFullYear()) ? fechaLlamadoParaAgrupar.getFullYear() : 'Desconocido'
-
-        if (!acc[anio]) {
-          acc[anio] = { anio, estudiantes: [] }
-        }
-        acc[anio].estudiantes.push(estudianteParaCard) // Usar el objeto modificado
-        return acc
-      }, {})
-      // Convierte el objeto agrupado en un array de valores
-      estudiantesAgrupadosPorAnio.value = Object.values(groupedEstudiantes)
+      const responseData = await fetchExamTables(currentTeacherId) // responseData es List[TablesExamPerCareerForTeacher]
+      estudiantesAgrupadosPorCarrera.value = responseData
     } catch (error) {
       console.error('Error al cargar estudiantes registrados:', error)
-      estudiantesAgrupadosPorAnio.value = [] // Resetea los datos en caso de error
+      estudiantesAgrupadosPorCarrera.value = [] // Resetea los datos en caso de error
     } finally {
       loading.value = false // Finaliza el estado de carga
     }
@@ -285,10 +240,10 @@
   // Observa cambios en el ID del profesor y recarga los estudiantes si cambia
   watch(teacherId, async (newTeacherId, oldTeacherId) => {
     // Solo recarga si el ID del profesor ha cambiado o si es la carga inicial y no hay datos
-    if (newTeacherId && (newTeacherId !== oldTeacherId || estudiantesAgrupadosPorAnio.value.length === 0)) {
+    if (newTeacherId && (newTeacherId !== oldTeacherId || estudiantesAgrupadosPorCarrera.value.length === 0)) {
       await loadEstudiantes(newTeacherId) // Recarga los estudiantes con el nuevo ID de profesor
-      // Abre el primer panel de expansión si hay estudiantes disponibles
-      openPanels.value = sortedEstudiantesAgrupadosPorAnio.value.length > 0 ? [0] : []
+      // Abre el primer panel de expansión de carrera si hay estudiantes disponibles
+      openPanels.value = sortedEstudiantesAgrupadosPorCarrera.value.length > 0 ? [0] : []
     }
   }, { immediate: true }) // Ejecuta el watcher inmediatamente al montar el componente
 

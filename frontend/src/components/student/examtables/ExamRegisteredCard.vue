@@ -5,7 +5,7 @@
       :flat="true"
       @click="emit('open-registered-dialog', mesa)"
     >
-      <v-card-title class="text-wrap text-subtitle-1 pb-1">
+      <v-card-title class="text-wrap text-subtitle-1">
         {{ mesa.materia_nombre }}
       </v-card-title>
       <v-card-subtitle class="pt-0 pb-2">
@@ -14,9 +14,9 @@
       <v-card-subtitle class="pt-0 pb-2">
         {{ mesa.llamado_inscrito === 'primer_llamado' ? 'Primer Llamado' : 'Segundo Llamado' }}: {{ formatFechaHora(mesa.fecha_llamado) }}
       </v-card-subtitle>
-      <v-card-text class="pt-0 pb-2">
+      <v-card-title class="text-wrap text-subtitle-1 pt-0 pb-2">
         Profesor: {{ mesa.profesor_nombre }}
-      </v-card-text>
+      </v-card-title>
     </v-card>
   </v-col>
 </template>

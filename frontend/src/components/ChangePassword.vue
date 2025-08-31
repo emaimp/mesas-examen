@@ -3,7 +3,8 @@
   <v-card class="elevation-12 pa-5">
     <v-card-text class="px-3 py-5">
 
-      <p class="mb-10 text-center text-h6">Cambio de Contraseña</p>
+      <img alt="IESN6 Logo" class="login-logo" src="@/assets/key.png">
+      <div class="mb-8" />
 
       <!-- Formulario de cambio de contraseña con validación y envío -->
       <v-form ref="form" @submit.prevent="submitChangePassword">
@@ -198,10 +199,10 @@
   display: block; /* Asegura que la tarjeta se comporte como un bloque */
 }
 
-/* Estilos para el logo de login */
+/* Estilos para el logo */
 .login-logo {
   max-width: 100%; /* Ancho máximo del 100% del contenedor */
-  width: 340px; /* Ancho fijo */
+  width: 130px; /* Ancho fijo */
   height: auto; /* Altura automática para mantener la proporción */
   display: block; /* Hace que la imagen sea un bloque para centrarla */
   margin: 0 auto; /* Centra la imagen horizontalmente */

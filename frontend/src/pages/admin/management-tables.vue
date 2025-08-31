@@ -118,60 +118,89 @@
    * Maneja la creación de una nueva mesa de examen
    */
   const handlecreateTable = async () => {
-    // Valida que todos los campos requeridos estén seleccionados
-    if (!selectedSubjectId.value || !selectedProfessorId.value || !selectedDateTime.value || !selectedDateTime2nd.value) {
-      snackbar.value.message = 'Hay campos requeridos sin completar.'
+    // 1. Ajustar la validación inicial
+    if (!selectedSubjectId.value || !selectedProfessorId.value || (!selectedDateTime.value && !selectedDateTime2nd.value)) {
+      snackbar.value.message = 'Debe seleccionar una materia, un profesor y al menos una fecha de llamado.'
       snackbar.value.color = 'warning'
       snackbar.value.show = true
       return
     }
 
-    // Lógica para el primer llamado
-    let dateToFormat1st = selectedDateTime.value
-    // Asegura que selectedDateTime.value sea un objeto Date
-    if (!(dateToFormat1st instanceof Date)) {
-      dateToFormat1st = new Date(selectedDateTime.value)
+    const successMessages = []
+    const errorMessages = []
+
+    // 2. Lógica para el primer llamado (si está presente)
+    if (selectedDateTime.value) {
+      let dateToFormat1st = selectedDateTime.value
+      // Asegura que la fecha sea un objeto Date
+      if (!(dateToFormat1st instanceof Date)) {
+        dateToFormat1st = new Date(selectedDateTime.value)
+      }
+      // Formatea la fecha para el backend
+      const formattedDate1st = formatDateToBackend(dateToFormat1st)
+
+      // Prepara los datos para el primer llamado
+      const mesaData1st = {
+        materia_carrera_id: Number.parseInt(selectedSubjectId.value),
+        profesor_id: Number.parseInt(selectedProfessorId.value),
+        primer_llamado: formattedDate1st,
+        segundo_llamado: null, // El segundo llamado es nulo para el primer llamado
+      }
+      try {
+        // Intenta crear la mesa para el primer llamado
+        await createTable(mesaData1st)
+        successMessages.push('Primer llamado creado con éxito')
+      } catch (error) {
+        // Captura y almacena mensajes de error
+        errorMessages.push(`Error al crear el primer llamado: ${error.response?.data?.detail || error.message}`)
+      }
     }
-    const formattedDate1st = formatDateToBackend(dateToFormat1st) // Formatea la fecha para el backend
 
-    // Lógica para el segundo llamado
-    let dateToFormat2nd = selectedDateTime2nd.value
-    // Asegura que selectedDateTime2nd.value sea un objeto Date
-    if (!(dateToFormat2nd instanceof Date)) {
-      dateToFormat2nd = new Date(selectedDateTime2nd.value)
+    // 3. Lógica para el segundo llamado (si está presente)
+    if (selectedDateTime2nd.value) {
+      let dateToFormat2nd = selectedDateTime2nd.value
+      // Asegura que la fecha sea un objeto Date
+      if (!(dateToFormat2nd instanceof Date)) {
+        dateToFormat2nd = new Date(selectedDateTime2nd.value)
+      }
+      // Formatea la fecha para el backend
+      const formattedDate2nd = formatDateToBackend(dateToFormat2nd)
+
+      // Prepara los datos para el segundo llamado
+      const mesaData2nd = {
+        materia_carrera_id: Number.parseInt(selectedSubjectId.value),
+        profesor_id: Number.parseInt(selectedProfessorId.value),
+        primer_llamado: null, // Explícitamente nulo para este llamado
+        segundo_llamado: formattedDate2nd,
+      }
+      try {
+        // Intenta crear la mesa para el segundo llamado
+        await createTable(mesaData2nd)
+        successMessages.push('Segundo llamado creado con éxito')
+      } catch (error) {
+        // Captura y almacena mensajes de error
+        errorMessages.push(`Error al crear el segundo llamado: ${error.response?.data?.detail || error.message}`)
+      }
     }
-    const formattedDate2nd = formatDateToBackend(dateToFormat2nd) // Formatea la fecha para el backend
 
-    // Prepara los datos de la mesa para enviar a la API
-    const mesaData = {
-      materia_carrera_id: Number.parseInt(selectedSubjectId.value),
-      profesor_id: Number.parseInt(selectedProfessorId.value),
-      primer_llamado: formattedDate1st,
-      segundo_llamado: formattedDate2nd,
-    }
-
-    try {
-      // Llama al servicio para crear la mesa con ambos llamados
-      const response = await createTable(mesaData)
-
-      // Muestra un mensaje de éxito y limpia el formulario
-      snackbar.value.message = response.message || 'Primera y Segunda mesas de examen creadas con exito'
+    // 4. Mostrar resultados combinados
+    if (successMessages.length > 0) {
+      // Muestra mensajes de éxito
+      snackbar.value.message = successMessages.join(' ')
       snackbar.value.color = 'success'
+      // Limpia los campos del formulario si hubo éxito
       selectedCareerId.value = null
       selectedSubjectId.value = null
       selectedProfessorId.value = null
       selectedDateTime.value = null
       selectedDateTime2nd.value = null
-      snackbar.value.show = true
-    } catch (error) {
-      // Maneja errores de la API o de conexión para ambas llamadas
-      let errorMessage = '' // Inicializa el mensaje de error vacío
-      // Reemplaza el if/else con un operador ternario para el mensaje de error
-      errorMessage = (error.response && error.response.data && error.response.data.detail) ? error.response.data.detail : 'Error: ' + error.message
-      snackbar.value.message = errorMessage
+    } else {
+      // Muestra mensajes de error
+      snackbar.value.message = errorMessages.join(' ') || 'Error desconocido al crear las mesas.'
       snackbar.value.color = 'error'
-      snackbar.value.show = true
     }
+    // Muestra el snackbar
+    snackbar.value.show = true
   }
 </script>
 
