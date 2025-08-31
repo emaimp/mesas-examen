@@ -49,7 +49,7 @@
       title: 'Instituto', // Título del enlace
     },
     {
-      href: '', // URL vacía, para documentación futura
+      href: 'https://github.com/emaimp/mesas-examen', // URL vacía, para documentación futura
       icon: 'mdi-file-document', // Icono de Material Design para el enlace
       subtitle: 'Página de la documentación.', // Subtítulo descriptivo
       title: 'Documentación', // Título del enlace
@@ -60,15 +60,15 @@
 <style scoped>
 /* Estilos para las tarjetas de tamaño fijo */
 .fixed-card-size {
-  width: 450px; /* Ancho fijo */
-  height: 85px; /* Altura fija */
+  max-width: 450px; /* Ancho máximo */
+  width: 100%; /* Asegura el 100% del espacio disponible hasta el max-width */
 }
 
 /* Estilos para el contenedor del botón de acción flotante (FAB) */
 .fab-container {
   position: fixed; /* Posicionamiento fijo en la pantalla */
   bottom: 60px; /* Distancia desde la parte inferior */
-  right: 870px; /* Distancia desde la parte derecha */
+  right: 20px; /* Distancia desde la parte derecha (responsivo) */
   z-index: 1000; /* Asegura que esté por encima de otros elementos */
 }
 </style>

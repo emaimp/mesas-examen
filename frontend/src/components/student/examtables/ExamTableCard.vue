@@ -3,20 +3,25 @@
     <v-card
       class="mesa-card clickable"
       :flat="true"
-      @click="emit('open-inscripcion-dialog', mesa)"
+      @click="handleCardClick"
     >
-      <v-card-title class="text-wrap text-subtitle-1 pb-1">
-        {{ mesa.materia_nombre }}
+      <v-card-title class="text-wrap text-subtitle-1">
+        Materia: {{ mesa.materia_nombre }}
       </v-card-title>
       <v-card-subtitle class="pt-0 pb-2">
-        {{ formatFechaHora(mesa.fecha) }}
+        Profesor: {{ mesa.profesor_nombre }}
       </v-card-subtitle>
+      <v-card-subtitle class="pt-0 pb-2">
+        Fecha: {{ formatFechaHora(mesa.primer_llamado || mesa.segundo_llamado) }}
+      </v-card-subtitle>
+      <v-card-title class="text-wrap text-subtitle-1 pt-0 pb-2">
+        Llamado: {{ mesa.primer_llamado ? 'Primer Llamado' : 'Segundo Llamado' }}
+      </v-card-title>
     </v-card>
   </v-col>
 </template>
 
 <script setup>
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const props = defineProps({
     // Define la propiedad 'mesa' que es un objeto y es requerida
     mesa: {
@@ -24,12 +29,25 @@
       required: true,
       // Validador para asegurar que el objeto 'mesa' tenga las propiedades necesarias
       validator: value => {
-        return value && value.id && value.materia_nombre && value.fecha && value.profesor_nombre
+        return value && value.id && value.materia_nombre && value.profesor_nombre && (value.primer_llamado || value.segundo_llamado)
       },
+    },
+    actionType: {
+      type: String,
+      default: 'inscripcion', // Valor por defecto para la vista de estudiante
+      validator: value => ['inscripcion', 'delete'].includes(value),
     },
   })
   // Define los eventos que este componente puede emitir
-  const emit = defineEmits(['open-inscripcion-dialog'])
+  const emit = defineEmits(['open-inscripcion-dialog', 'open-delete-dialog'])
+
+  const handleCardClick = () => {
+    if (props.actionType === 'inscripcion') {
+      emit('open-inscripcion-dialog', props.mesa)
+    } else if (props.actionType === 'delete') {
+      emit('open-delete-dialog', props.mesa)
+    }
+  }
   /**
    * Formatea una cadena de fecha ISO a un formato legible en español
    * @param {string} isoString - La cadena de fecha en formato ISO

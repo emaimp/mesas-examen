@@ -46,11 +46,10 @@
 
     <v-dialog v-model="showInscripcionDialog" max-width="500">
       <v-card>
-        <v-card-title class="text-h5 text-center">
-          Cancelar Inscripción
+        <v-card-title class="text-h5 text-center mt-2 mx-2">
+          Mesa de Examen
         </v-card-title>
         <v-card-text v-if="selectedMesa">
-          Deseas dar de baja la siguiente mesa de examen?
           <v-list dense>
             <v-list-item>
               <v-list-item-title class="font-weight-bold">Estudiante:</v-list-item-title>
@@ -83,28 +82,41 @@
               }}</v-list-item-subtitle>
             </v-list-item>
             <v-list-item>
+              <v-list-item-title class="font-weight-bold">Llamado:</v-list-item-title>
+              <v-list-item-subtitle>{{
+                selectedMesa.llamado_inscrito === 'primer_llamado' ? 'Primer Llamado' : 'Segundo Llamado'
+              }}</v-list-item-subtitle>
+            </v-list-item>
+            <v-list-item>
+              <v-list-item-title class="font-weight-bold">Tipo de Inscripción:</v-list-item-title>
+              <v-list-item-subtitle>{{
+                formatTipoInscripcion(selectedMesa.tipo_inscripcion)
+              }}</v-list-item-subtitle>
+            </v-list-item>
+            <v-list-item>
               <v-list-item-title class="font-weight-bold">Fecha y Hora:</v-list-item-title>
               <v-list-item-subtitle>{{
-                formatFechaHora(selectedMesa.fecha)
+                formatFechaHora(selectedMesa.fecha_llamado)
               }}</v-list-item-subtitle>
             </v-list-item>
           </v-list>
         </v-card-text>
-        <v-card-actions>
+        <v-card-actions class="mb-2 mx-2">
           <v-spacer />
           <v-btn
+            v-if="selectedMesa && selectedMesa.estado === 'active'"
             class="action-button"
             variant="outlined"
             @click="confirmInscripcion"
           >
-            Confirmar
+            Cancelar Inscripción
           </v-btn>
           <v-btn
             class="cancel-button"
             variant="text"
             @click="showInscripcionDialog = false"
           >
-            Cancelar
+            Cerrar
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -123,6 +135,7 @@
 
 <script setup>
   import { useTablesRegistered } from '../../../services/student/useTablesRegistered'
+  import { useTablesRegisteredState } from '../../../services/student/useTablesRegisteredState'
   import { useAuthUser } from '../../../services/user/useAuthUser'
   import MesaExamenCard from '../../student/examtables/ExamRegisteredCard.vue'
 
@@ -130,6 +143,8 @@
   const { fetchTablesRegistered } = useTablesRegistered()
   // Obtiene el usuario autenticado y la función para cargarlo
   const { user, fetchAuthUser } = useAuthUser()
+  // Obtiene las funciones del servicio para actualizar el estado de la inscripción
+  const { error: updateError, success: updateSuccess, updateRegistrationState } = useTablesRegisteredState()
   // Propiedad computada para obtener el ID del estudiante del usuario autenticado
   const studentId = computed(() => user.value?.id)
 
@@ -184,7 +199,7 @@
     if (typeof anio !== 'number' || anio <= 0 || Number.isNaN(anio)) {
       return 'Año Desconocido'
     }
-    return `Año ${anio}`
+    return `${anio}° Año`
   }
 
   /**
@@ -213,9 +228,41 @@
       return
     }
 
-    // Lógica para dar de baja la inscripción (actualmente solo cierra el diálogo)
-    // Aquí iría la llamada al servicio para desinscribir al estudiante
-    showInscripcionDialog.value = false
+    // Lógica para dar de baja la inscripción
+    try {
+      // Llama a la función para actualizar el estado de la inscripción a 'canceled' (cancelada)
+      await updateRegistrationState(selectedMesa.value.id_inscripcion, 'canceled')
+      // Si la actualización fue exitosa
+      if (updateSuccess.value) {
+        // Muestra un mensaje de éxito en el snackbar
+        snackbar.value = {
+          show: true,
+          message: 'Inscripción cancelada con éxito.',
+          color: 'success',
+        }
+        // Recarga las mesas de examen para reflejar el cambio
+        await loadMesas(studentId.value)
+      } else {
+        // Si hubo un error en la actualización, muestra un mensaje de error
+        snackbar.value = {
+          show: true,
+          message: updateError.value || 'Error al cancelar la inscripción.',
+          color: 'error',
+        }
+      }
+    } catch (error) {
+      // Captura y registra cualquier error inesperado durante el proceso
+      console.error('Error en confirmInscripcion:', error)
+      // Muestra un mensaje de error inesperado en el snackbar
+      snackbar.value = {
+        show: true,
+        message: 'Error inesperado al cancelar la inscripción.',
+        color: 'error',
+      }
+    } finally {
+      // Cierra el diálogo de inscripción
+      showInscripcionDialog.value = false
+    }
   }
 
   /**
@@ -231,17 +278,10 @@
     loading.value = true // Inicia el estado de carga
     try {
       const responseData = await fetchTablesRegistered(currentStudentId)
-      // Agrupa las mesas por año
-      const groupedMesas = responseData.reduce((acc, mesa) => {
-        const anio = new Date(mesa.fecha).getFullYear()
-        if (!acc[anio]) {
-          acc[anio] = { anio, mesas: [] }
-        }
-        acc[anio].mesas.push(mesa)
-        return acc
-      }, {})
-      // Convierte el objeto agrupado en un array de valores
-      mesasAgrupadasPorAnio.value = Object.values(groupedMesas)
+      // El backend ya devuelve las mesas agrupadas por año de la materia
+      mesasAgrupadasPorAnio.value = Array.isArray(responseData)
+        ? responseData
+        : []
     } catch (error) {
       console.error('Error al cargar mesas inscriptas:', error)
       mesasAgrupadasPorAnio.value = [] // Resetea los datos en caso de error
@@ -264,6 +304,16 @@
     // Abre el primer panel de expansión si hay mesas disponibles
     openPanels.value = sortedMesasAgrupadasPorAnio.value.length > 0 ? [0] : []
   })
+
+  /**
+   * Formatea el tipo de inscripción para mostrar la primera letra en mayúscula
+   * @param {string} tipo - El tipo de inscripción (ej. "libre", "regular")
+   * @returns {string} El tipo de inscripción formateado (ej. "Libre", "Regular")
+   */
+  const formatTipoInscripcion = tipo => {
+    if (!tipo) return ''
+    return tipo.charAt(0).toUpperCase() + tipo.slice(1)
+  }
 </script>
 
 <style scoped>
@@ -284,5 +334,10 @@
   transform: translateX(-50%) !important; /* Ajuste para centrado perfecto */
   bottom: 0 !important; /* Posiciona en la parte inferior */
   text-align: center; /* Centra el texto dentro del snackbar */
+}
+
+/* Estilos para sobreescribir el .v-list global */
+.v-list {
+  background: linear-gradient(to right, #1f5d8b, #0e4c7a) !important;
 }
 </style>

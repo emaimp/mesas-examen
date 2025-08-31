@@ -1,17 +1,12 @@
 <template>
   <v-container class="fill-height" fluid>
     <v-row align="center" class="fill-height" justify="center">
-      <v-col cols="12" lg="4" md="4">
+      <v-col cols="12" lg="4" md="6" sm="8">
         <v-card class="pa-7">
           <v-card-title class="text-h5 mb-7 text-center">
             Crear Mesa de Examen
           </v-card-title>
           <v-card-text>
-
-            <div v-if="loading" class="text-center py-5">
-              <v-progress-circular color="primary" indeterminate />
-              <p class="mt-2 text-white">Cargando...</p>
-            </div>
 
             <CareerAutocomplete
               v-model="selectedCareerId"
@@ -33,11 +28,23 @@
               label="Profesor"
             />
 
-            <DateTimePicker
-              v-model="selectedDateTime"
-              class="mb-4"
-              label="Fecha y Hora"
-            />
+            <div class="form-section">
+              <h3 class="mb-2">Primer Llamado</h3>
+              <DateTimePicker
+                v-model="selectedDateTime"
+                class="mb-4"
+                label="Fecha y Hora del primer llamado"
+              />
+            </div>
+
+            <div class="form-section">
+              <h3 class="mb-2">Segundo Llamado</h3>
+              <DateTimePicker
+                v-model="selectedDateTime2nd"
+                class="mb-4"
+                label="Fecha y hora del segundo llamado"
+              />
+            </div>
 
             <v-btn
               block
@@ -72,11 +79,11 @@
   import { useCrearMesa } from '../../services/admin/useCreateTable'
 
   // Estados reactivos para los campos del formulario
-  const loading = ref(false) // Estado para controlar la visibilidad del indicador de carga
   const selectedCareerId = ref(null) // ID de la carrera seleccionada
   const selectedSubjectId = ref(null) // ID de la materia seleccionada
   const selectedProfessorId = ref(null) // ID del profesor seleccionado
-  const selectedDateTime = ref(null) // Fecha y hora seleccionadas
+  const selectedDateTime = ref(null) // Fecha y hora seleccionadas del primer llamado
+  const selectedDateTime2nd = ref(null) // Fecha y hora seleccionadas del segundo llamado
 
   // Estado reactivo para la barra de notificación (snackbar)
   const snackbar = ref({
@@ -111,55 +118,89 @@
    * Maneja la creación de una nueva mesa de examen
    */
   const handlecreateTable = async () => {
-    // Valida que todos los campos requeridos estén seleccionados
-    if (!selectedSubjectId.value || !selectedProfessorId.value || !selectedDateTime.value) {
-      snackbar.value.message = 'Por favor, selecciona Materia, Profesor y Fecha/Hora.'
+    // 1. Ajustar la validación inicial
+    if (!selectedSubjectId.value || !selectedProfessorId.value || (!selectedDateTime.value && !selectedDateTime2nd.value)) {
+      snackbar.value.message = 'Debe seleccionar una materia, un profesor y al menos una fecha de llamado.'
       snackbar.value.color = 'warning'
       snackbar.value.show = true
       return
     }
 
-    let dateToFormat = selectedDateTime.value
-    // Asegura que selectedDateTime.value sea un objeto Date
-    if (!(dateToFormat instanceof Date)) {
-      dateToFormat = new Date(selectedDateTime.value)
+    const successMessages = []
+    const errorMessages = []
+
+    // 2. Lógica para el primer llamado (si está presente)
+    if (selectedDateTime.value) {
+      let dateToFormat1st = selectedDateTime.value
+      // Asegura que la fecha sea un objeto Date
+      if (!(dateToFormat1st instanceof Date)) {
+        dateToFormat1st = new Date(selectedDateTime.value)
+      }
+      // Formatea la fecha para el backend
+      const formattedDate1st = formatDateToBackend(dateToFormat1st)
+
+      // Prepara los datos para el primer llamado
+      const mesaData1st = {
+        materia_carrera_id: Number.parseInt(selectedSubjectId.value),
+        profesor_id: Number.parseInt(selectedProfessorId.value),
+        primer_llamado: formattedDate1st,
+        segundo_llamado: null, // El segundo llamado es nulo para el primer llamado
+      }
+      try {
+        // Intenta crear la mesa para el primer llamado
+        await createTable(mesaData1st)
+        successMessages.push('Primer llamado creado con éxito')
+      } catch (error) {
+        // Captura y almacena mensajes de error
+        errorMessages.push(`Error al crear el primer llamado: ${error.response?.data?.detail || error.message}`)
+      }
     }
 
-    const formattedDate = formatDateToBackend(dateToFormat) // Formatea la fecha para el backend
-    // Prepara los datos de la mesa para enviar a la API
-    const mesaData = {
-      materia_carrera_id: Number.parseInt(selectedSubjectId.value),
-      profesor_id: Number.parseInt(selectedProfessorId.value),
-      fecha: formattedDate,
+    // 3. Lógica para el segundo llamado (si está presente)
+    if (selectedDateTime2nd.value) {
+      let dateToFormat2nd = selectedDateTime2nd.value
+      // Asegura que la fecha sea un objeto Date
+      if (!(dateToFormat2nd instanceof Date)) {
+        dateToFormat2nd = new Date(selectedDateTime2nd.value)
+      }
+      // Formatea la fecha para el backend
+      const formattedDate2nd = formatDateToBackend(dateToFormat2nd)
+
+      // Prepara los datos para el segundo llamado
+      const mesaData2nd = {
+        materia_carrera_id: Number.parseInt(selectedSubjectId.value),
+        profesor_id: Number.parseInt(selectedProfessorId.value),
+        primer_llamado: null, // Explícitamente nulo para este llamado
+        segundo_llamado: formattedDate2nd,
+      }
+      try {
+        // Intenta crear la mesa para el segundo llamado
+        await createTable(mesaData2nd)
+        successMessages.push('Segundo llamado creado con éxito')
+      } catch (error) {
+        // Captura y almacena mensajes de error
+        errorMessages.push(`Error al crear el segundo llamado: ${error.response?.data?.detail || error.message}`)
+      }
     }
 
-    loading.value = true // Muestra el indicador de carga
-
-    try {
-      // Llama al servicio para crear la mesa
-      const response = await createTable(mesaData)
-
-      // Muestra un mensaje de éxito y limpia el formulario
-      snackbar.value.message = response.message || 'Mesa creada con éxito.'
+    // 4. Mostrar resultados combinados
+    if (successMessages.length > 0) {
+      // Muestra mensajes de éxito
+      snackbar.value.message = successMessages.join(' ')
       snackbar.value.color = 'success'
+      // Limpia los campos del formulario si hubo éxito
       selectedCareerId.value = null
       selectedSubjectId.value = null
       selectedProfessorId.value = null
       selectedDateTime.value = null
-      snackbar.value.show = true
-    } catch (error) {
-      // Maneja errores de la API o de conexión
-      if (error.response && error.response.data && error.response.data.detail) {
-        snackbar.value.message = error.response.data.detail
-        snackbar.value.color = 'error'
-      } else {
-        snackbar.value.message = 'Error de conexión o inesperado: ' + error.message
-        snackbar.value.color = 'error'
-      }
-      snackbar.value.show = true
-    } finally {
-      loading.value = false // Oculta el indicador de carga
+      selectedDateTime2nd.value = null
+    } else {
+      // Muestra mensajes de error
+      snackbar.value.message = errorMessages.join(' ') || 'Error desconocido al crear las mesas.'
+      snackbar.value.color = 'error'
     }
+    // Muestra el snackbar
+    snackbar.value.show = true
   }
 </script>
 

@@ -2,4 +2,3 @@
 
 from .db import *
 from .start_admin import *
-from .start_registers import *

@@ -16,6 +16,7 @@
             prepend-icon="mdi-calendar"
             readonly
             v-bind="props"
+            style="width: 100%;"
           />
         </template>
         <v-date-picker
@@ -46,6 +47,7 @@
             prepend-icon="mdi-clock"
             readonly
             v-bind="props"
+            style="width: 100%;"
           />
         </template>
         <v-time-picker

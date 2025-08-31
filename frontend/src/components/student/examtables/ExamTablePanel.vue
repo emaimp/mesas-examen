@@ -32,10 +32,10 @@
         <v-expansion-panel-text>
           <div class="transparent-expansion-panel-content">
             <v-row dense>
-              <MesaExamenCard
-                v-for="mesa in anioData.mesas"
-                :key="mesa.id"
-                :mesa="mesa"
+              <ExamTableCard
+                v-for="mesaLlamado in getFlatMesasForAnio(anioData.mesas)"
+                :key="mesaLlamado.unique_key"
+                :mesa="mesaLlamado"
                 @open-inscripcion-dialog="openInscripcionDialog"
               />
             </v-row>
@@ -46,7 +46,7 @@
 
     <v-dialog v-model="showInscripcionDialog" max-width="500">
       <v-card>
-        <v-card-title class="text-h5 text-center">
+        <v-card-title class="text-h5 text-center mt-2 mx-2">
           Confirmar Inscripción
         </v-card-title>
         <v-card-text v-if="selectedMesa">
@@ -72,7 +72,7 @@
             </v-list-item>
           </v-list>
         </v-card-text>
-        <v-card-actions>
+        <v-card-actions class="mb-2 mx-2">
           <v-spacer />
           <v-btn
             class="action-button"
@@ -88,7 +88,7 @@
             variant="text"
             @click="showInscripcionDialog = false"
           >
-            Cancelar
+            Cerrar
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -109,7 +109,7 @@
   import { useTableRegistration } from '../../../services/student/useTableRegistration'
   import { useTablesExam } from '../../../services/student/useTablesExam'
   import { useAuthUser } from '../../../services/user/useAuthUser'
-  import MesaExamenCard from '../../student/examtables/ExamTableCard.vue'
+  import ExamTableCard from '../../student/examtables/ExamTableCard.vue'
 
   // Inicializa servicios para interactuar con la API
   const { fetchTablesExamByStudentNote } = useTablesExam() // Para obtener mesas de examen
@@ -140,6 +140,41 @@
       (a, b) => Number.parseInt(a.anio) - Number.parseInt(b.anio),
     )
   })
+
+  /**
+   * Aplana y separa las mesas por llamado para un año específico
+   * @param {Array<Object>} mesasForAnio - La lista de mesas de examen para un año
+   * @returns {Array<Object>} La lista aplanada de todos los llamados para ese año
+   */
+  const getFlatMesasForAnio = mesasForAnio => {
+    const allLlamados = []
+    // Verifica si mesasForAnio es un array
+    if (Array.isArray(mesasForAnio)) {
+      // Itera sobre cada mesa de examen
+      for (const mesa of mesasForAnio) {
+        // Si existe un primer llamado, lo añade a la lista
+        if (mesa.primer_llamado) {
+          allLlamados.push({
+            ...mesa,
+            fecha: mesa.primer_llamado,
+            tipo_llamado: 'Primer Llamado',
+            unique_key: `${mesa.id}_primer`,
+          })
+        }
+        // Si existe un segundo llamado, lo añade a la lista
+        if (mesa.segundo_llamado) {
+          allLlamados.push({
+            ...mesa,
+            fecha: mesa.segundo_llamado,
+            tipo_llamado: 'Segundo Llamado',
+            unique_key: `${mesa.id}_segundo`,
+          })
+        }
+      }
+    }
+    // Retorna todos los llamados aplanados
+    return allLlamados
+  }
 
   /**
    * Formatea una cadena de fecha ISO a un formato legible en español
@@ -197,11 +232,12 @@
     }
 
     const mesaId = selectedMesa.value.id
+    const llamadoInscrito = selectedMesa.value.tipo_llamado === 'Primer Llamado' ? 'primer_llamado' : 'segundo_llamado'
     inscripcionLoading.value = { ...inscripcionLoading.value, [mesaId]: true } // Activa el estado de carga
 
     try {
       // Llama al servicio para registrar al estudiante
-      const result = await RegisterStudentToTable(studentId.value, mesaId)
+      const result = await RegisterStudentToTable(studentId.value, mesaId, llamadoInscrito)
 
       // Muestra un mensaje de éxito o error
       snackbar.value = {
@@ -281,5 +317,10 @@
   transform: translateX(-50%) !important; /* Ajuste para centrado perfecto */
   bottom: 0 !important; /* Alinea en la parte inferior */
   text-align: center; /* Centra el texto */
+}
+
+/* Estilos para sobreescribir el .v-list global */
+.v-list {
+  background: linear-gradient(to right, #1f5d8b, #0e4c7a) !important;
 }
 </style>

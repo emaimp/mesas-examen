@@ -15,9 +15,10 @@
           @click:clear="clearFile"
         />
       </v-card-text>
-      <v-card-actions>
+      <v-card-actions class="mb-2 mx-2">
         <v-spacer />
         <v-btn
+          class="action-button"
           :disabled="!selectedFile || uploading"
           :loading="uploading"
           variant="outlined"
@@ -31,7 +32,7 @@
           variant="text"
           @click="showUploadDialog = false; clearFile()"
         >
-          Cancelar
+          Cerrar
         </v-btn>
       </v-card-actions>
     </v-card>
@@ -81,6 +82,11 @@
     showUploadDialog.value = true
   }
 
+  const openUploadPlanEstudiosDialog = () => {
+    currentUploadType.value = 'institute'
+    showUploadDialog.value = true
+  }
+
   const openDialog = () => {
     // Limpia el tipo de carga anterior y el archivo al abrir el diálogo.
     currentUploadType.value = null
@@ -93,6 +99,7 @@
     openDialog,
     openUploadGradesDialog,
     openUploadUsersDialog,
+    openUploadPlanEstudiosDialog,
   })
 
   // Función principal para manejar la subida del archivo
@@ -121,6 +128,10 @@
         }
         case 'users': {
           result = await fileUploadService.uploadUsersXLSX(selectedFile.value)
+          break
+        }
+        case 'institute': {
+          result = await fileUploadService.uploadPlanEstudiosXLSX(selectedFile.value)
           break
         }
         default: {
@@ -166,6 +177,8 @@
         currentUploadType.value = 'grades'
       } else if (fileName.includes('usuarios')) {
         currentUploadType.value = 'users'
+      } else if (fileName.includes('plan_estudios')) {
+        currentUploadType.value = 'institute'
       } else {
         currentUploadType.value = null // No se pudo determinar el tipo
       }

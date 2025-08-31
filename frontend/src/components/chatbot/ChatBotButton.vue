@@ -51,4 +51,9 @@
   width: 100px; /* Ancho del botón */
   height: 100px; /* Alto del botón */
 }
+
+/* Cambia el color de fondo del v-card-title específico del chatbot */
+.v-card-title {
+  background-color: #0d1c38 !important; /* Cambiar el color de fondo del v-card-title */
+}
 </style>

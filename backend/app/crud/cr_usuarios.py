@@ -1,4 +1,5 @@
 from app import core, models, schemas
+from fastapi import HTTPException
 from sqlmodel import Session, select
 from sqlalchemy.orm import selectinload
 
@@ -7,7 +8,7 @@ from sqlalchemy.orm import selectinload
 #
 def create_user(session: Session, user_in: schemas.UserCreate):
     # Hashea la contraseña antes de guardarla
-    hashed_password = core.get_password_hash(user_in.password)
+    hashed_password = core.security.get_password_hash(user_in.password)
     
     # Crea el objeto Usuarios con todos los campos, usando "getattr" para los opcionales
     user = models.Usuarios(
@@ -35,3 +36,20 @@ def get_username(session: Session, username: str):
         .where(models.Usuarios.username == username)
         .options(selectinload(models.Usuarios.asignaciones_estudiante)
         .selectinload(models.Estudiantes.carrera))).first()
+
+#
+# Actualiza la contraseña de un usuario
+#
+def update_user_password(session: Session, user_id: int, current_password: str, new_password: str) -> models.Usuarios:
+    user = session.get(models.Usuarios, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    
+    if not core.security.verify_password(current_password, user.password_hash):
+        raise HTTPException(status_code=400, detail="Contraseña actual incorrecta")
+    
+    user.password_hash = core.security.get_password_hash(new_password)
+    session.add(user)
+    session.commit()
+    session.refresh(user)
+    return user

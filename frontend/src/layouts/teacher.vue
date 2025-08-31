@@ -19,6 +19,8 @@
 
       <v-list density="compact" nav>
         <v-list-item
+          v-if="user"
+          :active="appStore.selectedSection === 'teacher-profile'"
           link
           prepend-icon="mdi-account-details"
           title="Perfil"
@@ -28,6 +30,8 @@
         />
 
         <v-list-item
+          v-if="false"
+          :active="appStore.selectedSection === 'students-subject'"
           link
           prepend-icon="mdi-account-school"
           title="Estudiantes Asignados"
@@ -37,6 +41,8 @@
         />
 
         <v-list-item
+          v-if="user"
+          :active="appStore.selectedSection === 'tables-assigned'"
           link
           prepend-icon="mdi-calendar-check"
           title="Mesas Examen Asignadas"
@@ -46,6 +52,8 @@
         />
 
         <v-list-item
+          v-if="user"
+          :active="appStore.selectedSection === 'change-password'"
           link
           prepend-icon="mdi-key-variant"
           title="Cambiar Contraseña"
@@ -60,13 +68,18 @@
           prepend-icon="mdi-logout"
           title="Cerrar Sesión"
           value="logout"
+          variant="tonal"
           @click="logout"
         />
       </v-list>
     </v-navigation-drawer>
 
-    <v-main class="d-flex flex-grow-1 align-center justify-center">
-      <router-view />
+    <v-main class="d-flex align-center justify-center">
+      <router-view v-slot="{ Component }">
+        <keep-alive>
+          <component :is="Component" />
+        </keep-alive>
+      </router-view>
     </v-main>
   </v-app>
 </template>
@@ -122,12 +135,6 @@
 
 /* Estilo para mantener siempre activo el item 'Cerrar Sesión' */
 .logout-active {
-  background-color: rgba(128, 0, 0, 0.2) !important; /* Color de fondo con opacidad */
-  color: #800000 !important; /* Color del texto y del icono */
-}
-
-/* Asegura que el icono de 'Cerrar Sesión' también tome el color correcto */
-.logout-active .v-icon {
-  color: #800000 !important;
+  color: rgba(255, 0, 0, 0.9) !important; /* Color del texto y del icono */
 }
 </style>

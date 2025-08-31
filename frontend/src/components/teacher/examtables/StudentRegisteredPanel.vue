@@ -8,7 +8,7 @@
     <v-alert
       v-else-if="
         !loading &&
-          (!estudiantesAgrupadosPorAnio || Object.keys(estudiantesAgrupadosPorAnio).length === 0)
+          (!estudiantesAgrupadosPorCarrera || estudiantesAgrupadosPorCarrera.length === 0)
       "
       class="mb-4"
       text="No hay estudiantes registrados para esta mesa de examen."
@@ -22,18 +22,18 @@
       variant="accordion"
     >
       <v-expansion-panel
-        v-for="anioData in sortedEstudiantesAgrupadosPorAnio"
-        :key="anioData.anio"
+        v-for="carreraData in sortedEstudiantesAgrupadosPorCarrera"
+        :key="carreraData.carrera_nombre"
       >
         <v-expansion-panel-title class="text-h6">
-          Estudiantes Registrados - {{ getAnioText(anioData.anio) }}
+          {{ carreraData.carrera_nombre }}
         </v-expansion-panel-title>
 
         <v-expansion-panel-text>
           <div class="transparent-expansion-panel-content">
             <v-row dense>
               <StudentRegisteredCard
-                v-for="estudiante in anioData.estudiantes"
+                v-for="estudiante in carreraData.mesas"
                 :key="estudiante.id"
                 :estudiante="estudiante"
                 @open-registered-dialog="openInscripcionDialog"
@@ -46,7 +46,7 @@
 
     <v-dialog v-model="showInscripcionDialog" max-width="500">
       <v-card>
-        <v-card-title class="text-h5 text-center">
+        <v-card-title class="text-h5 text-center mt-2 mx-2">
           Resgistrar Nota del Estudiante
         </v-card-title>
         <v-card-text v-if="selectedEstudiante">
@@ -69,26 +69,44 @@
                 selectedEstudiante.materia_nombre
               }}</v-list-item-subtitle>
             </v-list-item>
+            <v-list-item>
+              <v-list-item-title class="font-weight-bold">Llamado:</v-list-item-title>
+              <v-list-item-subtitle>{{
+                selectedEstudiante.llamado_inscrito === 'primer_llamado' ? 'Primer Llamado' : 'Segundo Llamado'
+              }}</v-list-item-subtitle>
+            </v-list-item>
+            <v-list-item>
+              <v-list-item-title class="font-weight-bold">Tipo de Inscripción:</v-list-item-title>
+              <v-list-item-subtitle>{{
+                formatTipoInscripcion(selectedEstudiante.tipo_inscripcion)
+              }}</v-list-item-subtitle>
+            </v-list-item>
+            <v-list-item>
+              <v-list-item-title class="font-weight-bold">Fecha y Hora:</v-list-item-title>
+              <v-list-item-subtitle>{{
+                formatFechaHora(selectedEstudiante.fecha_llamado)
+              }}</v-list-item-subtitle>
+            </v-list-item>
             <v-list-item class="mb-10">
               <v-list-item-title class="font-weight-bold">Carrera:</v-list-item-title>
               <v-list-item-subtitle>{{
                 selectedEstudiante.carrera_nombre
               }}</v-list-item-subtitle>
             </v-list-item>
-            <v-list-item style="overflow: visible; padding-top: 10px;">
+            <v-list-item>
               <v-text-field
                 v-model="studentGrade"
                 label="Nota del Estudiante"
                 max="10"
                 min="0"
-                style="margin-top: 10px;"
+                style="margin-top: 17px;"
                 type="number"
                 variant="outlined"
               />
             </v-list-item>
           </v-list>
         </v-card-text>
-        <v-card-actions class="pt-0">
+        <v-card-actions class="mb-2 mx-2">
           <v-spacer />
           <v-btn
             class="action-button"
@@ -102,7 +120,7 @@
             variant="text"
             @click="showInscripcionDialog = false"
           >
-            Cancelar
+            Cerrar
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -133,7 +151,7 @@
   const { fetchExamTables } = useTableExamTeacher()
 
   // Variables reactivas para el estado del componente
-  const estudiantesAgrupadosPorAnio = ref([]) // Almacena los estudiantes agrupados por año
+  const estudiantesAgrupadosPorCarrera = ref([]) // Almacena los estudiantes agrupados por carrera y luego por año
   const loading = ref(true) // Indica si los datos están cargando
   const snackbar = ref({
     show: false,
@@ -143,29 +161,27 @@
 
   const showInscripcionDialog = ref(false) // Controla la visibilidad del diálogo de detalles
   const selectedEstudiante = ref(null) // Almacena el estudiante seleccionado para mostrar detalles
-  const openPanels = ref([]) // Controla qué paneles de expansión están abiertos (para agrupar por año)
+  const openPanels = ref([]) // Controla qué paneles de expansión están abiertos (para agrupar por carrera)
   const studentGrade = ref(null) // Almacena la nota del estudiante
 
-  // Propiedad computada para ordenar los estudiantes agrupados por año de forma ascendente
-  const sortedEstudiantesAgrupadosPorAnio = computed(() => {
-    if (!Array.isArray(estudiantesAgrupadosPorAnio.value)) {
+  // Propiedad computada para ordenar las carreras y luego los años de forma ascendente
+  const sortedEstudiantesAgrupadosPorCarrera = computed(() => {
+    if (!Array.isArray(estudiantesAgrupadosPorCarrera.value)) {
       return []
     }
-    return [...estudiantesAgrupadosPorAnio.value].sort(
-      (a, b) => Number.parseInt(a.anio) - Number.parseInt(b.anio),
-    )
+    return [...estudiantesAgrupadosPorCarrera.value]
+      .sort((a, b) => a.carrera_nombre.localeCompare(b.carrera_nombre))
   })
 
   /**
-   * Convierte el número del año a un formato ordinal (1° Año, 2° Año, etc.)
-   * @param {number} anio - El número del año
-   * @returns {string} El texto formateado del año
+   * Formatea una fecha y hora a un string legible.
+   * @param {string | Date} fecha - La fecha a formatear.
+   * @returns {string} La fecha y hora formateada.
    */
-  const getAnioText = anio => {
-    if (typeof anio !== 'number' || anio <= 0 || Number.isNaN(anio)) {
-      return 'Año Desconocido'
-    }
-    return `Año ${anio}`
+  const formatFechaHora = fecha => {
+    if (!fecha) return 'N/A'
+    const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }
+    return new Date(fecha).toLocaleDateString('es-ES', options)
   }
 
   /**
@@ -196,27 +212,17 @@
    */
   const loadEstudiantes = async currentTeacherId => {
     if (!currentTeacherId) {
-      estudiantesAgrupadosPorAnio.value = []
+      estudiantesAgrupadosPorCarrera.value = []
       loading.value = false
       return
     }
     loading.value = true // Inicia el estado de carga
     try {
-      const responseData = await fetchExamTables(currentTeacherId) // Usa el nuevo servicio
-      // Agrupa los estudiantes por año de la fecha de la mesa
-      const groupedEstudiantes = responseData.reduce((acc, estudiante) => {
-        const anio = new Date(estudiante.fecha).getFullYear()
-        if (!acc[anio]) {
-          acc[anio] = { anio, estudiantes: [] }
-        }
-        acc[anio].estudiantes.push(estudiante)
-        return acc
-      }, {})
-      // Convierte el objeto agrupado en un array de valores
-      estudiantesAgrupadosPorAnio.value = Object.values(groupedEstudiantes)
+      const responseData = await fetchExamTables(currentTeacherId) // responseData es List[TablesExamPerCareerForTeacher]
+      estudiantesAgrupadosPorCarrera.value = responseData
     } catch (error) {
       console.error('Error al cargar estudiantes registrados:', error)
-      estudiantesAgrupadosPorAnio.value = [] // Resetea los datos en caso de error
+      estudiantesAgrupadosPorCarrera.value = [] // Resetea los datos en caso de error
     } finally {
       loading.value = false // Finaliza el estado de carga
     }
@@ -224,18 +230,32 @@
 
   // Hook que se ejecuta cuando el componente se monta
   onMounted(async () => {
-    await fetchAuthUser() // Carga los datos del usuario autenticado
-    await loadEstudiantes(teacherId.value) // Carga los estudiantes registrados usando el ID del profesor
-    // Abre el primer panel de expansión si hay estudiantes disponibles
-    openPanels.value = sortedEstudiantesAgrupadosPorAnio.value.length > 0 ? [0] : []
+    // Asegura que el usuario esté cargado si no lo está ya (el layout principal ya lo hace)
+    if (!user.value) {
+      await fetchAuthUser()
+    }
+    // La carga de estudiantes se maneja por el watcher con 'immediate: true' (para evitar llamadas duplicadas)
   })
 
   // Observa cambios en el ID del profesor y recarga los estudiantes si cambia
-  watch(teacherId, async newTeacherId => {
-    await loadEstudiantes(newTeacherId) // Recarga los estudiantes con el nuevo ID de profesor
-    // Abre el primer panel de expansión si hay estudiantes disponibles
-    openPanels.value = sortedEstudiantesAgrupadosPorAnio.value.length > 0 ? [0] : []
+  watch(teacherId, async (newTeacherId, oldTeacherId) => {
+    // Solo recarga si el ID del profesor ha cambiado o si es la carga inicial y no hay datos
+    if (newTeacherId && (newTeacherId !== oldTeacherId || estudiantesAgrupadosPorCarrera.value.length === 0)) {
+      await loadEstudiantes(newTeacherId) // Recarga los estudiantes con el nuevo ID de profesor
+      // Abre el primer panel de expansión de carrera si hay estudiantes disponibles
+      openPanels.value = sortedEstudiantesAgrupadosPorCarrera.value.length > 0 ? [0] : []
+    }
   }, { immediate: true }) // Ejecuta el watcher inmediatamente al montar el componente
+
+  /**
+   * Formatea el tipo de inscripción para mostrar la primera letra en mayúscula
+   * @param {string} tipo - El tipo de inscripción (ej. "libre", "regular")
+   * @returns {string} El tipo de inscripción formateado (ej. "Libre", "Regular")
+   */
+  const formatTipoInscripcion = tipo => {
+    if (!tipo) return ''
+    return tipo.charAt(0).toUpperCase() + tipo.slice(1)
+  }
 </script>
 
 <style scoped>
@@ -256,5 +276,10 @@
   transform: translateX(-50%) !important; /* Ajuste para centrado perfecto */
   bottom: 0 !important; /* Posiciona en la parte inferior */
   text-align: center; /* Centra el texto dentro del snackbar */
+}
+
+/* Estilos para sobreescribir el .v-list global */
+.v-list {
+  background: linear-gradient(to right, #1f5d8b, #0e4c7a) !important;
 }
 </style>

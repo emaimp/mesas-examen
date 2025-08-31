@@ -9,10 +9,13 @@
         {{ estudiante.materia_nombre }}
       </v-card-title>
       <v-card-subtitle class="pt-0 pb-2">
-        {{ formatFechaHora(estudiante.fecha) }}
+        Tipo de Inscripción: {{ formatTipoInscripcion(estudiante.tipo_inscripcion) }}
+      </v-card-subtitle>
+      <v-card-subtitle class="pt-0 pb-2">
+        {{ estudiante.llamado_inscrito === 'primer_llamado' ? 'Primer Llamado' : 'Segundo Llamado' }}: {{ formatFechaHora(estudiante.fecha_llamado) }}
       </v-card-subtitle>
       <v-card-text class="pt-2 pb-2">
-        Estudiante: {{ estudiante.estudiante_nombre }}<br>
+        Estudiante: {{ estudiante.nombre_estudiante }}<br>
         DNI: {{ estudiante.dni }}<br>
         Libreta: {{ estudiante.libreta }}<br>
         Carrera: {{ estudiante.carrera_nombre }}
@@ -30,7 +33,7 @@
       required: true,
       // Validador para asegurar que el objeto 'estudiante' tenga las propiedades necesarias
       validator: value => {
-        return value && value.estudiante_nombre && value.dni && value.libreta && value.carrera_nombre && value.materia_nombre && value.fecha
+        return value && value.nombre_estudiante && value.dni && value.libreta && value.carrera_nombre && value.materia_nombre && value.fecha_llamado && value.llamado_inscrito && value.tipo_inscripcion
       },
     },
   })
@@ -55,6 +58,16 @@
       hour12: false,
     }
     return date.toLocaleDateString('es-ES', options)
+  }
+
+  /**
+   * Formatea el tipo de inscripción para mostrar la primera letra en mayúscula
+   * @param {string} tipo - El tipo de inscripción (ej. "libre", "regular")
+   * @returns {string} El tipo de inscripción formateado (ej. "Libre", "Regular")
+   */
+  const formatTipoInscripcion = tipo => {
+    if (!tipo) return ''
+    return tipo.charAt(0).toUpperCase() + tipo.slice(1)
   }
 </script>
 

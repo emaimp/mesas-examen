@@ -8,6 +8,7 @@
     >
       <v-list>
         <v-list-item
+          v-if="user"
           prepend-icon="mdi-account-circle"
           :subtitle="user.email"
           :title="user.username"
@@ -18,52 +19,89 @@
 
       <v-list density="compact" nav>
         <v-list-item
+          v-if="user"
+          :active="appStore.selectedSection === 'admin-home'"
           link
           prepend-icon="mdi-home"
           title="Inicio"
           to="/admin"
           value="admin-home"
+          @click="appStore.setSelectedSection('admin-home')"
         />
 
         <v-list-item
+          v-if="user"
+          :active="appStore.selectedSection === 'management-tables'"
           link
-          prepend-icon="mdi-calendar-range"
+          prepend-icon="mdi-calendar-check"
           title="Gestión de Mesas"
           to="/admin/management-tables"
           value="management-tables"
+          @click="appStore.setSelectedSection('management-tables')"
         />
 
         <v-list-item
+          v-if="user"
+          :active="appStore.selectedSection === 'administration-tables'"
+          link
+          prepend-icon="mdi-calendar-remove"
+          title="Administración de Mesas"
+          to="/admin/administration-tables"
+          value="administration-tables"
+          @click="appStore.setSelectedSection('administration-tables')"
+        />
+
+        <v-list-item
+          v-if="false"
+          :active="appStore.selectedSection === 'management-teacher'"
           link
           prepend-icon="mdi-account-tie"
           title="Gestión de Profesores"
           to="/admin/management-teacher"
           value="management-teacher"
+          @click="appStore.setSelectedSection('management-teacher')"
         />
 
         <v-list-item
+          v-if="false"
+          :active="appStore.selectedSection === 'management-student'"
           link
           prepend-icon="mdi-account-school"
           title="Gestión de Estudiantes"
           to="/admin/management-student"
           value="management-student"
+          @click="appStore.setSelectedSection('management-student')"
         />
 
         <v-list-item
+          v-if="user"
+          :active="appStore.selectedSection === 'admin-dashboard'"
           link
           prepend-icon="mdi-view-dashboard"
           title="Dashboard"
           to="/admin/dashboard"
           value="admin-dashboard"
+          @click="appStore.setSelectedSection('admin-dashboard')"
         />
 
         <v-list-item
+          v-if="user"
+          :active="appStore.selectedSection === 'change-password'"
+          link
+          prepend-icon="mdi-key-variant"
+          title="Cambiar Contraseña"
+          to="/admin/change-password"
+          value="change-password"
+          @click="appStore.setSelectedSection('change-password')"
+        />
+
+        <v-list-item
+          v-if="user"
           class="upload-active"
           link
           prepend-icon="mdi-upload"
           title="Carga de Archivos"
           value="file-upload"
-          variant="tonal"
           @click="openAdminFileUploadDialog"
         />
 
@@ -73,13 +111,18 @@
           prepend-icon="mdi-logout"
           title="Cerrar Sesión"
           value="logout"
+          variant="tonal"
           @click="logout"
         />
       </v-list>
     </v-navigation-drawer>
 
     <v-main class="d-flex align-center justify-center">
-      <router-view />
+      <router-view v-slot="{ Component }">
+        <keep-alive>
+          <component :is="Component" />
+        </keep-alive>
+      </router-view>
       <AdminFileUpload ref="adminFileUpload" />
     </v-main>
 
@@ -163,23 +206,11 @@
 
 /* Estilo para mantener siempre activo el item 'Carga de Archivos' */
 .upload-active {
-  background-color: rgba(61, 140, 64, 0.2) !important; /* Color de fondo con opacidad */
-  color: #3d8c40 !important; /* Color del texto y del icono */
-}
-
-/* Asegura que el icono de 'Carga de Archivos' también tome el color correcto */
-.upload-active .v-icon {
-  color: #3d8c40 !important;
+  color: rgba(20, 180, 20, 0.9) !important; /* Color del texto y del icono */
 }
 
 /* Estilo para mantener siempre activo el item 'Cerrar Sesión' */
 .logout-active {
-  background-color: rgba(128, 0, 0, 0.2) !important; /* Color de fondo con opacidad */
-  color: #800000 !important; /* Color del texto y del icono */
-}
-
-/* Asegura que el icono de 'Cerrar Sesión' también tome el color correcto */
-.logout-active .v-icon {
-  color: #800000 !important;
+  color: rgba(255, 0, 0, 0.9) !important; /* Color del texto y del icono */
 }
 </style>
