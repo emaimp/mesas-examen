@@ -1,42 +1,32 @@
 <template>
-  <v-dialog v-model="showUploadDialog" max-width="550" persistent>
-    <v-card>
-      <v-card-text>
-        <v-file-upload
-          v-model="selectedFile"
-          accept=".xlsx,.csv"
-          clearable
-          density="default"
-          :disabled="uploading"
-          label="Seleccionar archivo .xlsx o .csv"
-          :loading="uploading"
-          prepend-icon="mdi-microsoft-excel"
-          show-size
-          @click:clear="clearFile"
-        />
-      </v-card-text>
-      <v-card-actions class="mb-2 mx-2">
-        <v-spacer />
-        <v-btn
-          class="action-button"
-          :disabled="!selectedFile || uploading"
-          :loading="uploading"
-          variant="outlined"
-          @click="handleFileUpload"
-        >
-          Subir Excel
-        </v-btn>
-        <v-btn
-          class="cancel-button"
-          :disabled="uploading"
-          variant="text"
-          @click="showUploadDialog = false; clearFile()"
-        >
-          Cerrar
-        </v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
+  <v-card class="mx-auto" max-width="500">
+    <v-card-text>
+      <v-file-upload
+        v-model="selectedFile"
+        accept=".xlsx,.csv"
+        clearable
+        density="default"
+        :disabled="uploading"
+        label="Seleccionar archivo .xlsx o .csv"
+        :loading="uploading"
+        prepend-icon="mdi-microsoft-excel"
+        show-size
+        @click:clear="clearFile"
+      />
+    </v-card-text>
+    <v-card-actions class="mb-2 mx-2">
+      <v-btn
+        block
+        class="action-button"
+        :disabled="!selectedFile || uploading"
+        :loading="uploading"
+        variant="outlined"
+        @click="handleFileUpload"
+      >
+        Subir Excel
+      </v-btn>
+    </v-card-actions>
+  </v-card>
 
   <v-snackbar
     v-model="snackbar.show"
@@ -54,13 +44,13 @@
 </template>
 
 <script setup>
+  import { ref, watch } from 'vue'
   import { useFileUpload } from '../../services/admin/useFileUpload.js'
 
   // Inicializa el servicio de subida de archivos
   const fileUploadService = useFileUpload()
 
   // Variables reactivas para controlar el estado del componente
-  const showUploadDialog = ref(false) // Controla la visibilidad del diálogo de subida
   const selectedFile = ref(null) // Almacena el archivo seleccionado para subir
   const uploading = ref(false) // Indica si un archivo se está subiendo
   const currentUploadType = ref(null) // Almacena el tipo de archivo que se está subiendo (ej. 'grades', 'users')
@@ -69,37 +59,6 @@
     message: '',
     color: '',
     errors: null,
-  })
-
-  // Funciones para abrir el diálogo de subida para diferentes tipos de archivos
-  const openUploadGradesDialog = () => {
-    currentUploadType.value = 'grades'
-    showUploadDialog.value = true
-  }
-
-  const openUploadUsersDialog = () => {
-    currentUploadType.value = 'users'
-    showUploadDialog.value = true
-  }
-
-  const openUploadPlanEstudiosDialog = () => {
-    currentUploadType.value = 'institute'
-    showUploadDialog.value = true
-  }
-
-  const openDialog = () => {
-    // Limpia el tipo de carga anterior y el archivo al abrir el diálogo.
-    currentUploadType.value = null
-    clearFile()
-    showUploadDialog.value = true
-  }
-
-  // Expone estas funciones para que puedan ser llamadas desde el componente padre
-  defineExpose({
-    openDialog,
-    openUploadGradesDialog,
-    openUploadUsersDialog,
-    openUploadPlanEstudiosDialog,
   })
 
   // Función principal para manejar la subida del archivo
@@ -158,9 +117,7 @@
     } finally {
       // Restablece el estado después de la subida (éxito o error)
       uploading.value = false
-      showUploadDialog.value = false
       clearFile() // Limpia el archivo seleccionado
-      open.value = false // Cierra el Speed Dial
     }
   }
 

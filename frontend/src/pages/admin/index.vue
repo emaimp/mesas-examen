@@ -31,15 +31,10 @@
         </v-col>
       </v-row>
     </div>
-    <div class="fab-container">
-      <AdminFileUpload />
-    </div>
   </v-container>
 </template>
 
 <script setup>
-  import AdminFileUpload from '@/components/admin/AdminFileUpload.vue'
-
   // Define un array de objetos para los enlaces de la página
   const links = [
     {
@@ -62,14 +57,6 @@
 .fixed-card-size {
   max-width: 450px; /* Ancho máximo */
   width: 100%; /* Asegura el 100% del espacio disponible hasta el max-width */
-}
-
-/* Estilos para el contenedor del botón de acción flotante (FAB) */
-.fab-container {
-  position: fixed; /* Posicionamiento fijo en la pantalla */
-  bottom: 60px; /* Distancia desde la parte inferior */
-  right: 20px; /* Distancia desde la parte derecha (responsivo) */
-  z-index: 1000; /* Asegura que esté por encima de otros elementos */
 }
 </style>
 
