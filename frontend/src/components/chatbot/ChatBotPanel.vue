@@ -1,10 +1,11 @@
 <template>
-  <v-card class="d-flex flex-column chatbot-card" height="100%">
+  <v-card class="d-flex flex-column mx-auto" height="850px" max-width="750">
     <v-card-text class="flex-grow-1 overflow-y-auto pa-0">
-      <v-container class="fill-height chatbot-container" fluid>
+      <v-container class="fill-height" fluid>
         <v-row class="fill-height">
           <v-col class="fill-height" cols="12">
             <div class="message-area">
+              <v-icon class="background-robot-icon" size="200">mdi-robot</v-icon>
               <div v-for="(msg, index) in chatHistory" :key="index" :class="['message-bubble', msg.role]">
                 <p v-html="formatMessage(msg.content)" />
               </div>
@@ -130,7 +131,19 @@
   border-radius: 4px; /* Bordes redondeados */
   display: flex; /* Usa flexbox para organizar los mensajes */
   flex-direction: column; /* Organiza los mensajes en columna */
-  background-color: rgba(14, 76, 122); /* Color de fondo */
+  background-color: rgba(13, 28, 56); /* Color de fondo */
+  position: relative; /* Necesario para posicionar el icono absolutamente */
+}
+
+/* Configuración del robot icon en el message-area */
+.background-robot-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: rgba(255, 255, 255, 0.1); /* Color blanco con 10% de opacidad */
+  z-index: 0; /* Asegura que esté detrás de los mensajes */
+  pointer-events: none; /* Permite que los eventos de ratón pasen a los elementos de abajo */
 }
 
 /* Burbuja de mensaje individual */
@@ -151,7 +164,7 @@
 
 /* Estilos para las burbujas de mensajes del bot */
 .message-bubble.bot {
-  background-color: #ffffff; /* Color de fondo para mensajes del bot */
+  background-color: #000000; /* Color de fondo para mensajes del bot */
   align-self: flex-start; /* Alinea la burbuja a la izquierda */
   text-align: left; /* Alinea el texto a la izquierda */
 }
@@ -162,20 +175,5 @@
   align-items: center; /* Centra verticalmente los elementos */
   font-style: italic; /* Texto en cursiva */
   color: #ffffff; /* Color del texto */
-}
-
-/* Eliminar el borde del v-card específico del chatbot */
-.chatbot-card {
-  border: none !important;
-}
-
-/* Cambia el color de fondo del v-container específico del chatbot */
-.chatbot-container {
-  background-color: #0d1c38 !important; /* Cambiar el color de fondo del v-container */
-}
-
-/* Cambia el color de fondo del v-card-actions específico del chatbot */
-.v-card-actions {
-  background-color: #0d1c38 !important; /* Cambiar el color de fondo del v-card-actions */
 }
 </style>

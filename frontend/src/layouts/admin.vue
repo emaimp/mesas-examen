@@ -31,10 +31,21 @@
 
         <v-list-item
           v-if="user"
+          :active="appStore.selectedSection === 'administration-chatbot'"
+          link
+          prepend-icon="mdi-robot"
+          title="Chat Bot"
+          to="/admin/administration-chatbot"
+          value="administration-chatbot"
+          @click="appStore.setSelectedSection('administration-chatbot')"
+        />
+
+        <v-list-item
+          v-if="user"
           :active="appStore.selectedSection === 'management-tables'"
           link
           prepend-icon="mdi-calendar-check"
-          title="Gestión de Mesas"
+          title="Creación de Mesas"
           to="/admin/management-tables"
           value="management-tables"
           @click="appStore.setSelectedSection('management-tables')"
@@ -45,7 +56,7 @@
           :active="appStore.selectedSection === 'administration-tables'"
           link
           prepend-icon="mdi-calendar-remove"
-          title="Administración de Mesas"
+          title="Gestión de Mesas"
           to="/admin/administration-tables"
           value="administration-tables"
           @click="appStore.setSelectedSection('administration-tables')"
@@ -75,13 +86,13 @@
 
         <v-list-item
           v-if="user"
-          :active="appStore.selectedSection === 'admin-dashboard'"
+          :active="appStore.selectedSection === 'administration-dashboard'"
           link
           prepend-icon="mdi-view-dashboard"
           title="Dashboard"
-          to="/admin/dashboard"
-          value="admin-dashboard"
-          @click="appStore.setSelectedSection('admin-dashboard')"
+          to="/admin/administration-dashboard"
+          value="administration-dashboard"
+          @click="appStore.setSelectedSection('administration-dashboard')"
         />
 
         <v-list-item
@@ -97,12 +108,14 @@
 
         <v-list-item
           v-if="user"
+          :active="appStore.selectedSection === 'administration-upload'"
           class="upload-active"
           link
           prepend-icon="mdi-upload"
           title="Carga de Archivos"
-          value="file-upload"
-          @click="openAdminFileUploadDialog"
+          to="/admin/administration-upload"
+          value="administration-upload"
+          @click="appStore.setSelectedSection('administration-upload')"
         />
 
         <v-list-item
@@ -123,34 +136,27 @@
           <component :is="Component" />
         </keep-alive>
       </router-view>
-      <AdminFileUpload ref="adminFileUpload" />
     </v-main>
-
-    <ChatBotButton />
+    <ChatBotButton v-if="route.path !== '/admin/administration-chatbot'" />
   </v-app>
 </template>
 
 <script setup>
   import axios from 'axios' // Para realizar peticiones HTTP
-  import AdminFileUpload from '@/components/admin/AdminFileUpload.vue'
+  import { useRoute } from 'vue-router' // Importa useRoute para acceder a la ruta actual
   import ChatBotButton from '@/components/chatbot/ChatBotButton.vue'
   import { useAppStore } from '@/stores/app' // Store de Pinia para la gestión del estado de la aplicación
 
   // Estado reactivo para controlar la visibilidad del menú lateral
   const drawer = ref(true)
-  const adminFileUpload = ref(null)
-
-  const openAdminFileUploadDialog = () => {
-    if (adminFileUpload.value) {
-      adminFileUpload.value.openDialog()
-    }
-  }
   // Inicializa el store de la aplicación
   const appStore = useAppStore()
   // Obtiene los datos del usuario desde el store
   const user = appStore.user
   // Inicializa el enrutador de Vue
   const router = useRouter()
+  // Obtiene la ruta actual
+  const route = useRoute()
 
   /**
    * Función para cerrar la sesión del usuario

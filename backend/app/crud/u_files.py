@@ -1,8 +1,11 @@
+import logging
 import pandas as pd
 from app import crud, models, schemas
 from io import BytesIO
 from sqlmodel import Session, select
 from sqlalchemy.exc import IntegrityError
+
+logger = logging.getLogger(__name__)
 
 #
 # Carga Excel con los datos de los usuarios y sus asignaciones
@@ -37,12 +40,12 @@ def cargar_usuarios_excel(file_bytes: bytes, session: Session) -> schemas.ApiRes
                 continue
             
             errores_hoja = []
-            registros_exitosos_hoja = 0
+            users_to_create = []
+            rows_to_process_after_user_creation = []
 
-            # Itera sobre cada fila de la hoja
+            # Primera pasada: Recopilar usuarios nuevos y hashear contraseñas
             for i, row in df.iterrows():
                 try:
-                    # Prepara los datos del usuario
                     user_data = {
                         "username": str(row['username']).strip(),
                         "password": str(row['password']).strip(),
@@ -53,14 +56,54 @@ def cargar_usuarios_excel(file_bytes: bytes, session: Session) -> schemas.ApiRes
                         "legajo": str(row['legajo']).strip() if 'legajo' in df.columns and pd.notna(row['legajo']) else None,
                         "libreta": str(row['libreta']).strip() if 'libreta' in df.columns and pd.notna(row['libreta']) else None,
                     }
-
-                    # Crea el usuario en la base de datos
                     user_in = schemas.UserCreate(**user_data)
-                    user = crud.cr_usuarios.create_user(session=session, user_in=user_in)
+
+                    existing_user = crud.cr_usuarios.get_user_by_unique_fields(session=session, user_in=user_in)
+
+                    if existing_user:
+                        errores_hoja.append(f"Fila {i+2} (Hoja '{sheet_name}'): El usuario {existing_user.username} ya existe.")
+                    else:
+                        users_to_create.append(user_in)
+                        rows_to_process_after_user_creation.append((i, row)) # Guardar la fila original para procesar asignaciones
+                except ValueError as e:
+                    errores_hoja.append(f"Fila {i+2} (Hoja '{sheet_name}'): Error de datos - {str(e)}")
+                except Exception as e:
+                    errores_hoja.append(f"Fila {i+2} (Hoja '{sheet_name}'): Error inesperado en pre-procesamiento - {str(e)}")
+            
+            # Insertar todos los usuarios nuevos en un solo lote
+            created_users = []
+            if users_to_create:
+                try:
+                    created_users = crud.cr_usuarios.create_multiple_users(session=session, users_in=users_to_create)
+                    registros_exitosos_totales += len(created_users)
+                except IntegrityError as e:
+                    session.rollback()
+                    errores_globales.append(f"Hoja '{sheet_name}': Error de integridad al insertar usuarios en lote - {str(e)}")
+                    # Si hay un error de integridad en el lote, no podemos confiar en los IDs, así que salimos de esta hoja
+                    errores_globales.extend(errores_hoja)
+                    continue
+                except Exception as e:
+                    session.rollback()
+                    errores_globales.append(f"Hoja '{sheet_name}': Error inesperado al insertar usuarios en lote - {str(e)}")
+                    errores_globales.extend(errores_hoja)
+                    continue
+
+            # Mapear los usuarios creados a sus datos originales para procesar asignaciones
+            # Esto asume que el orden de `users_to_create` se mantiene en `created_users`
+            user_map = {user.username: user for user in created_users}
+
+            # Segunda pasada: Crear asignaciones para estudiantes y profesores
+            for i, row in rows_to_process_after_user_creation:
+                try:
+                    username = str(row['username']).strip()
+                    user = user_map.get(username) # Obtener el usuario recién creado
                     
+                    if not user: # Esto no debería pasar si el flujo es correcto, pero es una salvaguarda
+                        errores_hoja.append(f"Fila {i+2} (Hoja '{sheet_name}'): Error interno: Usuario no encontrado después de la creación en lote - {username}")
+                        continue
+
                     # Si el rol es estudiante, crea el registro de estudiante
                     if user.role == "student":
-                        # Valida campos específicos para estudiantes
                         if 'carrera_id' not in df.columns or pd.isna(row['carrera_id']):
                             raise ValueError("El campo 'carrera_id' es requerido para estudiantes")
                         if 'anio_ingreso' not in df.columns or pd.isna(row['anio_ingreso']):
@@ -75,7 +118,6 @@ def cargar_usuarios_excel(file_bytes: bytes, session: Session) -> schemas.ApiRes
                     
                     # Si el rol es profesor, crea el registro de profesor
                     elif user.role == "teacher":
-                        # Valida campos específicos para profesores
                         if 'materia_carrera_id' not in df.columns or pd.isna(row['materia_carrera_id']):
                             raise ValueError("El campo 'materia_carrera_id' es requerido para profesores")
                         if 'anio_asignado' not in df.columns or pd.isna(row['anio_asignado']):
@@ -88,39 +130,59 @@ def cargar_usuarios_excel(file_bytes: bytes, session: Session) -> schemas.ApiRes
                         )
                         crud.cr_profesores.create_profesor(session=session, profesor_in=profesor_data)
                     
-                    registros_exitosos_hoja += 1
-                # Manejo de errores específicos
                 except IntegrityError as e:
                     session.rollback()
-                    errores_hoja.append(f"Fila {i+2} (Hoja '{sheet_name}'): Error de integridad (ej usuario/DNI/email/libreta/legajo duplicado o asignación duplicada) - {str(e)}")
+                    errores_hoja.append(f"Fila {i+2} (Hoja '{sheet_name}'): Error de integridad (ej asignación duplicada) - {str(e)}")
                 except ValueError as e:
-                    errores_hoja.append(f"Fila {i+2} (Hoja '{sheet_name}'): Error de datos - {str(e)}")
+                    errores_hoja.append(f"Fila {i+2} (Hoja '{sheet_name}'): Error de datos en asignación - {str(e)}")
                 except Exception as e:
                     session.rollback()
-                    errores_hoja.append(f"Fila {i+2} (Hoja '{sheet_name}'): Error inesperado - {str(e)}")
+                    errores_hoja.append(f"Fila {i+2} (Hoja '{sheet_name}'): Error inesperado en asignación - {str(e)}")
             
-            registros_exitosos_totales += registros_exitosos_hoja
             errores_globales.extend(errores_hoja)
         
+        # Registrar todos los errores detallados en el log del servidor
+        for error_msg in errores_globales:
+            logger.error(error_msg)
+
+        # Construir el mensaje para el frontend
+        final_message = ""
+        success_status = False
+
+        if registros_exitosos_totales > 0 and len(errores_globales) == 0:
+            final_message = f"{registros_exitosos_totales} usuarios y sus asignaciones cargados correctamente."
+            success_status = True
+        elif registros_exitosos_totales > 0 and len(errores_globales) > 0:
+            final_message = f"{registros_exitosos_totales} usuarios y sus asignaciones cargados, pero {len(errores_globales)} errores ocurrieron."
+            success_status = True # Consideramos éxito parcial para el frontend
+        elif registros_exitosos_totales == 0 and len(errores_globales) > 0:
+            final_message = f"No se pudo cargar ningún usuario debido a {len(errores_globales)} errores."
+            success_status = False
+        else: # No se cargaron registros y no hay errores específicos
+            final_message = "No se cargaron registros de usuarios."
+            success_status = False
+
         # Intenta guardar los cambios en la base de datos
         try:
             session.commit()
             return schemas.ApiResponse(
-                success=registros_exitosos_totales > 0,
-                message=f"{registros_exitosos_totales} usuarios cargados correctamente"
-                           if registros_exitosos_totales > 0 else "No se cargaron registros",
-                errors=errores_globales
+                success=success_status,
+                message=final_message,
+                errors=[] # Vaciar la lista de errores para el frontend
             )
-        # Manejo de errores al guardar en la base de datos
+        # Manejo de errores al guardar en la base de datos (errores de commit final)
         except IntegrityError as e:
             session.rollback()
-            return schemas.ApiResponse(success=False, message="No se pudo cargar el archivo, valores duplicados", errors=[])
+            logger.error(f"Error de integridad al guardar los datos finales: {str(e)}")
+            return schemas.ApiResponse(success=False, message="Error al guardar los datos finales: valores duplicados.", errors=[])
         except Exception as e:
             session.rollback()
-            return schemas.ApiResponse(success=False, message="Error al guardar los datos en la base de datos", errors=[str(e)])
+            logger.error(f"Error inesperado al guardar los datos finales: {str(e)}")
+            return schemas.ApiResponse(success=False, message="Error inesperado al guardar los datos finales.", errors=[])
     # Manejo de errores generales al procesar el archivo
     except Exception as e:
-        return schemas.ApiResponse(success=False, message="Error procesando el archivo", errors=[str(e)])
+        logger.error(f"Error general procesando el archivo Excel: {str(e)}")
+        return schemas.ApiResponse(success=False, message="Error procesando el archivo Excel.", errors=[])
 
 #
 # Carga Excel con las notas de los estudiantes

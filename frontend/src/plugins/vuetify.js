@@ -36,6 +36,7 @@ export default createVuetify({
           green_color: '#2ed22e',
           yellow_color: '#ff7900',
           red_color: '#f3180b',
+          border: '#FFFFFF',
         },
       },
     },
