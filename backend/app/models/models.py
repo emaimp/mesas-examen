@@ -32,6 +32,8 @@ class Usuarios(SQLModel, table=True):
     asignaciones_profesor: List["Profesores"] = Relationship(back_populates="usuario")
     # Un usuario (profesor) puede dictar muchas mesas de examen
     mesas_examen_dictadas: List["Mesas_Examen"] = Relationship(back_populates="profesor_usuario")
+    # Un usuario (estudiante) puede tener muchas notas de examen
+    notas_examen: List["Notas_Examen"] = Relationship(back_populates="estudiante_user_examen")
 
 """
 TABLA: PROFESORES
@@ -130,6 +132,10 @@ class Materia_Carreras(SQLModel, table=True):
     mesas_examen: List["Mesas_Examen"] = Relationship(back_populates="materia_carrera")
     # Una asociación materia_carrera puede tener muchos profesores asignados
     profesores: List["Profesores"] = Relationship(back_populates="materia_carrera")
+    # Una asociación materia_carrera puede tener muchas notas de examen
+    notas_examen: List["Notas_Examen"] = Relationship(back_populates="materia_carrera")
+    # Una asociación materia_carrera puede tener muchos prácticos
+    practicos: List["Practicos"] = Relationship(back_populates="materia_carrera")
 
     # Propiedades para obtener nombres de carrera y materia
     @property
@@ -150,10 +156,10 @@ class Notas(SQLModel, table=True):
     id: int = Field(default=None, primary_key=True)
     estudiante_id: int = Field(foreign_key="usuarios.id") # ID del estudiante (FK a Usuarios)
     materia_carrera_id: int = Field(foreign_key="materia_carreras.id") # ID de materia_carrera (FK a Materia_Carreras)
-    eval_1: int = Field(..., ge=0, le=10) # Nota de la primera evaluación (entre 0 y 10)
+    eval_1: int = Field(..., ge=0, le=10)
     rec_1: int = Field(..., ge=0, le=10)
     eval_2: int = Field(..., ge=0, le=10)
-    rec_2: int = Field(..., ge=0, le=10)
+    rec_2: int = Field(..., ge=0, le=10) # Notas de las Evaluaciones (hasta 10)
     eval_3: int = Field(..., ge=0, le=10)
     rec_3: int = Field(..., ge=0, le=10)
     nota_prom: float # Nota promedio final
@@ -163,6 +169,32 @@ class Notas(SQLModel, table=True):
     estudiante_user: "Usuarios" = Relationship(back_populates="notas")
     # Referencia a la asociación materia_carrera
     materia_carrera: Materia_Carreras = Relationship(back_populates="notas")
+
+    # Propiedad para obtener el nombre de la materia
+    @property
+    def materia(self):
+        return self.materia_carrera.materia_nombre if self.materia_carrera else None
+
+"""
+TABLA: NOTAS_EXAMEN
+"""
+# Almacena las notas de los estudiantes para las mesas de examen de cada materia/carrera.
+class Notas_Examen(SQLModel, table=True):
+    __table_args__ = (
+        UniqueConstraint('estudiante_id', 'materia_carrera_id', name='uq_estudiante_materia_examen'),
+    )
+    id: int = Field(default=None, primary_key=True)
+    estudiante_id: int = Field(foreign_key="usuarios.id") # ID del estudiante (FK a Usuarios)
+    materia_carrera_id: int = Field(foreign_key="materia_carreras.id") # ID de materia_carrera (FK a Materia_Carreras)
+    primer_examen: Optional[int] = Field(default=None, ge=0, le=4)
+    segundo_examen: Optional[int] = Field(default=None, ge=0, le=4) # Notas de los Examenes (hasta 4, permitiendo None)
+    tercer_examen: Optional[int] = Field(default=None, ge=0, le=4)
+
+    # Relaciones con otras tablas
+    # Referencia al usuario estudiante
+    estudiante_user_examen: "Usuarios" = Relationship(back_populates="notas_examen")
+    # Referencia a la asociación materia_carrera
+    materia_carrera: Materia_Carreras = Relationship(back_populates="notas_examen")
 
     # Propiedad para obtener el nombre de la materia
     @property
@@ -180,11 +212,11 @@ class Practicos(SQLModel, table=True):
     id: int = Field(default=None, primary_key=True)
     estudiante_id: int = Field(foreign_key="usuarios.id") # ID del estudiante (FK a Usuarios)
     materia_carrera_id: int = Field(foreign_key="materia_carreras.id") # ID de materia_carrera (FK a Materia_Carreras)
-    tp_1: int = Field(..., ge=0, le=10) # Nota del Trabajo Práctico 1 (entre 0 y 10)
+    tp_1: int = Field(..., ge=0, le=10)
     tp_2: int = Field(..., ge=0, le=10)
     tp_3: int = Field(..., ge=0, le=10)
     tp_4: int = Field(..., ge=0, le=10)
-    tp_5: int = Field(..., ge=0, le=10)
+    tp_5: int = Field(..., ge=0, le=10) # Nota de los Trabajos Prácticos (hasta 10)
     tp_6: int = Field(..., ge=0, le=10)
     tp_7: int = Field(..., ge=0, le=10)
     tp_8: int = Field(..., ge=0, le=10)
@@ -194,6 +226,8 @@ class Practicos(SQLModel, table=True):
     # Relaciones con otras tablas
     # Referencia al usuario estudiante
     estudiante_user: "Usuarios" = Relationship(back_populates="practicos")
+    # Referencia a la asociación materia_carrera
+    materia_carrera: "Materia_Carreras" = Relationship(back_populates="practicos")
 
 """
 TABLA: CORRELATIVAS
@@ -261,24 +295,30 @@ class Inscripciones_Examen(SQLModel, table=True):
     estudiante_id: int = Field(foreign_key="usuarios.id") # ID del estudiante (FK a Usuarios)
     mesa_examen_id: int = Field(foreign_key="mesas_examen.id") # ID de la mesa de examen (FK a Mesas_Examen)
     fecha_inscripcion: datetime = Field(default_factory=datetime.utcnow) # Fecha y hora de la inscripción
-    llamado_inscrito: str = Field(max_length=20) # "primer_llamado" o "segundo_llamado"
+    llamado_inscrito: str = Field(max_length=30) # "primer_llamado" o "segundo_llamado"
+    examen: Optional[str] = Field(default=None, max_length=30) # "primer_examen", "segundo_examen" o "tercer_examen"
 
     # Enumeración para el tipo de inscripción
     class TipoInscripcion(str, Enum):
         libre = "libre"
         regular = "regular"
 
+    # Enumeración para el estado de la inscripción
+    class EstadoInscripcion(str, Enum):
+        activo = "active" # La inscripción está activa
+        cancelado = "canceled" # La inscripción ha sido cancelada
+
+    # Enumeración para el estado de asistencia
+    class EstadoAsistencia(str, Enum):
+        si = "si"
+        no = "no"
+
     tipo_inscripcion: Optional[str] = Field(default=None, max_length=10) # "libre" o "regular"
+    estado: str = Field(default="active") # Estado actual de la inscripción, por defecto 'active'
+    asistencia: str = Field(default=EstadoAsistencia.no) # Campo para registrar la asistencia, por defecto 'no'
 
     # Relaciones con otras tablas
     # Referencia al usuario con el rol de estudiante
     estudiante_user: "Usuarios" = Relationship(back_populates="inscripciones")
     # Referencia a la mesa de examen
     mesa_examen: Mesas_Examen = Relationship(back_populates="inscripciones")
-
-    # Enumeración para el estado de la inscripción
-    class EstadoInscripcion(str, Enum):
-        activo = "active" # La inscripción está activa
-        cancelado = "canceled" # La inscripción ha sido cancelada
-
-    estado: str = Field(default="active") # Estado actual de la inscripción, por defecto 'active'

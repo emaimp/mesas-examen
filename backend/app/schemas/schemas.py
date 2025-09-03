@@ -199,7 +199,7 @@ class CorreAverageNote(SQLModel):
     codigo: int
     materia: str
     nota_prom: Optional[float] = None
-    correlativas: List[int] = [] # Lista de IDs de las materias correlativas
+    correlativas: List[int] = []
     class Config:
         from_attributes = True
 
@@ -209,6 +209,22 @@ class CorreAverageNoteYear(SQLModel):
     materias: List[CorreAverageNote]
     class Config:
         from_attributes = True
+
+"""
+SCHEMAS: NOTAS EXAMEN
+"""
+# Crea una nota de examen
+class NotesExamCreate(SQLModel):
+    estudiante_id: int
+    materia_carrera_id: int
+    primer_examen: int
+    segundo_examen: int
+    tercer_examen: int
+
+# Esquema para actualizar una nota de examen
+class NotesExamUpdate(SQLModel):
+    inscripcion_id: int
+    nota: int
 
 """
 SCHEMAS: MESAS EXAMEN
@@ -264,10 +280,11 @@ class RegistrationExamCreate(SQLModel):
     mesa_examen_id: int
     llamado_inscrito: str
     tipo_inscripcion: Optional[str] = None
+    examen: Optional[str] = None
 
 # Devuelve datos especificos de una inscripción
 class ExamRegistrationDetail(SQLModel):
-    id: int
+    id: int # id mesa de examen
     id_inscripcion: int
     llamado_inscrito: str
     tipo_inscripcion: Optional[str] = None
@@ -279,6 +296,7 @@ class ExamRegistrationDetail(SQLModel):
     dni: str
     libreta: Optional[str] = None
     estado: str
+    asistencia: str
 
 # Devuelve las mesas de examen inscriptas agrupadas por año
 class TablesRegisteredPerYear(SQLModel):
@@ -289,7 +307,8 @@ class TablesRegisteredPerYear(SQLModel):
 
 # Devuelve datos especificos de los estudiantes inscriptos
 class ExamWithStudentsDetail(SQLModel):
-    id: int
+    id: int # id mesa de examen
+    id_inscripcion: int
     llamado_inscrito: str
     tipo_inscripcion: Optional[str] = None
     fecha_llamado: Optional[datetime] = None

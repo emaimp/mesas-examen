@@ -174,7 +174,8 @@ def obtener_mesas_inscriptas(estudiante_id: int, session: Session) -> List[schem
             estudiante_nombre=usuario_obj.nombre,
             dni=usuario_obj.dni,
             libreta=usuario_obj.libreta,
-            estado=inscripcion_obj.estado
+            estado=inscripcion_obj.estado,
+            asistencia=inscripcion_obj.asistencia
         )
         # Extraer el año de la materia desde Materia_Carreras
         anio = mesa_obj.materia_carrera.anio

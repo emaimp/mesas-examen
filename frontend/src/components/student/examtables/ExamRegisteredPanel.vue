@@ -104,8 +104,8 @@
         <v-card-actions class="mb-2 mx-2">
           <v-spacer />
           <v-btn
-            v-if="selectedMesa && selectedMesa.estado === 'active'"
             class="action-button"
+            :disabled="!selectedMesa || selectedMesa.estado !== 'active' || selectedMesa.asistencia === 'si'"
             variant="outlined"
             @click="confirmInscripcion"
           >
@@ -338,6 +338,6 @@
 
 /* Estilos para sobreescribir el .v-list global */
 .v-list {
-  background: linear-gradient(to right, #1f5d8b, #0e4c7a) !important;
+  background: linear-gradient(to right, #276291, #1e5483) !important;
 }
 </style>
