@@ -97,7 +97,7 @@
               <v-text-field
                 v-model="studentGrade"
                 label="Nota del Estudiante"
-                max="10"
+                max="4"
                 min="0"
                 style="margin-top: 17px;"
                 type="number"
@@ -110,6 +110,7 @@
           <v-spacer />
           <v-btn
             class="action-button"
+            :disabled="sendingNote"
             variant="outlined"
             @click="saveGrade"
           >
@@ -138,12 +139,15 @@
 </template>
 
 <script setup>
+  import { useExamNotes } from '../../../services/teacher/useNotesExam' // Importa el nuevo hook
   import { useTableExamTeacher } from '../../../services/teacher/useTableExamTeacher'
   import { useAuthUser } from '../../../services/user/useAuthUser'
   import StudentRegisteredCard from '../../teacher/examtables/StudentRegisteredCard.vue'
 
   // Obtiene el usuario autenticado y la función para cargarlo
   const { user, fetchAuthUser } = useAuthUser()
+  // Obtiene las funciones del servicio para enviar notas de examen
+  const { sendExamNote, loading: sendingNote, error: sendError } = useExamNotes()
   // Propiedad computada para obtener el ID del profesor del usuario autenticado
   const teacherId = computed(() => user.value?.id)
 
@@ -190,19 +194,64 @@
    * @param {Object} estudiante - El objeto del estudiante seleccionado
    */
   const openInscripcionDialog = estudiante => {
-    selectedEstudiante.value = estudiante
-    studentGrade.value = null // Reinicia la nota cuando se abre el diálogo
-    showInscripcionDialog.value = true
+    selectedEstudiante.value = estudiante // Asigna el estudiante para mostrar en el diálogo
+    studentGrade.value = null // Limpia la nota anterior
+    showInscripcionDialog.value = true // Abre el diálogo
   }
 
-  const saveGrade = () => {
-    // Aquí iría la lógica para guardar la nota, por ejemplo, una llamada a la API
-    // Después de guardar, podrías cerrar el diálogo y mostrar un snackbar
-    showInscripcionDialog.value = false
-    snackbar.value = {
-      show: true,
-      message: `Nota ${studentGrade.value} guardada para ${selectedEstudiante.value.estudiante_nombre}`,
-      color: 'success',
+  const saveGrade = async () => {
+    // Valida que haya un estudiante seleccionado y una nota
+    if (!selectedEstudiante.value || studentGrade.value === null) {
+      snackbar.value = {
+        show: true,
+        message: 'Datos incompletos para registrar la nota.',
+        color: 'error',
+      }
+      return
+    }
+
+    const notaNumerica = Number(studentGrade.value) // Convierte la nota a número
+    // Valida que la nota sea numérica y esté entre 0 y 4
+    if (Number.isNaN(notaNumerica) || notaNumerica < 0 || notaNumerica > 4) {
+      snackbar.value = {
+        show: true,
+        message: 'La nota debe ser un número entre 0 y 4.',
+        color: 'error',
+      }
+      return
+    }
+
+    // Prepara los datos para enviar
+    const payload = {
+      inscripcion_id: selectedEstudiante.value.id_inscripcion,
+      nota: notaNumerica,
+    }
+
+    try {
+      const result = await sendExamNote(payload) // Envía la nota al servidor
+      if (result) {
+        snackbar.value = {
+          show: true,
+          message: `Nota ${notaNumerica} registrada con éxito para ${selectedEstudiante.value.estudiante_nombre}.`,
+          color: 'success',
+        }
+        await loadEstudiantes(teacherId.value) // Recarga la lista de estudiantes
+      } else {
+        snackbar.value = {
+          show: true,
+          message: sendError.value?.message || 'Error al registrar la nota',
+          color: 'error',
+        }
+      }
+    } catch (error) {
+      console.error('Error al guardar la nota:', error)
+      snackbar.value = {
+        show: true,
+        message: 'Error inesperado al registrar la nota',
+        color: 'error',
+      }
+    } finally {
+      showInscripcionDialog.value = false // Cierra el diálogo
     }
   }
 
@@ -280,6 +329,6 @@
 
 /* Estilos para sobreescribir el .v-list global */
 .v-list {
-  background: linear-gradient(to right, #1f5d8b, #0e4c7a) !important;
+  background: linear-gradient(to right, #276291, #1e5483) !important;
 }
 </style>

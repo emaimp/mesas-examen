@@ -29,7 +29,12 @@ export function useTableExamTeacher () {
       const url = `${import.meta.env.VITE_API_URL}/mesas/${numericProfesorId}/profesor`
       // Realiza la petición GET a la API
       const response = await axios.get(url)
-      examTables.value = response.data || [] // Almacena los datos de las mesas, o un array vacío si no hay datos
+      // Filtra las mesas para incluir solo aquellas con estado 'active'
+      const filteredData = (response.data || []).map(carreraData => ({
+        ...carreraData,
+        mesas: carreraData.mesas.filter(mesa => mesa.estado === 'active'),
+      }))
+      examTables.value = filteredData // Almacena los datos de las mesas filtradas
       return examTables.value
     } catch (error_) {
       error.value = error_ // Captura y almacena el error
@@ -42,7 +47,7 @@ export function useTableExamTeacher () {
   }
 
   return {
-    // Expone las variables y la función para ser usadas en el componente
+    // Expone los estados y la función para ser utilizados en otros componentes
     examTables,
     loading,
     error,

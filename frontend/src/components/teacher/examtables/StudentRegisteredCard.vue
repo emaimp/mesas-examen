@@ -33,7 +33,7 @@
       required: true,
       // Validador para asegurar que el objeto 'estudiante' tenga las propiedades necesarias
       validator: value => {
-        return value && value.nombre_estudiante && value.dni && value.libreta && value.carrera_nombre && value.materia_nombre && value.fecha_llamado && value.llamado_inscrito && value.tipo_inscripcion
+        return value && value.estudiante_nombre && value.dni && value.libreta && value.carrera_nombre && value.materia_nombre && value.fecha_llamado && value.llamado_inscrito && value.tipo_inscripcion
       },
     },
   })

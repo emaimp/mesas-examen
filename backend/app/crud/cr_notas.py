@@ -66,3 +66,74 @@ def insertar_nota(session: Session, data: schemas.NoteCreate) -> models.Notas:
     session.commit()
     session.refresh(nota)
     return nota
+
+#
+# Califica una nota de examen a un estudiante
+#
+def calificar_nota_examen(session: Session, inscripcion_id: int, nota: int) -> models.Notas_Examen:
+    # 1. Busca la inscripción por ID
+    inscripcion = session.get(models.Inscripciones_Examen, inscripcion_id)
+
+    if not inscripcion:
+        raise HTTPException(status_code=404, detail="Inscripción a examen no encontrada.")
+    
+    # 2. Verifica que la inscripción esté activa
+    if inscripcion.estado != models.Inscripciones_Examen.EstadoInscripcion.activo.value:
+        raise HTTPException(status_code=400, detail="La inscripción no está activa y no se puede calificar.")
+
+    estudiante_id = inscripcion.estudiante_id
+    materia_carrera_id = inscripcion.mesa_examen.materia_carrera_id
+    examen_a_calificar = inscripcion.examen
+
+    if not examen_a_calificar:
+        raise HTTPException(status_code=400, detail="La inscripción no tiene un examen asignado para calificar.")
+
+    # 3. Obtiene o crea el registro de Notas_Examen
+    nota_examen = session.exec(
+        select(models.Notas_Examen)
+        .where(
+            models.Notas_Examen.estudiante_id == estudiante_id,
+            models.Notas_Examen.materia_carrera_id == materia_carrera_id
+        )
+    ).first()
+
+    if not nota_examen:
+        # Si no existe, crea un nuevo registro con los campos de examen en None
+        nota_examen = models.Notas_Examen(
+            estudiante_id=estudiante_id,
+            materia_carrera_id=materia_carrera_id,
+            primer_examen=None,
+            segundo_examen=None,
+            tercer_examen=None
+        )
+        session.add(nota_examen)
+        session.commit()
+        session.refresh(nota_examen)
+
+    # 4. Califica el examen correspondiente y verifica que no se pueda actualizar
+    if examen_a_calificar == "primer_examen":
+        if nota_examen.primer_examen is not None: # Comprueba si ya tiene una nota
+            raise HTTPException(status_code=400, detail="La nota para el primer examen ya ha sido registrada.")
+        nota_examen.primer_examen = nota
+    elif examen_a_calificar == "segundo_examen":
+        if nota_examen.segundo_examen is not None: # Comprueba si ya tiene una nota
+            raise HTTPException(status_code=400, detail="La nota para el segundo examen ya ha sido registrada.")
+        nota_examen.segundo_examen = nota
+    elif examen_a_calificar == "tercer_examen":
+        if nota_examen.tercer_examen is not None: # Comprueba si ya tiene una nota
+            raise HTTPException(status_code=400, detail="La nota para el tercer examen ya ha sido registrada.")
+        nota_examen.tercer_examen = nota
+    else:
+        raise HTTPException(status_code=400, detail="Número de examen inválido en la inscripción.")
+
+    session.add(nota_examen)
+    session.commit()
+    session.refresh(nota_examen)
+
+    # 5. Registra la asistencia como "si"
+    inscripcion.asistencia = models.Inscripciones_Examen.EstadoAsistencia.si.value
+    session.add(inscripcion)
+    session.commit()
+    session.refresh(inscripcion)
+
+    return nota_examen

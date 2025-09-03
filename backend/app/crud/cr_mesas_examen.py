@@ -194,12 +194,51 @@ def inscribir_mesa_examen(session: Session, data: schemas.RegistrationExamCreate
             elif 4.0 <= nota_actual.nota_prom < 7.0:
                 tipo_inscripcion = models.Inscripciones_Examen.TipoInscripcion.regular.value
         
-        # 9. Registra la inscripción si todas las validaciones son correctas
+        # 9. Determina el número de examen y registra la inscripción si todas las validaciones son correctas
+        # Obtener el registro de Notas_Examen para el estudiante y la materia
+        nota_examen_existente = session.exec(
+            select(models.Notas_Examen)
+            .where(
+                models.Notas_Examen.estudiante_id == estudiante.id,
+                models.Notas_Examen.materia_carrera_id == materia_en_plan.id
+            )
+        ).first()
+
+        numero_examen_a_asignar = None
+        if not nota_examen_existente:
+            numero_examen_a_asignar = "primer_examen"
+        else:
+            if nota_examen_existente.primer_examen is None:
+                numero_examen_a_asignar = "primer_examen"
+            elif nota_examen_existente.segundo_examen is None and nota_examen_existente.primer_examen != 4:
+                numero_examen_a_asignar = "segundo_examen"
+            elif nota_examen_existente.tercer_examen is None and nota_examen_existente.primer_examen != 4 and nota_examen_existente.segundo_examen != 4:
+                numero_examen_a_asignar = "tercer_examen"
+            else:
+                # Si ya tiene notas en todos los exámenes o ya aprobó con un 4, no debería poder inscribirse a otro examen.
+                # Esto ya está cubierto por la lógica de mesas_examen_por_nota, pero se añade una validación explícita.
+                return schemas.ApiResponse(success=False, errors=["Ya has rendido todos los exámenes disponibles o ya la aprobaste."])
+
+        # Verifica si ya existe una inscripción activa para el mismo examen (primer_examen, segundo_examen, tercer_examen)
+        existing_active_exam_inscription = session.exec(
+            select(models.Inscripciones_Examen)
+            .where(
+                models.Inscripciones_Examen.estudiante_id == estudiante.id,
+                models.Inscripciones_Examen.mesa_examen_id == data.mesa_examen_id,
+                models.Inscripciones_Examen.examen == numero_examen_a_asignar,
+                models.Inscripciones_Examen.estado == models.Inscripciones_Examen.EstadoInscripcion.activo.value
+            )
+        ).first()
+
+        if existing_active_exam_inscription:
+            return schemas.ApiResponse(success=False, errors=[f"Ya estás inscripto para el {numero_examen_a_asignar} de esta materia."])
+
         nueva_inscripcion = models.Inscripciones_Examen(
             estudiante_id=data.estudiante_id,
             mesa_examen_id=data.mesa_examen_id,
             llamado_inscrito=data.llamado_inscrito,
-            tipo_inscripcion=tipo_inscripcion # Asigna el tipo de inscripción
+            tipo_inscripcion=tipo_inscripcion,
+            examen=numero_examen_a_asignar
         )
         
         session.add(nueva_inscripcion)
@@ -215,7 +254,8 @@ def inscribir_mesa_examen(session: Session, data: schemas.RegistrationExamCreate
                 "mesa_examen_id": nueva_inscripcion.mesa_examen_id,
                 "fecha_inscripcion": nueva_inscripcion.fecha_inscripcion.isoformat(),
                 "llamado_inscrito": nueva_inscripcion.llamado_inscrito,
-                "tipo_inscripcion": nueva_inscripcion.tipo_inscripcion
+                "tipo_inscripcion": nueva_inscripcion.tipo_inscripcion,
+                "examen": nueva_inscripcion.examen
             }
         )
     except HTTPException as e:
@@ -278,6 +318,17 @@ def mesas_examen_por_nota(estudiante_id: int, session: Session) -> List[schemas.
     tres_meses = hoy + timedelta(days=90)
 
     # Construye la consulta para obtener mesas de examen
+    # Subconsulta para verificar si el estudiante ya aprobó la materia con un 4 en Notas_Examen
+    subquery_aprobado_examen = (
+        select(models.Notas_Examen.materia_carrera_id)
+        .where(
+            models.Notas_Examen.estudiante_id == estudiante_id,
+            (models.Notas_Examen.primer_examen == 4) |
+            (models.Notas_Examen.segundo_examen == 4) |
+            (models.Notas_Examen.tercer_examen == 4)
+        )
+    ).subquery()
+
     statement = (
         select(models.Mesas_Examen)
         # Une con Materia_Carreras y Materias para obtener información
@@ -298,7 +349,9 @@ def mesas_examen_por_nota(estudiante_id: int, session: Session) -> List[schemas.
             |  # O
             # El segundo llamado está dentro del rango Y no es NULL
             ((models.Mesas_Examen.segundo_llamado >= hoy) &
-             (models.Mesas_Examen.segundo_llamado <= tres_meses))
+             (models.Mesas_Examen.segundo_llamado <= tres_meses)),
+            # Excluye las mesas de examen si el estudiante ya aprobó con un 4 en Notas_Examen
+            ~models.Mesas_Examen.materia_carrera_id.in_(subquery_aprobado_examen)
         )
         # Carga relaciones anidadas para optimizar el acceso a datos
         .options(
@@ -369,6 +422,7 @@ def mesas_examen_por_profesor(profesor_id: int, session: Session) -> List[schema
         agrupado[carrera_nombre].append(
             schemas.ExamWithStudentsDetail(
                 id=mesa_examen.id,
+                id_inscripcion=inscripcion.id,
                 llamado_inscrito=inscripcion.llamado_inscrito,
                 tipo_inscripcion=inscripcion.tipo_inscripcion,
                 fecha_llamado=mesa_examen.primer_llamado if inscripcion.llamado_inscrito == "primer_llamado" else mesa_examen.segundo_llamado,
