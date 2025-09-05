@@ -53,6 +53,17 @@
 
         <v-list-item
           v-if="user"
+          :active="appStore.selectedSection === 'management-student'"
+          link
+          prepend-icon="mdi-archive"
+          title="Actas Digitales"
+          :to="user ? `/teacher/${encodeURIComponent(user.nombre)}/management-student` : ''"
+          value="management-student"
+          @click="appStore.setSelectedSection('management-student')"
+        />
+
+        <v-list-item
+          v-if="user"
           :active="appStore.selectedSection === 'change-password'"
           link
           prepend-icon="mdi-key-variant"

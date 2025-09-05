@@ -32,13 +32,16 @@ declare module 'vue-router/auto-routes' {
     '/admin/teacher/[id]/profile': RouteRecordInfo<'/admin/teacher/[id]/profile', '/admin/teacher/:id/profile', { id: ParamValue<true> }, { id: ParamValue<false> }>,
     '/login/': RouteRecordInfo<'/login/', '/login', Record<never, never>, Record<never, never>>,
     '/student/[name]/change-password': RouteRecordInfo<'/student/[name]/change-password', '/student/:name/change-password', { name: ParamValue<true> }, { name: ParamValue<false> }>,
+    '/student/[name]/download-acts': RouteRecordInfo<'/student/[name]/download-acts', '/student/:name/download-acts', { name: ParamValue<true> }, { name: ParamValue<false> }>,
     'student': RouteRecordInfo<'student', '/student/:name/profile', { name: ParamValue<true> }, { name: ParamValue<false> }>,
     '/student/[name]/ratings': RouteRecordInfo<'/student/[name]/ratings', '/student/:name/ratings', { name: ParamValue<true> }, { name: ParamValue<false> }>,
     '/student/[name]/tables-exam': RouteRecordInfo<'/student/[name]/tables-exam', '/student/:name/tables-exam', { name: ParamValue<true> }, { name: ParamValue<false> }>,
     '/student/[name]/tables-registered': RouteRecordInfo<'/student/[name]/tables-registered', '/student/:name/tables-registered', { name: ParamValue<true> }, { name: ParamValue<false> }>,
     '/teacher/[name]/change-password': RouteRecordInfo<'/teacher/[name]/change-password', '/teacher/:name/change-password', { name: ParamValue<true> }, { name: ParamValue<false> }>,
+    '/teacher/[name]/management-student': RouteRecordInfo<'/teacher/[name]/management-student', '/teacher/:name/management-student', { name: ParamValue<true> }, { name: ParamValue<false> }>,
     'teacher': RouteRecordInfo<'teacher', '/teacher/:name/profile', { name: ParamValue<true> }, { name: ParamValue<false> }>,
     '/teacher/[name]/students-subject': RouteRecordInfo<'/teacher/[name]/students-subject', '/teacher/:name/students-subject', { name: ParamValue<true> }, { name: ParamValue<false> }>,
     '/teacher/[name]/tables-assigned': RouteRecordInfo<'/teacher/[name]/tables-assigned', '/teacher/:name/tables-assigned', { name: ParamValue<true> }, { name: ParamValue<false> }>,
+    '/teacher/student/[id]/digital-acts': RouteRecordInfo<'/teacher/student/[id]/digital-acts', '/teacher/student/:id/digital-acts', { id: ParamValue<true> }, { id: ParamValue<false> }>,
   }
 }
