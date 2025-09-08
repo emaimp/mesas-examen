@@ -3,9 +3,27 @@
     <v-card style="padding-bottom: 50px;">
       <v-card-title class="text-center mb-2 mt-3">Acta Digital</v-card-title>
       <v-card-text>
-        <div v-if="loading">Cargando actas...</div>
-        <div v-else-if="error">Error al cargar las actas: {{ error.message }}</div>
-        <div v-else-if="!detailExams || detailExams.length === 0">No hay actas registradas.</div>
+        <v-alert
+          v-if="loading"
+          class="mb-4"
+          text="Cargando actas..."
+          type="info"
+          variant="tonal"
+        />
+        <v-alert
+          v-else-if="error"
+          class="mb-4"
+          :text="`Error al cargar las actas: ${error.message}`"
+          type="error"
+          variant="tonal"
+        />
+        <v-alert
+          v-else-if="!detailExams || detailExams.length === 0"
+          class="mb-4"
+          text="No hay actas registradas."
+          type="info"
+          variant="tonal"
+        />
         <div v-else>
           <div id="digital-acts-content">
             <v-card
@@ -141,7 +159,7 @@
 
         if (result) {
           console.log('PDF subido exitosamente:', result)
-          alert('Actas digitales subidas a PDF exitosamente al servidor.')
+          alert('Actas digitales subidas exitosamente.')
         } else {
           console.error('Error al subir el PDF:', uploadError.value)
           alert(`Error al subir el PDF: ${uploadError.value?.message || 'Error desconocido'}`)

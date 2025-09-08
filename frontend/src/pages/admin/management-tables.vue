@@ -149,7 +149,7 @@
       try {
         // Intenta crear la mesa para el primer llamado
         await createTable(mesaData1st)
-        successMessages.push('Primer llamado creado con éxito')
+        successMessages.push('Primer llamado creado con éxito.')
       } catch (error) {
         // Captura y almacena mensajes de error
         errorMessages.push(`Error al crear el primer llamado: ${error.response?.data?.detail || error.message}`)
@@ -176,7 +176,7 @@
       try {
         // Intenta crear la mesa para el segundo llamado
         await createTable(mesaData2nd)
-        successMessages.push('Segundo llamado creado con éxito')
+        successMessages.push('Segundo llamado creado con éxito.')
       } catch (error) {
         // Captura y almacena mensajes de error
         errorMessages.push(`Error al crear el segundo llamado: ${error.response?.data?.detail || error.message}`)

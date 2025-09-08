@@ -35,7 +35,11 @@ class Usuarios(SQLModel, table=True):
     # Un usuario (estudiante) puede tener muchas notas de examen
     notas_examen: List["Notas_Examen"] = Relationship(back_populates="estudiante_user_examen")
     # Un usuario puede haber subido muchas actas digitales
-    actas_digitales_subidas: List["Actas_Digitales_PDF"] = Relationship(back_populates="uploaded_by_user")
+    actas_digitales_subidas: List["Actas_Digitales"] = Relationship(back_populates="uploaded_user",
+                sa_relationship_kwargs={"foreign_keys": "Actas_Digitales.uploaded_user_id"})
+    # Un usuario (profesor) puede haber firmado muchas actas digitales
+    actas_digitales_firmadas: List["Actas_Digitales"] = Relationship(back_populates="signed_user",
+                sa_relationship_kwargs={"foreign_keys": "Actas_Digitales.signed_user_id"})
 
 """
 TABLA: PROFESORES
@@ -326,15 +330,23 @@ class Inscripciones_Examen(SQLModel, table=True):
     mesa_examen: Mesas_Examen = Relationship(back_populates="inscripciones")
 
 """
-TABLA: ACTAS_DIGITALES_PDF
+TABLA: ACTAS DIGITALES
 """
 # Almacena los metadatos de los archivos PDF de actas digitales subidos.
-class Actas_Digitales_PDF(SQLModel, table=True):
+class Actas_Digitales(SQLModel, table=True):
     id: int = Field(default=None, primary_key=True)
     filename: str = Field(max_length=255, unique=True) # Nombre único del archivo
     filepath: str = Field(max_length=500) # Ruta completa del archivo en el servidor
-    uploaded_by_user_id: int = Field(foreign_key="usuarios.id") # ID del usuario que subió el archivo (FK a Usuarios)
+    uploaded_user_id: int = Field(foreign_key="usuarios.id") # ID del usuario que subió el archivo (FK a Usuarios)
     upload_date: datetime = Field(default_factory=datetime.utcnow) # Fecha y hora de la subida
 
-    # Relación con la tabla Usuarios
-    uploaded_by_user: Usuarios = Relationship(back_populates="actas_digitales_subidas")
+    # Campos para la firma digital
+    is_signed: bool = Field(default=False) # Indica si el PDF ha sido firmado digitalmente
+    signed_user_id: Optional[int] = Field(default=None, foreign_key="usuarios.id") # ID del profesor que firmó (FK a Usuarios)
+    signature_date: Optional[datetime] = Field(default=None) # Fecha y hora de la firma
+
+    # Relaciones con la tabla Usuarios
+    uploaded_user: Usuarios = Relationship(back_populates="actas_digitales_subidas",
+                sa_relationship_kwargs={"foreign_keys": "Actas_Digitales.uploaded_user_id"})
+    signed_user: Optional[Usuarios] = Relationship(back_populates="actas_digitales_firmadas",
+                sa_relationship_kwargs={"foreign_keys": "Actas_Digitales.signed_user_id"})

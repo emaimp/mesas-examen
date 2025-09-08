@@ -1,10 +1,12 @@
 import uuid # Genera nombres de archivo únicos
-from app import db, core, models
+from app import db, core, crud, models
+from typing import List
 from pathlib import Path
 from datetime import datetime
 from sqlalchemy.orm import Session
-from fastapi.responses import JSONResponse
-from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, status
+from fastapi.responses import JSONResponse, FileResponse
+from app.utils.pdf_signer import sign_pdf_with_test_cert
+from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, status, Query
 
 router = APIRouter(prefix="/actas", tags=["Actas Digitales"], responses={404: {"description": "Not found"}},)
 
@@ -40,10 +42,10 @@ async def upload_actas_digitales_pdf(
         )
 
     # Guardar metadatos en la base de datos
-    new_pdf_record = models.Actas_Digitales_PDF(
+    new_pdf_record = models.Actas_Digitales(
         filename=unique_filename,
         filepath=str(file_path),
-        uploaded_by_user_id=current_user.id,
+        uploaded_user_id=current_user.id,
         upload_date=datetime.utcnow()
     )
     db.add(new_pdf_record)
@@ -54,3 +56,123 @@ async def upload_actas_digitales_pdf(
         status_code=status.HTTP_201_CREATED,
         content={"message": "PDF subido exitosamente", "filename": unique_filename, "filepath": str(file_path)}
     )
+
+@router.post("/sign_pdf/")
+async def sign_actas_digitales_pdf(
+    pdf_file: UploadFile = File(...),
+    db: Session = Depends(db.get_session),
+    current_user: models.Usuarios = Depends(core.get_current_user)
+):
+    # Solo profesores pueden firmar en este endpoint de prueba
+    if current_user.role != "teacher":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Solo los profesores pueden firmar actas digitales."
+        )
+
+    # Leer el contenido del PDF
+    pdf_content = await pdf_file.read()
+
+    # Generar un nombre de archivo único para el PDF firmado
+    file_extension = pdf_file.filename.split(".")[-1]
+    unique_filename = f"signed_{uuid.uuid4()}.{file_extension}"
+    signed_file_path = UPLOAD_DIRECTORY / unique_filename
+
+    try:
+        # Llamar a la función de firma con el certificado global
+        await sign_pdf_with_test_cert(
+            pdf_data=pdf_content,
+            output_filepath=signed_file_path
+        )
+    except FileNotFoundError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error al firmar el PDF: {e}"
+        )
+
+    # Guardar metadatos del PDF firmado en la base de datos
+    new_pdf_record = models.Actas_Digitales(
+        filename=unique_filename,
+        filepath=str(signed_file_path),
+        uploaded_user_id=current_user.id, # El que sube es el que firma en este caso
+        upload_date=datetime.utcnow(),
+        is_signed=True,
+        signed_user_id=current_user.id,
+        signature_date=datetime.utcnow()
+    )
+    db.add(new_pdf_record)
+    db.commit()
+    db.refresh(new_pdf_record)
+
+    return JSONResponse(
+        status_code=status.HTTP_201_CREATED,
+        content={"message": "PDF firmado exitosamente", "filename": unique_filename, "filepath": str(signed_file_path)}
+    )
+
+
+@router.get("/download_pdf/{pdf_id}")
+async def actas_digitales_download_pdf(
+    pdf_id: int,
+    db: Session = Depends(db.get_session),
+    current_user: models.Usuarios = Depends(core.get_current_user)
+):
+    pdf_record = crud.cr_actas_digitales.get_pdf_record_by_id(db, pdf_id)
+
+    if not pdf_record:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="PDF no encontrado."
+        )
+
+    # Lógica de autorización: solo el usuario que lo subió o un administrador puede descargarlo
+    if current_user.id != pdf_record.uploaded_user_id and current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="No tienes permiso para descargar este PDF."
+        )
+
+    file_path = Path(pdf_record.filepath)
+    if not file_path.is_file():
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="El archivo PDF no se encuentra en el servidor."
+        )
+
+    return FileResponse(path=file_path, filename=pdf_record.filename, media_type="application/pdf")
+
+@router.get("/pdfs_por_uploader/", response_model=List[dict])
+async def actas_digitales_por_uploader(
+    nombre: str = Query(..., description="Nombre del usuario que subió el PDF"),
+    db: Session = Depends(db.get_session),
+    current_user: models.Usuarios = Depends(core.get_current_user)
+):
+    # Solo los administradores pueden usar este endpoint para listar PDFs de otros usuarios
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Solo los administradores pueden listar PDFs por usuario."
+        )
+
+    pdf_records = crud.cr_actas_digitales.get_pdf_records_by_uploader_name(db, nombre)
+
+    if not pdf_records:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"No se encontraron PDFs subidos por el usuario '{nombre}'."
+        )
+
+    # Devolver una lista de metadatos relevantes para el administrador
+    return [
+        {
+            "id": record.id,
+            "filename": record.filename,
+            "upload_date": record.upload_date,
+            "uploaded_by_name": record.uploaded_user.nombre # Cambiado a nombre
+        }
+        for record in pdf_records
+    ]
