@@ -64,17 +64,6 @@
 
         <v-list-item
           v-if="user"
-          :active="appStore.selectedSection === 'download-acts'"
-          link
-          prepend-icon="mdi-archive-arrow-down"
-          title="Descargar Actas"
-          :to="user ? `/student/${encodeURIComponent(user.nombre)}/download-acts` : ''"
-          value="download-acts"
-          @click="appStore.setSelectedSection('download-acts')"
-        />
-
-        <v-list-item
-          v-if="user"
           :active="appStore.selectedSection === 'change-password'"
           link
           prepend-icon="mdi-key-variant"

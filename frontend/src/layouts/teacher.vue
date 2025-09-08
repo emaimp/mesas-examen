@@ -53,13 +53,13 @@
 
         <v-list-item
           v-if="user"
-          :active="appStore.selectedSection === 'management-student'"
+          :active="appStore.selectedSection === 'digital-acts'"
           link
           prepend-icon="mdi-archive"
           title="Actas Digitales"
-          :to="user ? `/teacher/${encodeURIComponent(user.nombre)}/management-student` : ''"
-          value="management-student"
-          @click="appStore.setSelectedSection('management-student')"
+          :to="user ? `/teacher/${encodeURIComponent(user.nombre)}/digital-acts` : ''"
+          value="digital-acts"
+          @click="appStore.setSelectedSection('digital-acts')"
         />
 
         <v-list-item

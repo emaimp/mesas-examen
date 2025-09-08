@@ -62,5 +62,5 @@
 
 <route lang="yaml">
   meta:
-    layout: student
+    layout: admin
 </route>

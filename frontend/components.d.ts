@@ -16,6 +16,8 @@ declare module 'vue' {
     CorrelativeNotesPanel: typeof import('./src/components/student/ratings/CorrelativeNotesPanel.vue')['default']
     CorrelativeNotesTable: typeof import('./src/components/student/ratings/CorrelativeNotesTable.vue')['default']
     DateTimePicker: typeof import('./src/components/admin/DateTimePicker.vue')['default']
+    DigitalActsCard: typeof import('./src/components/teacher/digitalacts/DigitalActsCard.vue')['default']
+    DigitalActsPanel: typeof import('./src/components/teacher/digitalacts/DigitalActsPanel.vue')['default']
     ExamRegisteredCard: typeof import('./src/components/student/examtables/ExamRegisteredCard.vue')['default']
     ExamRegisteredPanel: typeof import('./src/components/student/examtables/ExamRegisteredPanel.vue')['default']
     ExamTableCard: typeof import('./src/components/student/examtables/ExamTableCard.vue')['default']

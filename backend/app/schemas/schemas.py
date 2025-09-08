@@ -330,6 +330,31 @@ class TablesExamPerCareerForTeacher(SQLModel):
     class Config:
         from_attributes = True
 
+# Devuelve el detalle de todos los examenes por profesor
+class StudentExamDetailForTeacher(SQLModel):
+    id: int # id de la mesa de examen
+    id_profesor: int
+    id_inscripcion: int
+    materia_nombre: str
+    estudiante_nombre: str
+    dni: str
+    libreta: Optional[str] = None
+    fecha_llamado: Optional[datetime] = None
+    llamado_inscrito: str
+    tipo_inscripcion: Optional[str] = None
+    asistencia: Optional[str] = None
+    nota: Optional[int] = None
+    estado: str
+    class Config:
+        from_attributes = True
+
+# Devuelve las mesas de examen agrupadas por carrera con detalles de los examenes
+class TablesStudentExamDetailPerCareer(SQLModel):
+    carrera_nombre: str
+    mesas: List[StudentExamDetailForTeacher]
+    class Config:
+        from_attributes = True
+
 # Actualiza el estado de una inscripción
 class RegistrationExamUpdateStatus(SQLModel):
     estado: str

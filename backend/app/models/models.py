@@ -34,6 +34,8 @@ class Usuarios(SQLModel, table=True):
     mesas_examen_dictadas: List["Mesas_Examen"] = Relationship(back_populates="profesor_usuario")
     # Un usuario (estudiante) puede tener muchas notas de examen
     notas_examen: List["Notas_Examen"] = Relationship(back_populates="estudiante_user_examen")
+    # Un usuario puede haber subido muchas actas digitales
+    actas_digitales_subidas: List["Actas_Digitales_PDF"] = Relationship(back_populates="uploaded_by_user")
 
 """
 TABLA: PROFESORES
@@ -322,3 +324,17 @@ class Inscripciones_Examen(SQLModel, table=True):
     estudiante_user: "Usuarios" = Relationship(back_populates="inscripciones")
     # Referencia a la mesa de examen
     mesa_examen: Mesas_Examen = Relationship(back_populates="inscripciones")
+
+"""
+TABLA: ACTAS_DIGITALES_PDF
+"""
+# Almacena los metadatos de los archivos PDF de actas digitales subidos.
+class Actas_Digitales_PDF(SQLModel, table=True):
+    id: int = Field(default=None, primary_key=True)
+    filename: str = Field(max_length=255, unique=True) # Nombre único del archivo
+    filepath: str = Field(max_length=500) # Ruta completa del archivo en el servidor
+    uploaded_by_user_id: int = Field(foreign_key="usuarios.id") # ID del usuario que subió el archivo (FK a Usuarios)
+    upload_date: datetime = Field(default_factory=datetime.utcnow) # Fecha y hora de la subida
+
+    # Relación con la tabla Usuarios
+    uploaded_by_user: Usuarios = Relationship(back_populates="actas_digitales_subidas")

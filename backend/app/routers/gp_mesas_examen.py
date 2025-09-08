@@ -42,6 +42,13 @@ def mesas_examen_por_profesor_id(profesor_id: int, session: Session = Depends(db
     return crud.cr_mesas_examen.mesas_examen_por_profesor(profesor_id, session)
 
 #
+# Endpoint: Devuelve el detalle de todos los examenes por profesor (id)
+#
+@router.get("/{profesor_id}/detalle/examen", response_model=List[schemas.TablesStudentExamDetailPerCareer])
+def mesas_examen_detalle_examen_por_profesor_id(profesor_id: int, session: Session = Depends(db.get_session)):
+    return crud.cr_mesas_examen.mesas_examen_detalle_examen(profesor_id, session)
+
+#
 # Endpoint: Modifica el estado de una inscripción (id)
 #
 @router.patch("/inscripciones/{inscripcion_id}/estado", response_model=schemas.ApiResponse, status_code=status.HTTP_200_OK)

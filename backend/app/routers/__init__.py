@@ -9,3 +9,4 @@ from .gp_auth import *
 from .gp_mesas_examen import *
 from .gp_notas import *
 from .p_files import *
+from .p_actas_digitales import *

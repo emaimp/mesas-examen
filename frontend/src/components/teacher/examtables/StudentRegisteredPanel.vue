@@ -139,7 +139,7 @@
 </template>
 
 <script setup>
-  import { useExamNotes } from '../../../services/teacher/useNotesExam' // Importa el nuevo hook
+  import { useExamNotes } from '../../../services/teacher/useNotesExam'
   import { useTableExamTeacher } from '../../../services/teacher/useTableExamTeacher'
   import { useAuthUser } from '../../../services/user/useAuthUser'
   import StudentRegisteredCard from '../../teacher/examtables/StudentRegisteredCard.vue'
