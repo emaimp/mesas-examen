@@ -109,6 +109,7 @@
         <v-list-item
           v-if="user"
           :active="appStore.selectedSection === 'change-password'"
+          class="change-active"
           link
           prepend-icon="mdi-key-variant"
           title="Cambiar Contraseña"
@@ -149,6 +150,19 @@
       </router-view>
     </v-main>
     <ChatBotButton v-if="route.path !== '/admin/administration-chatbot'" />
+
+    <v-overlay
+      class="align-center justify-center"
+      contained
+      :model-value="isLoading"
+      persistent
+    >
+      <v-progress-circular
+        color="primary"
+        indeterminate
+        size="60"
+      />
+    </v-overlay>
   </v-app>
 </template>
 
@@ -160,6 +174,8 @@
 
   // Estado reactivo para controlar la visibilidad del menú lateral
   const drawer = ref(true)
+  // Estado reactivo para controlar la visibilidad del indicador de carga
+  const isLoading = ref(false)
   // Inicializa el store de la aplicación
   const appStore = useAppStore()
   // Obtiene los datos del usuario desde el store
@@ -168,6 +184,16 @@
   const router = useRouter()
   // Obtiene la ruta actual
   const route = useRoute()
+
+  // Configura los guards de navegación para mostrar/ocultar el indicador de carga
+  router.beforeEach((to, from, next) => {
+    isLoading.value = true
+    next()
+  })
+
+  router.afterEach(() => {
+    isLoading.value = false
+  })
 
   /**
    * Función para cerrar la sesión del usuario
@@ -219,6 +245,11 @@
 /* Estilos para el cajón de navegación (menú lateral) */
 .v-navigation-drawer {
   z-index: 9999 !important; /* Asegura que el menú esté por encima de otros elementos */
+}
+
+/* Estilo para mantener siempre activo el item 'Cambiar Contraseña' */
+.change-active {
+  color: rgba(250, 210, 1, 0.9) !important; /* Color del texto y del icono */
 }
 
 /* Estilo para mantener siempre activo el item 'Carga de Archivos' */

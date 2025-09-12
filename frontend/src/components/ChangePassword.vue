@@ -1,10 +1,10 @@
 <template>
   <!-- Tarjeta que contiene el formulario de cambio de contraseña -->
-  <v-card class="elevation-12 pa-5">
-    <v-card-text class="px-3 py-5">
+  <v-card class="elevation-12 pa-3">
+    <v-card-text class="px-3 py-3">
 
       <img alt="IESN6 Logo" class="login-logo" src="@/assets/key.png">
-      <div class="mb-8" />
+      <div class="mb-7" />
 
       <!-- Formulario de cambio de contraseña con validación y envío -->
       <v-form ref="form" @submit.prevent="submitChangePassword">
@@ -14,7 +14,7 @@
           v-model="currentPassword"
           :append-inner-icon="currentPasswordVisible ? 'mdi-eye-off' : 'mdi-eye'"
           autocomplete="off"
-          class="mb-6"
+          class="mb-5"
           dense
           label="Contraseña Actual"
           outlined
@@ -30,7 +30,7 @@
           v-model="newPassword"
           :append-inner-icon="newPasswordVisible ? 'mdi-eye-off' : 'mdi-eye'"
           autocomplete="off"
-          class="mb-6"
+          class="mb-5"
           dense
           label="Nueva Contraseña"
           outlined
@@ -49,7 +49,7 @@
           v-model="confirmNewPassword"
           :append-inner-icon="confirmNewPasswordVisible ? 'mdi-eye-off' : 'mdi-eye'"
           autocomplete="off"
-          class="mb-6"
+          class="mb-5"
           dense
           label="Confirmar Contraseña"
           outlined
@@ -88,7 +88,7 @@
         <!-- Botón para cambiar contraseña -->
         <v-btn
           block
-          class="mt-6 action-button"
+          class="mt-5 action-button"
           :disabled="!isFormValid"
           size="large"
           type="submit"

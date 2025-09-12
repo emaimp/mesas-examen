@@ -7,7 +7,7 @@
             <p>Nombre: {{ digitalAct.estudiante_nombre }}</p>
             <p>DNI: {{ digitalAct.dni }}</p>
             <p>Libreta: {{ digitalAct.libreta }}</p>
-            <p>Nota: {{ digitalAct.nota }}</p>
+            <p>Nota: {{ displayNota }}</p>
           </v-col>
           <v-col cols="6">
             <p>Inscripcion: {{ capitalizeFirstLetter(digitalAct.tipo_inscripcion) }}</p>
@@ -29,6 +29,10 @@
       type: Object,
       required: true,
     },
+  })
+
+  const displayNota = computed(() => {
+    return (props.digitalAct.nota === null || props.digitalAct.nota === '') ? 'Sin Nota' : props.digitalAct.nota
   })
 
   const capitalizeFirstLetter = string => {

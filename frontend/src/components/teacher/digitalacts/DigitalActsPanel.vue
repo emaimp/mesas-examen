@@ -83,6 +83,13 @@
       </v-btn>
     </div>
   </v-card>
+  <v-snackbar
+    v-model="snackbar.show"
+    :color="snackbar.color"
+    timeout="6000"
+  >
+    {{ snackbar.message }}
+  </v-snackbar>
 </template>
 
 <script setup>
@@ -96,6 +103,13 @@
   const { user, loading: authLoading, error: authError, fetchAuthUser } = useAuthUser()
   const profesorId = ref(null)
   const profesorName = ref('')
+
+  // Estado reactivo para la barra de notificación (snackbar)
+  const snackbar = ref({
+    show: false,
+    message: '',
+    color: '',
+  })
 
   // Estado para los detalles del examen
   const { detailExams, loading: detailExamsLoading, error: detailExamsError, fetchDetailExams } = useDetailExam()
@@ -158,19 +172,26 @@
         const result = await uploadDigitalActPdf(pdfBlob, filename)
 
         if (result) {
-          console.log('PDF subido exitosamente:', result)
-          alert('Actas digitales subidas exitosamente.')
+          snackbar.value.message = 'Actas digitales subidas exitosamente.'
+          snackbar.value.color = 'success'
+          snackbar.value.show = true
         } else {
           console.error('Error al subir el PDF:', uploadError.value)
-          alert(`Error al subir el PDF: ${uploadError.value?.message || 'Error desconocido'}`)
+          snackbar.value.message = `Error al subir el PDF: ${uploadError.value?.message || 'Error desconocido'}`
+          snackbar.value.color = 'error'
+          snackbar.value.show = true
         }
       } catch (error_) {
         console.error('Error al generar o subir el PDF:', error_)
-        alert('Ocurrió un error al generar o subir el PDF.')
+        snackbar.value.message = 'Ocurrió un error al generar o subir el PDF.'
+        snackbar.value.color = 'error'
+        snackbar.value.show = true
       }
     } else {
       console.error('No se encontró el elemento para exportar a PDF.')
-      alert('No se encontró el contenido para exportar a PDF.')
+      snackbar.value.message = 'No se encontró el contenido para exportar a PDF.'
+      snackbar.value.color = 'warning'
+      snackbar.value.show = true
     }
   }
 </script>

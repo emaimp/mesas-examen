@@ -65,6 +65,7 @@
         <v-list-item
           v-if="user"
           :active="appStore.selectedSection === 'change-password'"
+          class="change-active"
           link
           prepend-icon="mdi-key-variant"
           title="Cambiar Contraseña"
@@ -92,6 +93,19 @@
         </keep-alive>
       </router-view>
     </v-main>
+
+    <v-overlay
+      class="align-center justify-center"
+      contained
+      :model-value="isLoading"
+      persistent
+    >
+      <v-progress-circular
+        color="primary"
+        indeterminate
+        size="60"
+      />
+    </v-overlay>
   </v-app>
 </template>
 
@@ -101,12 +115,24 @@
 
   // Estado reactivo para controlar la visibilidad del menú lateral
   const drawer = ref(true)
+  // Estado reactivo para controlar la visibilidad del indicador de carga
+  const isLoading = ref(false)
   // Inicializa el store de la aplicación
   const appStore = useAppStore()
   // Inicializa el enrutador de Vue
   const router = useRouter()
   // Desestructura propiedades del servicio de autenticación de usuario
   const { user, fetchAuthUser } = useAuthUser()
+
+  // Configura los guards de navegación para mostrar/ocultar el indicador de carga
+  router.beforeEach((to, from, next) => {
+    isLoading.value = true
+    next()
+  })
+
+  router.afterEach(() => {
+    isLoading.value = false
+  })
 
   /**
    * Función para cerrar la sesión del usuario
@@ -142,6 +168,11 @@
   white-space: nowrap; /* Evita el salto de línea */
   overflow: hidden; /* Oculta el contenido que desborda */
   text-overflow: ellipsis; /* Muestra puntos suspensivos si el texto es demasiado largo */
+}
+
+/* Estilo para mantener siempre activo el item 'Cambiar Contraseña' */
+.change-active {
+  color: rgba(250, 210, 1, 0.9) !important; /* Color del texto y del icono */
 }
 
 /* Estilo para mantener siempre activo el item 'Cerrar Sesión' */

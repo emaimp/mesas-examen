@@ -1,7 +1,6 @@
 <template>
   <v-card class="pa-4" width="1000">
-    <v-card class="mb-4 no-card-styles">
-      <v-card-title class="centered-title">Actas Digitales</v-card-title>
+    <v-card class="mb-4 no-card-styles centered-card" width="500">
       <v-card-text>
         <v-row>
           <v-col cols="12">
@@ -120,6 +119,10 @@
 .no-card-styles {
   border: none !important;
   box-shadow: none !important;
+  background: none !important; /* Using 'background: none' for a more comprehensive removal */
+}
+.centered-card {
+  margin: 0 auto;
 }
 .v-data-table {
   background-color: transparent !important;

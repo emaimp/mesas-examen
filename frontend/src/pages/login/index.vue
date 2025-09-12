@@ -4,11 +4,11 @@
     <v-row align="center" justify="center">
       <v-col cols="12" lg="8" md="8" sm="8">
         <!-- Tarjeta que contiene el formulario de login -->
-        <v-card class="elevation-12 pa-5">
+        <v-card class="elevation-12 pa-3">
           <img alt="IESN6 Logo" class="login-logo" src="@/assets/iesn6_icon.png">
-          <v-card-text class="px-3 py-5">
+          <v-card-text class="px-3 py-3">
 
-            <p class="mb-8 text-center">Ingrese su usuario y contraseña.</p>
+            <p class="mb-10 text-center">Ingrese su usuario y contraseña.</p>
 
             <!-- Formulario de login con validación y envío -->
             <v-form ref="loginForm" @submit.prevent="submitLogin">
@@ -17,7 +17,7 @@
               <v-text-field
                 v-model="username"
                 autocomplete="off"
-                class="mb-6"
+                class="mb-5"
                 dense
                 label="Usuario"
                 outlined
@@ -30,7 +30,7 @@
                 v-model="password"
                 :append-inner-icon="passwordVisible ? 'mdi-eye-off' : 'mdi-eye'"
                 autocomplete="off"
-                class="mb-6"
+                class="mb-5"
                 dense
                 label="Contraseña"
                 outlined
@@ -55,7 +55,7 @@
               <!-- Botón de ingreso al sistema -->
               <v-btn
                 block
-                class="mt-6 action-button"
+                class="mt-5 action-button"
                 :disabled="!isFormValid"
                 size="large"
                 type="submit"
@@ -190,7 +190,7 @@
 /* Estilos para el logo de login */
 .login-logo {
   max-width: 100%; /* Ancho máximo del 100% del contenedor */
-  width: 340px; /* Ancho fijo */
+  width: 350px; /* Ancho fijo */
   height: auto; /* Altura automática para mantener la proporción */
   display: block; /* Hace que la imagen sea un bloque para centrarla */
   margin: 0 auto; /* Centra la imagen horizontalmente */

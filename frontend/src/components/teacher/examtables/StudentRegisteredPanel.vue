@@ -98,7 +98,7 @@
                 v-model="studentGrade"
                 label="Nota del Estudiante"
                 max="4"
-                min="0"
+                min="2"
                 style="margin-top: 17px;"
                 type="number"
                 variant="outlined"
@@ -212,7 +212,7 @@
 
     const notaNumerica = Number(studentGrade.value) // Convierte la nota a número
     // Valida que la nota sea numérica y esté entre 0 y 4
-    if (Number.isNaN(notaNumerica) || notaNumerica < 0 || notaNumerica > 4) {
+    if (Number.isNaN(notaNumerica) || notaNumerica < 2 || notaNumerica > 4) {
       snackbar.value = {
         show: true,
         message: 'La nota debe ser un número entre 0 y 4.',

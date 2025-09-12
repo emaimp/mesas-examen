@@ -1,16 +1,13 @@
 <template>
   <v-container class="fill-height" fluid>
     <v-row align="center" class="fill-height" justify="center">
-      <v-col cols="12" lg="4" md="6" sm="8">
-        <v-card class="pa-7">
-          <v-card-title class="text-h5 mb-7 text-center">
-            Crear Mesa de Examen
-          </v-card-title>
+      <v-col cols="12" lg="4" md="5" sm="6">
+        <v-card class="pa-6">
           <v-card-text>
 
             <CareerAutocomplete
               v-model="selectedCareerId"
-              class="mb-4"
+              class="mt-4 mb-4"
               label="Carrera"
             />
 
@@ -48,7 +45,7 @@
 
             <v-btn
               block
-              class="mt-4 action-button"
+              class="action-button"
               :disabled="!selectedSubjectId || !selectedProfessorId"
               variant="outlined"
               @click="handlecreateTable"
