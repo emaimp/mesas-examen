@@ -36,7 +36,7 @@ async def ollama_chat(
         else:
             # Para interacciones posteriores, añadir el mensaje del usuario y llamar al modelo Ollama
             messages.append({'role': 'user', 'content': request.message}) # Añade el mensaje actual del usuario al historial
-            response = chat(model='qwen3:0.6b', messages=messages, think=False) # Llama al modelo Ollama con el historial completo
+            response = chat(model='gemma3:270m', messages=messages, think=False) # Llama al modelo Ollama con el historial completo
             model_response_content = response['message']['content'] # Extrae el contenido de la respuesta del modelo
 
             # Lógica para usar el mensaje por defecto si la respuesta del modelo es inválida

@@ -125,7 +125,13 @@
   const { user, fetchAuthUser } = useAuthUser()
 
   // Configura los guards de navegación para mostrar/ocultar el indicador de carga
+  // Solo mostrar carga para navegación externa o rutas pesadas
   router.beforeEach((to, from, next) => {
+    // No mostrar carga para navegación interna dentro de teacher
+    if (to.path.startsWith('/teacher') && from.path.startsWith('/teacher')) {
+      next()
+      return
+    }
     isLoading.value = true
     next()
   })

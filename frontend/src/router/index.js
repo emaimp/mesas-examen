@@ -11,10 +11,11 @@ import { createRouter, createWebHistory } from 'vue-router/auto'
 // eslint-disable-next-line import/no-duplicates
 import { routes } from 'vue-router/auto-routes'
 
+// Usar rutas auto-generadas que ya incluyen lazy loading
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL, { base: '/' }), // Establecer explícitamente la base a '/'
   routes: [
-    ...setupLayouts(routes), // Se encargará de envolver las páginas declaradas en cada componente de 'pages/'.
+    ...setupLayouts(routes), // Usar rutas auto-generadas con lazy loading automático
   ],
   // Configuraciones de performance
   scrollBehavior (to, savedPosition) {
@@ -52,22 +53,33 @@ router.beforeEach(to => {
   const userRole = localStorage.getItem('userRole')
 
   if (userRole === 'admin' && to.path.startsWith('/admin')) {
-    // Precargar páginas comunes de admin
+    // Precargar todas las páginas de admin para navegación casi inmediata
     setTimeout(() => {
       import('@/pages/admin/index.vue')
+      import('@/pages/admin/administration-chatbot.vue')
       import('@/pages/admin/management-tables.vue')
+      import('@/pages/admin/administration-tables.vue')
+      import('@/pages/admin/download-acts.vue')
+      import('@/pages/admin/administration-dashboard.vue')
+      import('@/pages/admin/change-password.vue')
+      import('@/pages/admin/administration-upload.vue')
     }, 100)
   } else if (userRole === 'student' && to.path.startsWith('/student')) {
     // Precargar páginas comunes de estudiante
     setTimeout(() => {
       import('@/pages/student/[name]/profile.vue')
+      import('@/pages/student/[name]/ratings.vue')
       import('@/pages/student/[name]/tables-exam.vue')
+      import('@/pages/student/[name]/tables-registered.vue')
+      import('@/pages/student/[name]/change-password.vue')
     }, 100)
   } else if (userRole === 'teacher' && to.path.startsWith('/teacher')) {
     // Precargar páginas comunes de profesor
     setTimeout(() => {
       import('@/pages/teacher/[name]/profile.vue')
       import('@/pages/teacher/[name]/tables-assigned.vue')
+      import('@/pages/teacher/[name]/digital-acts.vue')
+      import('@/pages/teacher/[name]/change-password.vue')
     }, 100)
   }
 })

@@ -1,72 +1,44 @@
 <template>
   <v-container>
     <v-row justify="center">
-      <v-col cols="12" lg="6" md="8" sm="10">
-        <v-card class="pa-6 flex-grow-1">
-          <v-card-title class="text-h5 my-7 text-center">
-            Rendimiento de una Carrera
-          </v-card-title>
-          <v-card-text>
-            <v-row justify="center">
-              <v-col cols="12" md="10" sm="10">
-                <CareerAutocomplete
-                  v-model="selectedCareerId"
-                  label="Seleccionar Carrera"
-                />
-              </v-col>
-              <v-row class="my-7" justify="space-around">
-
-                <div v-if="loading" class="text-center">
-                  <v-progress-circular indeterminate />
-                  <p>Cargando...</p>
-                </div>
-                <div v-else-if="error" class="text-center text-red">
-                  <p>{{ error }}</p>
-                </div>
-                <div v-else-if="!selectedCareerId" class="text-center">
-                  <p>Por favor, selecciona una carrera.</p>
-                </div>
-                <div v-else-if="rendimientoGlobal.total_notas_evaluadas === 0" class="text-center">
-                  <p>No hay notas registradas.</p>
-                </div>
-                <div v-else>
-                  <v-row class="my-0" justify="space-around">
-                    <v-col class="text-center" cols="12" sm="4">
-                      <PercentageCircle
-                        color="green_color"
-                        :value="rendimientoGlobal.promocionados_percentage"
-                      />
-                      <p class="mt-2">Promocionados ({{ rendimientoGlobal.promocionados_count }} notas)</p>
-                    </v-col>
-                    <v-col class="text-center" cols="12" sm="4">
-                      <PercentageCircle
-                        color="yellow_color"
-                        :value="rendimientoGlobal.regulares_percentage"
-                      />
-                      <p class="mt-2">Regulares ({{ rendimientoGlobal.regulares_count }} notas)</p>
-                    </v-col>
-                    <v-col class="text-center" cols="12" sm="4">
-                      <PercentageCircle
-                        color="red_color"
-                        :value="rendimientoGlobal.libres_percentage"
-                      />
-                      <p class="mt-2">Libres ({{ rendimientoGlobal.libres_count }} notas)</p>
-                    </v-col>
-                  </v-row>
-                  <div class="text-center mt-10">
-                    <p>Total de notas evaluadas: {{ rendimientoGlobal.total_notas_evaluadas }}</p>
-                  </div>
-                </div>
-              </v-row></v-row></v-card-text>
-        </v-card>
+      <v-col cols="12" md="7" sm="10">
+        <v-row class="mt-4" justify="center">
+          <v-col cols="12" md="7" sm="10">
+            <CareerAutocomplete
+              v-model="selectedCareerId"
+              label="Seleccionar Carrera"
+            />
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col cols="12">
+            <h3 class="text-center my-4">Inscripciones en Exámenes</h3>
+            <CareerRegistrationsPanel :career-id="selectedCareerId" />
+          </v-col>
+          <v-col cols="12">
+            <h3 class="text-center my-4">Rendimiento Académico</h3>
+            <CareerPerformancePanel
+              :error="error"
+              :loading="loading"
+              :performance-data="rendimientoGlobal"
+            />
+          </v-col>
+          <v-col class="mb-8" cols="12">
+            <h3 class="text-center my-4">Predicción de Rendimiento Académico</h3>
+            <CareerPredictionPanel :career-id="selectedCareerId" />
+          </v-col>
+        </v-row>
       </v-col>
     </v-row>
   </v-container>
 </template>
 
 <script setup>
+  import { watch } from 'vue'
   import CareerAutocomplete from '@/components/autocomplete/CareerAutocomplete.vue'
-  import PercentageCircle from '@/components/dashboard/PercentageCircle.vue'
+  import CareerPerformancePanel from '@/components/dashboard/CareerPerformancePanel.vue'
+  import CareerPredictionPanel from '@/components/dashboard/CareerPredictionPanel.vue'
+  import CareerRegistrationsPanel from '@/components/dashboard/CareerRegistrationsPanel.vue'
   import { useRendimientoGlobalCarrera } from '@/services/admin/useGlobalPerformance'
 
   // Inicializa el servicio para obtener el rendimiento global

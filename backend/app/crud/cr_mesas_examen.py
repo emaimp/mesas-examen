@@ -428,7 +428,7 @@ def mesas_examen_por_profesor(profesor_id: int, session: Session) -> List[schema
                 fecha_llamado=mesa_examen.primer_llamado if inscripcion.llamado_inscrito == "primer_llamado" else mesa_examen.segundo_llamado,
                 materia_nombre=mesa_examen.materia_nombre,
                 carrera_nombre=mesa_examen.carrera_nombre,
-                profesor_id=mesa_examen.profesor_id,
+                id_profesor=mesa_examen.profesor_id,
                 profesor_nombre=mesa_examen.profesor_nombre,
                 estudiante_nombre=usuario_estudiante.nombre,
                 dni=usuario_estudiante.dni,

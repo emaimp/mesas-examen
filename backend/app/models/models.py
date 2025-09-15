@@ -316,8 +316,8 @@ class Inscripciones_Examen(SQLModel, table=True):
 
     # Enumeración para el estado de asistencia
     class EstadoAsistencia(str, Enum):
-        si = "si"
-        no = "no"
+        si = "presente"
+        no = "ausente"
 
     tipo_inscripcion: Optional[str] = Field(default=None, max_length=10) # "libre" o "regular"
     estado: str = Field(default="active") # Estado actual de la inscripción, por defecto 'active'

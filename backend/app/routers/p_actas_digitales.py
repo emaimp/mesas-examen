@@ -5,8 +5,7 @@ from pathlib import Path
 from datetime import datetime
 from sqlalchemy.orm import Session
 from fastapi.responses import JSONResponse, FileResponse
-from app.utils.pdf_signer import sign_pdf_with_test_cert
-from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, status, Query
+from fastapi import APIRouter, UploadFile, HTTPException, Depends, Query, File, status
 
 router = APIRouter(prefix="/actas", tags=["Actas Digitales"], responses={404: {"description": "Not found"}},)
 
@@ -92,66 +91,6 @@ async def actas_digitales_download(
         )
 
     return FileResponse(path=file_path, filename=pdf_record.filename, media_type="application/pdf")
-
-#
-# Endpoint: Firma digitalmente un acta en formato PDF
-#
-@router.post("/sign_pdf/")
-async def sign_actas_digitales(
-    pdf_file: UploadFile = File(...),
-    db: Session = Depends(db.get_session),
-    current_user: models.Usuarios = Depends(core.get_current_user)
-):
-    # Solo profesores pueden firmar en este endpoint de prueba
-    if current_user.role != "teacher":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Solo los profesores pueden firmar actas digitales."
-        )
-
-    # Leer el contenido del PDF
-    pdf_content = await pdf_file.read()
-
-    # Generar un nombre de archivo único para el PDF firmado
-    file_extension = pdf_file.filename.split(".")[-1]
-    unique_filename = f"signed_{uuid.uuid4()}.{file_extension}"
-    signed_file_path = UPLOAD_DIRECTORY / unique_filename
-
-    try:
-        # Llamar a la función de firma con el certificado global
-        await sign_pdf_with_test_cert(
-            pdf_data=pdf_content,
-            output_filepath=signed_file_path
-        )
-    except FileNotFoundError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error al firmar el PDF: {e}"
-        )
-
-    # Guardar metadatos del PDF firmado en la base de datos
-    new_pdf_record = models.Actas_Digitales(
-        filename=unique_filename,
-        filepath=str(signed_file_path),
-        uploaded_user_id=current_user.id,
-        upload_date=datetime.utcnow(),
-        is_signed=True,
-        signed_user_id=current_user.id,
-        signature_date=datetime.utcnow()
-    )
-    db.add(new_pdf_record)
-    db.commit()
-    db.refresh(new_pdf_record)
-
-    return JSONResponse(
-        status_code=status.HTTP_201_CREATED,
-        content={"message": "PDF firmado exitosamente", "filename": unique_filename, "filepath": str(signed_file_path)}
-    )
 
 #
 # Endpoint: Lista los metadatos de las actas para filtrarlas por nombre del uploader

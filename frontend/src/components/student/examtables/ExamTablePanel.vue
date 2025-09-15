@@ -109,12 +109,14 @@
   import { useTableRegistration } from '../../../services/student/useTableRegistration'
   import { useTablesExam } from '../../../services/student/useTablesExam'
   import { useAuthUser } from '../../../services/user/useAuthUser'
+  import { useStudentTableStore } from '../../../stores/studentTables'
   import ExamTableCard from '../../student/examtables/ExamTableCard.vue'
 
   // Inicializa servicios para interactuar con la API
   const { fetchTablesExamByStudentNote } = useTablesExam() // Para obtener mesas de examen
   const { RegisterStudentToTable } = useTableRegistration() // Para registrar estudiantes en mesas
   const { user, fetchAuthUser } = useAuthUser() // Para obtener datos del usuario autenticado
+  const studentTableStore = useStudentTableStore() // Store para comunicar cambios entre pestañas
 
   // Propiedades reactivas para el estado del componente
   const studentId = computed(() => user.value?.id) // ID del estudiante
@@ -245,6 +247,11 @@
         message: result.message,
         color: result.success ? 'success' : 'error',
       }
+
+      // Notifica a otros componentes que se realizó una inscripción
+      if (result.success) {
+        studentTableStore.notifyRegistrationChange()
+      }
     } catch (error) {
       console.error('Error inesperado al intentar inscribirse:', error)
       snackbar.value = {
@@ -317,6 +324,11 @@
   transform: translateX(-50%) !important; /* Ajuste para centrado perfecto */
   bottom: 0 !important; /* Alinea en la parte inferior */
   text-align: center; /* Centra el texto */
+}
+
+/* Estilos para sobreescribir el .v-card */
+.v-card {
+  background: linear-gradient(to right, #276291, #1e5483) !important;
 }
 
 /* Estilos para sobreescribir el .v-list global */

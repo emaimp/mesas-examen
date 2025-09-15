@@ -137,6 +137,7 @@
   import { useTablesRegistered } from '../../../services/student/useTablesRegistered'
   import { useTablesRegisteredState } from '../../../services/student/useTablesRegisteredState'
   import { useAuthUser } from '../../../services/user/useAuthUser'
+  import { useStudentTableStore } from '../../../stores/studentTables'
   import MesaExamenCard from '../../student/examtables/ExamRegisteredCard.vue'
 
   // Obtiene la función para obtener mesas registradas
@@ -147,6 +148,8 @@
   const { error: updateError, success: updateSuccess, updateRegistrationState } = useTablesRegisteredState()
   // Propiedad computada para obtener el ID del estudiante del usuario autenticado
   const studentId = computed(() => user.value?.id)
+  // Store para escuchar cambios de registro entre componentes
+  const studentTableStore = useStudentTableStore()
 
   // Variables reactivas para el estado del componente
   const mesasAgrupadasPorAnio = ref([]) // Almacena las mesas de examen agrupadas por año
@@ -305,6 +308,16 @@
     openPanels.value = sortedMesasAgrupadasPorAnio.value.length > 0 ? [0] : []
   })
 
+  // Observa cambios de registro en otras pestañas y recarga datos automáticamente
+  watch(
+    () => studentTableStore.updateVersion,
+    async (newVersion, oldVersion) => {
+      if (newVersion > oldVersion && newVersion > 0) {
+        await loadMesas(studentId.value)
+      }
+    },
+  )
+
   /**
    * Formatea el tipo de inscripción para mostrar la primera letra en mayúscula
    * @param {string} tipo - El tipo de inscripción (ej. "libre", "regular")
@@ -334,6 +347,11 @@
   transform: translateX(-50%) !important; /* Ajuste para centrado perfecto */
   bottom: 0 !important; /* Posiciona en la parte inferior */
   text-align: center; /* Centra el texto dentro del snackbar */
+}
+
+/* Estilos para sobreescribir el .v-card */
+.v-card {
+  background: linear-gradient(to right, #276291, #1e5483) !important;
 }
 
 /* Estilos para sobreescribir el .v-list global */

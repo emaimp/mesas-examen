@@ -1,9 +1,13 @@
 import axios from 'axios'
 
+// Cache para almacenar resultados de búsquedas
+const cache = new Map()
+const CACHE_DURATION = 5 * 60 * 1000 // 5 minutos en ms
+
 // Hook para buscar profesores
 export function useTeacherSearch () {
   /**
-   * Obtiene profesores filtrados por carrera y opcionalmente por una consulta de búsqueda
+   * Obtiene profesores filtrados por carrera y opcionalmente por una consulta de búsqueda con cache
    * @param {number|string} careerId - El ID de la carrera
    * @param {string} [professorQuery=''] - Parámetro opcional de búsqueda para profesores
    * @returns {Promise<Array>} - Retorna una promesa con un array de profesores
@@ -14,6 +18,15 @@ export function useTeacherSearch () {
     if (!careerId) {
       return []
     }
+
+    const cacheKey = `teachers-${careerId}-${professorQuery || 'all'}`
+    const cached = cache.get(cacheKey)
+
+    // Verificar si hay cache válido
+    if (cached && (Date.now() - cached.timestamp) < CACHE_DURATION) {
+      return cached.data
+    }
+
     try {
       // Construye la URL de la API para buscar profesores por carrera
       const url = `${import.meta.env.VITE_API_URL}/carreras/${careerId}/profesores?query=${encodeURIComponent(professorQuery)}`
@@ -21,6 +34,11 @@ export function useTeacherSearch () {
       const response = await axios.get(url, {
         headers: { Accept: 'application/json' },
         responseType: 'json',
+      })
+      // Almacenar en cache
+      cache.set(cacheKey, {
+        data: response.data,
+        timestamp: Date.now(),
       })
       // Retorna los datos de la respuesta
       return response.data
@@ -32,7 +50,7 @@ export function useTeacherSearch () {
   }
 
   /**
-   * Obtiene los datos de un profesor por su ID
+   * Obtiene los datos de un profesor por su ID con cache
    * @param {number|string} teacherId - El ID del profesor a buscar
    * @returns {Promise<Object|null>} - Retorna una promesa con los datos del profesor o null si no se encuentra
    * @throws {Error} - Lanza un error si la petición falla
@@ -41,11 +59,25 @@ export function useTeacherSearch () {
     if (!teacherId) {
       return null
     }
+
+    const cacheKey = `teacher-${teacherId}`
+    const cached = cache.get(cacheKey)
+
+    // Verificar si hay cache válido
+    if (cached && (Date.now() - cached.timestamp) < CACHE_DURATION) {
+      return cached.data
+    }
+
     try {
       const url = `${import.meta.env.VITE_API_URL}/profesores/${teacherId}`
       const response = await axios.get(url, {
         headers: { Accept: 'application/json' },
         responseType: 'json',
+      })
+      // Almacenar en cache
+      cache.set(cacheKey, {
+        data: response.data,
+        timestamp: Date.now(),
       })
       return response.data
     } catch (error) {

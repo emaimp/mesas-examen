@@ -314,7 +314,7 @@ class ExamWithStudentsDetail(SQLModel):
     fecha_llamado: Optional[datetime] = None
     materia_nombre: str
     carrera_nombre: str
-    profesor_id: int
+    id_profesor: int
     profesor_nombre: str
     estudiante_nombre: str
     dni: str
@@ -373,6 +373,21 @@ class PerformanceCareer(SQLModel):
     libres_count: int
     libres_percentage: float
     total_notas_evaluadas: int
+    class Config:
+        from_attributes = True
+
+"""
+SCHEMAS: INSCRIPCIONES EN MESAS DE EXAMEN DE UNA CARRERA
+"""
+# Calcula la cantidad de inscripciones activas y canceladas en mesas de examen de una carrera
+class EnrollmentCareer(SQLModel):
+    carrera_id: int
+    carrera_nombre: str
+    activos_count: int
+    activos_percentage: float
+    cancelados_count: int
+    cancelados_percentage: float
+    total_inscripciones: int
     class Config:
         from_attributes = True
 

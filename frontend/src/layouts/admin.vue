@@ -186,7 +186,13 @@
   const route = useRoute()
 
   // Configura los guards de navegación para mostrar/ocultar el indicador de carga
+  // Solo mostrar carga para navegación externa o rutas pesadas
   router.beforeEach((to, from, next) => {
+    // No mostrar carga para navegación interna dentro de admin
+    if (to.path.startsWith('/admin') && from.path.startsWith('/admin')) {
+      next()
+      return
+    }
     isLoading.value = true
     next()
   })

@@ -1,65 +1,72 @@
 <template>
-  <v-card class="pa-4" width="1000">
-    <v-card class="mb-4 no-card-styles centered-card" width="500">
-      <v-card-text>
-        <v-row>
-          <v-col cols="12">
-            <v-text-field
-              v-model="searchQuery"
-              clearable
-              hide-details
-              label="Nombre del Profesor"
-              @keyup.enter="searchActs"
-            />
-          </v-col>
-          <v-col cols="12">
-            <v-btn
-              block
-              class="action-button"
-              :loading="loading"
-              @click="searchActs"
-            >
-              <v-icon left>mdi-magnify</v-icon>
-              Buscar Actas
-            </v-btn>
+  <v-container>
+    <v-row justify="center">
+      <v-col cols="12" md="7" sm="10">
+        <v-row class="mt-4" justify="center">
+          <v-col cols="12" md="7" sm="10">
+            <v-row>
+              <v-col cols="12">
+                <v-text-field
+                  v-model="searchQuery"
+                  clearable
+                  hide-details
+                  label="Nombre del Profesor"
+                  @keyup.enter="searchActs"
+                />
+              </v-col>
+              <v-col cols="12">
+                <v-btn
+                  block
+                  class="action-button"
+                  :loading="loading"
+                  @click="searchActs"
+                >
+                  <v-icon left>mdi-magnify</v-icon>
+                  Buscar Actas
+                </v-btn>
+              </v-col>
+            </v-row>
           </v-col>
         </v-row>
-      </v-card-text>
-    </v-card>
-
-    <v-card class="mt-4">
-      <v-card-text>
-        <v-alert v-if="error" class="mb-4" type="error">{{ error }}</v-alert>
-        <v-alert v-if="!loading && actas.length === 0 && searchQuery" class="mb-4" type="info">
-          No se encontraron actas para el profesor "{{ searchQuery }}".
-        </v-alert>
-        <v-data-table
-          :headers="headers"
-          hide-default-footer
-          item-value="id"
-          :items="actas"
-          :loading="loading"
-          loading-text="Cargando actas..."
-          no-data-text="Realiza una búsqueda para ver las actas."
-        >
-          <template #item.upload_date="{ item }">
-            {{ new Date(item.upload_date).toLocaleDateString() }}
-          </template>
-          <template #item.action="{ item }">
-            <v-btn
-              class="action-button"
-              size="small"
-              variant="outlined"
-              @click="descargarActa(item)"
-            >
-              <v-icon left>mdi-download</v-icon>
-              Descargar
-            </v-btn>
-          </template>
-        </v-data-table>
-      </v-card-text>
-    </v-card>
-  </v-card>
+        <v-row>
+          <v-col cols="12">
+            <v-card>
+              <v-card-text>
+                <v-alert v-if="error" class="mb-4" type="error">{{ error }}</v-alert>
+                <v-alert v-if="!loading && actas.length === 0 && searchQuery" class="mb-4" type="info">
+                  No se encontraron actas para el profesor "{{ searchQuery }}".
+                </v-alert>
+                <v-data-table
+                  :headers="headers"
+                  hide-default-footer
+                  item-value="id"
+                  :items="actas"
+                  :loading="loading"
+                  loading-text="Cargando actas..."
+                  no-data-text="Realiza una búsqueda para ver las actas."
+                >
+                  <template #item.upload_date="{ item }">
+                    {{ new Date(item.upload_date).toLocaleDateString() }}
+                  </template>
+                  <template #item.action="{ item }">
+                    <v-btn
+                      class="action-button"
+                      size="small"
+                      variant="outlined"
+                      @click="descargarActa(item)"
+                    >
+                      <v-icon left>mdi-download</v-icon>
+                      Descargar
+                    </v-btn>
+                  </template>
+                </v-data-table>
+              </v-card-text>
+            </v-card>
+          </v-col>
+        </v-row>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script setup>

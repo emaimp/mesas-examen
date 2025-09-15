@@ -83,11 +83,11 @@
 
 /* Estilos para tarjetas de inscripción activa */
 .v-card.mesa-card.mesa-card-active {
-  background: linear-gradient(to right, #0d730d, #008000) !important;
+  background: linear-gradient(to right, #00913f, #008f39) !important;
 }
 
 /* Estilos para tarjetas de inscripción cancelada */
 .v-card.mesa-card.mesa-card-canceled {
-  background: linear-gradient(to right, #a82424, #cd0000) !important;
+  background: linear-gradient(to right, #d5303e, #cb3234) !important;
 }
 </style>

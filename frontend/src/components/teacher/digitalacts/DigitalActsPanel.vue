@@ -97,6 +97,7 @@
   import { useDetailExam } from '@/services/teacher/useDetailExam.js'
   import { useDigitalActsService } from '@/services/teacher/useDigitalActs.js'
   import { useAuthUser } from '@/services/user/useAuthUser.js'
+  import { useTeacherDigitalActsStore } from '@/stores/teacherDigitalActs'
   import DigitalActsCard from './DigitalActsCard.vue'
 
   // Estado para la autenticación del usuario
@@ -113,6 +114,8 @@
 
   // Estado para los detalles del examen
   const { detailExams, loading: detailExamsLoading, error: detailExamsError, fetchDetailExams } = useDetailExam()
+  // Store para escuchar cambios cuando se asignan notas
+  const teacherDigitalActsStore = useTeacherDigitalActsStore()
 
   // Estado para las observaciones generales por carrera
   const careerObservations = ref({})
@@ -134,6 +137,16 @@
       }
     }
   }, { immediate: true, deep: true })
+
+  // Observar cambios cuando se asignan notas en otras pestañas
+  watch(
+    () => teacherDigitalActsStore.updateVersion,
+    async (newVersion, oldVersion) => {
+      if (newVersion > oldVersion && newVersion > 0 && profesorId.value) {
+        await fetchDetailExams(profesorId.value)
+      }
+    },
+  )
 
   // Hook de ciclo de vida para obtener datos cuando el componente es montado
   onMounted(() => {

@@ -142,6 +142,7 @@
   import { useExamNotes } from '../../../services/teacher/useNotesExam'
   import { useTableExamTeacher } from '../../../services/teacher/useTableExamTeacher'
   import { useAuthUser } from '../../../services/user/useAuthUser'
+  import { useTeacherDigitalActsStore } from '../../../stores/teacherDigitalActs'
   import StudentRegisteredCard from '../../teacher/examtables/StudentRegisteredCard.vue'
 
   // Obtiene el usuario autenticado y la función para cargarlo
@@ -150,6 +151,8 @@
   const { sendExamNote, loading: sendingNote, error: sendError } = useExamNotes()
   // Propiedad computada para obtener el ID del profesor del usuario autenticado
   const teacherId = computed(() => user.value?.id)
+  // Store para comunicar cambios con otros componentes
+  const teacherDigitalActsStore = useTeacherDigitalActsStore()
 
   // Obtiene la función para obtener mesas de examen asignadas a un profesor
   const { fetchExamTables } = useTableExamTeacher()
@@ -215,7 +218,7 @@
     if (Number.isNaN(notaNumerica) || notaNumerica < 2 || notaNumerica > 4) {
       snackbar.value = {
         show: true,
-        message: 'La nota debe ser un número entre 0 y 4.',
+        message: 'La nota debe ser un número entre 2 y 4.',
         color: 'error',
       }
       return
@@ -235,6 +238,7 @@
           message: `Nota ${notaNumerica} registrada con éxito para ${selectedEstudiante.value.estudiante_nombre}.`,
           color: 'success',
         }
+        teacherDigitalActsStore.notifyGradeUpdate() // Notifica a otros componentes
         await loadEstudiantes(teacherId.value) // Recarga la lista de estudiantes
       } else {
         snackbar.value = {
@@ -325,6 +329,11 @@
   transform: translateX(-50%) !important; /* Ajuste para centrado perfecto */
   bottom: 0 !important; /* Posiciona en la parte inferior */
   text-align: center; /* Centra el texto dentro del snackbar */
+}
+
+/* Estilos para sobreescribir el .v-card */
+.v-card {
+  background: linear-gradient(to right, #276291, #1e5483) !important;
 }
 
 /* Estilos para sobreescribir el .v-list global */
