@@ -67,6 +67,19 @@
           </v-card-text>
         </v-card> </v-col>
     </v-row>
+
+    <v-overlay
+      class="align-center justify-center"
+      contained
+      :model-value="isLoading"
+      persistent
+    >
+      <v-progress-circular
+        color="primary"
+        indeterminate
+        size="60"
+      />
+    </v-overlay>
   </v-container>
 </template>
 
@@ -83,6 +96,7 @@
         password: '', // Almacena la contraseña
         errorMessage: '', // Almacena mensajes de error
         passwordVisible: false, // Controla la visibilidad de la contraseña
+        isLoading: false, // Controla la visibilidad del indicador de carga
       }
     },
     computed: {
@@ -99,6 +113,7 @@
         // Valida el formulario usando las reglas de Vuetify
         if (this.$refs.loginForm.validate()) {
           this.errorMessage = '' // Limpia cualquier mensaje de error previo
+          this.isLoading = true // Muestra el indicador de carga
 
           try {
             // Realiza una petición POST para obtener el token de autenticación
@@ -154,6 +169,8 @@
             this.errorMessage = (error.response && error.response.status === 401)
               ? 'Usuario o contraseña incorrectos.'
               : 'Ocurrió un error al intentar iniciar sesión.'
+          } finally {
+            this.isLoading = false // Oculta el indicador de carga
           }
         }
       },

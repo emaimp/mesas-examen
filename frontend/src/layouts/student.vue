@@ -124,14 +124,9 @@
   // Desestructura propiedades del servicio de autenticación de usuario
   const { user, fetchAuthUser } = useAuthUser()
 
-  // Configura los guards de navegación para mostrar/ocultar el indicador de carga
-  // Solo mostrar carga para navegación externa o rutas pesadas
+  // Configura los guards de navegación para mostrar siempre el indicador de carga
+  // Mostrar carga para toda navegación en student
   router.beforeEach((to, from, next) => {
-    // No mostrar carga para navegación interna dentro de student
-    if (to.path.startsWith('/student') && from.path.startsWith('/student')) {
-      next()
-      return
-    }
     isLoading.value = true
     next()
   })

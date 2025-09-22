@@ -39,15 +39,30 @@
   import CareerPerformancePanel from '@/components/dashboard/CareerPerformancePanel.vue'
   import CareerPredictionPanel from '@/components/dashboard/CareerPredictionPanel.vue'
   import CareerRegistrationsPanel from '@/components/dashboard/CareerRegistrationsPanel.vue'
-  import { useRendimientoGlobalCarrera } from '@/services/admin/useGlobalPerformance'
+  import { useAdminDashboardStore } from '@/stores/adminDashboard'
 
-  // Inicializa el servicio para obtener el rendimiento global
-  const { fetchGlobalPerformance } = useRendimientoGlobalCarrera()
+  // Inicializar el store de dashboard admin
+  const adminDashboardStore = useAdminDashboardStore()
 
-  // Estado reactivo para almacenar los datos de rendimiento global
-  const rendimientoGlobal = ref({
+  // Estado reactivo para almacenar el ID de la carrera seleccionada
+  const selectedCareerId = ref(null)
+
+  // Cargar rendimiento global usando el store con cache
+  const loadRendimiento = async careerId => {
+    await adminDashboardStore.fetchGlobalPerformance(careerId)
+  }
+
+  // Observa cambios en el ID de la carrera seleccionada
+  watch(selectedCareerId, newId => {
+    if (newId) {
+      loadRendimiento(newId)
+    }
+  }, { immediate: true })
+
+  // Reactive computeds para pasar a componentes
+  const rendimientoGlobal = computed(() => adminDashboardStore.globalPerformance || {
     carrera_id: null,
-    carrera_nombre: 'Cargando...',
+    carrera_nombre: 'Selecciona una carrera',
     promocionados_count: 0,
     promocionados_percentage: 0,
     regulares_count: 0,
@@ -56,59 +71,8 @@
     libres_percentage: 0,
     total_notas_evaluadas: 0,
   })
-  // Estado reactivo para indicar si los datos están cargando
-  const loading = ref(false)
-  // Estado reactivo para almacenar mensajes de error
-  const error = ref(null)
-  // Estado reactivo para almacenar el ID de la carrera seleccionada
-  const selectedCareerId = ref(null)
-
-  /**
-   * Carga el rendimiento global de una carrera específica
-   * @param {number} careerId - El ID de la carrera
-   */
-  const loadRendimiento = async careerId => {
-    loading.value = true // Activa el estado de carga
-    error.value = null // Limpia errores previos
-    rendimientoGlobal.value.carrera_nombre = 'Cargando...' // Muestra estado de carga para el nombre de la carrera
-    try {
-      // Obtiene los datos de rendimiento de la API
-      const data = await fetchGlobalPerformance(careerId)
-      if (data) {
-        rendimientoGlobal.value = data // Asigna los datos si la respuesta es exitosa
-      } else {
-        error.value = 'No se pudo cargar el rendimiento global de la carrera.'
-        rendimientoGlobal.value.carrera_nombre = 'No encontrada'
-      }
-    } catch (error_) {
-      error.value = error_.message || 'Ocurrió un error al cargar los datos.' // Captura y muestra errores
-      rendimientoGlobal.value.carrera_nombre = 'Error'
-    } finally {
-      loading.value = false // Desactiva el estado de carga
-    }
-  }
-
-  // Observa cambios en el ID de la carrera seleccionada
-  watch(selectedCareerId, newId => {
-    if (newId) {
-      loadRendimiento(newId) // Si se selecciona una carrera, carga su rendimiento
-    } else {
-      // Si no hay carrera seleccionada, restablece los valores a cero
-      rendimientoGlobal.value = {
-        carrera_id: null,
-        carrera_nombre: 'Selecciona una carrera',
-        promocionados_count: 0,
-        promocionados_percentage: 0,
-        regulares_count: 0,
-        regulares_percentage: 0,
-        libres_count: 0,
-        libres_percentage: 0,
-        total_notas_evaluadas: 0,
-      }
-      loading.value = false
-      error.value = null
-    }
-  }, { immediate: true }) // Ejecuta el watcher inmediatamente al montar el componente
+  const loading = computed(() => adminDashboardStore.isLoadingGlobalPerformance)
+  const error = computed(() => adminDashboardStore.globalPerformanceError)
 </script>
 
 <style scoped>

@@ -40,7 +40,7 @@
 
 <script setup>
   import { watch } from 'vue'
-  import { useGlobalRegistrations } from '@/services/admin/useGlobalRegistrations'
+  import { useAdminDashboardStore } from '@/stores/adminDashboard'
   import PercentageCircle from './PercentageCircle.vue'
 
   const props = defineProps({
@@ -50,62 +50,33 @@
     },
   })
 
-  // Inicializa el servicio para obtener las registros globales
-  const { fetchGlobalRegistrations } = useGlobalRegistrations()
+  // Inicializa el store de dashboard admin
+  const adminDashboardStore = useAdminDashboardStore()
 
-  // Estados reactivos
-  const registrationsData = ref({
-    carrera_id: null,
-    carrera_nombre: 'Cargando...',
-    activos_count: 0,
-    activos_percentage: 0,
-    cancelados_count: 0,
-    cancelados_percentage: 0,
-    total_inscripciones: 0,
-  })
-  const loading = ref(false)
-  const error = ref(null)
-
-  // Función para cargar registros
+  // Función para cargar registros usando el store con cache
   const loadRegistrations = async careerId => {
-    loading.value = true
-    error.value = null
-    registrationsData.value.carrera_nombre = 'Cargando...'
-    try {
-      const data = await fetchGlobalRegistrations(careerId)
-      if (data) {
-        registrationsData.value = data
-      } else {
-        error.value = 'No se pudo cargar los datos de inscripciones.'
-        registrationsData.value.carrera_nombre = 'No encontrada'
-      }
-    } catch (error_) {
-      error.value = error_.message || 'Ocurrió un error al cargar los datos de inscripciones.'
-      registrationsData.value.carrera_nombre = 'Error'
-    } finally {
-      loading.value = false
-    }
+    await adminDashboardStore.fetchExamRegistrations(careerId)
   }
 
   // Observa cambios en el ID de la carrera
   watch(() => props.careerId, newId => {
     if (newId) {
       loadRegistrations(newId)
-    } else {
-      // Restablece valores si no hay carrera seleccionada
-      registrationsData.value = {
-        carrera_id: null,
-        carrera_nombre: 'Selecciona una carrera',
-        activos_count: 0,
-        activos_percentage: 0,
-        cancelados_count: 0,
-        cancelados_percentage: 0,
-        total_inscripciones: 0,
-      }
-      loading.value = false
-      error.value = null
     }
   }, { immediate: true })
+
+  // Reactive computeds para pasar al template
+  const registrationsData = computed(() => adminDashboardStore.examRegistrations || {
+    carrera_id: null,
+    carrera_nombre: 'Selecciona una carrera',
+    activos_count: 0,
+    activos_percentage: 0,
+    cancelados_count: 0,
+    cancelados_percentage: 0,
+    total_inscripciones: 0,
+  })
+  const loading = computed(() => adminDashboardStore.isLoadingRegistrations)
+  const error = computed(() => adminDashboardStore.registrationsError)
 </script>
 
 <style scoped>

@@ -47,40 +47,97 @@ router.onError(err => {
   }
 })
 
+// Mapa para rastrear rutas ya precargadas (evita duplicados y sobrecarga)
+const preloadedRoutes = new Set()
+// Límite de precargas simultáneas para no bloquear recursos
+const MAX_CONCURRENT_PRELOADS = 3
+let currentPreloads = 0
+
+// Función para precargar rutas de forma inteligente usando requestIdleCallback
+const preloadRoutes = async routesToPreload => {
+  // Si ya se alcanzó el límite de precargas simultáneas, esperar
+  if (currentPreloads >= MAX_CONCURRENT_PRELOADS) {
+    return
+  }
+
+  // Filtrar rutas no precargadas
+  const routes = routesToPreload.filter(route => !preloadedRoutes.has(route))
+
+  if (routes.length === 0) {
+    return
+  }
+
+  // Usar requestIdleCallback para tiempo de inactividad del navegador
+  const preloadInIdle = () => {
+    if (window.requestIdleCallback) {
+      window.requestIdleCallback(() => performPreloads(routes), { timeout: 2000 })
+    } else {
+      // Fallback a setTimeout si no está disponible (IE, viejos browsers)
+      setTimeout(() => performPreloads(routes), 1000)
+    }
+  }
+
+  const performPreloads = async routes => {
+    for (const route of routes) {
+      if (currentPreloads >= MAX_CONCURRENT_PRELOADS) {
+        break
+      }
+      if (preloadedRoutes.has(route)) {
+        continue
+      }
+
+      currentPreloads++
+      try {
+        await router.resolve(route) // Resuelve la ruta sin cambiarla
+        preloadedRoutes.add(route)
+      } catch (error) {
+        console.warn(`Failed to preload route ${route}:`, error)
+      } finally {
+        currentPreloads--
+      }
+    }
+  }
+
+  preloadInIdle()
+}
+
 // Preloading inteligente basado en navegación del usuario
+// Solo precarga rutas críticas de forma asíncrona, no forzadamente
 router.beforeEach(to => {
-  // Precargar rutas relacionadas basadas en el rol del usuario
+  // Detectar conexión lenta para saltar precargas agresivas
+  const isSlowConnection = navigator.connection
+    && (navigator.connection.effectiveType === 'slow-2g'
+      || navigator.connection.effectiveType === '2g'
+      || navigator.connection.saveData === true)
+
+  if (isSlowConnection) {
+    return // Saltar precargas en conexiones lentas
+  }
+
   const userRole = localStorage.getItem('userRole')
 
   if (userRole === 'admin' && to.path.startsWith('/admin')) {
-    // Precargar todas las páginas de admin para navegación casi inmediata
-    setTimeout(() => {
-      import('@/pages/admin/index.vue')
-      import('@/pages/admin/administration-chatbot.vue')
-      import('@/pages/admin/management-tables.vue')
-      import('@/pages/admin/administration-tables.vue')
-      import('@/pages/admin/download-acts.vue')
-      import('@/pages/admin/administration-dashboard.vue')
-      import('@/pages/admin/change-password.vue')
-      import('@/pages/admin/administration-upload.vue')
-    }, 100)
+    // Precargar solo las rutas más probables/críticas en admin (no todas)
+    const criticalRoutes = [
+      '/admin/administration-tables', // Gestión común
+      '/admin/management-tables', // Creación frecuente
+      '/admin/administration-dashboard', // Dashboard para insights
+    ]
+    preloadRoutes(criticalRoutes)
   } else if (userRole === 'student' && to.path.startsWith('/student')) {
-    // Precargar páginas comunes de estudiante
-    setTimeout(() => {
-      import('@/pages/student/[name]/profile.vue')
-      import('@/pages/student/[name]/ratings.vue')
-      import('@/pages/student/[name]/tables-exam.vue')
-      import('@/pages/student/[name]/tables-registered.vue')
-      import('@/pages/student/[name]/change-password.vue')
-    }, 100)
+    // Precargar rutas comunes de estudiante, priorizando perfil y notas
+    const criticalRoutes = [
+      '/student/[name]/profile', // Perfil personal
+      '/student/[name]/ratings', // Notas importantes
+    ]
+    preloadRoutes(criticalRoutes)
   } else if (userRole === 'teacher' && to.path.startsWith('/teacher')) {
-    // Precargar páginas comunes de profesor
-    setTimeout(() => {
-      import('@/pages/teacher/[name]/profile.vue')
-      import('@/pages/teacher/[name]/tables-assigned.vue')
-      import('@/pages/teacher/[name]/digital-acts.vue')
-      import('@/pages/teacher/[name]/change-password.vue')
-    }, 100)
+    // Precargar rutas críticas de profesor
+    const criticalRoutes = [
+      '/teacher/[name]/profile', // Perfil personal
+      '/teacher/[name]/tables-assigned', // Mesas asignadas
+    ]
+    preloadRoutes(criticalRoutes)
   }
 })
 

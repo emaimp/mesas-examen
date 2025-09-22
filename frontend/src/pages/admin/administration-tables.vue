@@ -122,14 +122,12 @@
 <script setup>
   import { computed, onMounted, ref } from 'vue'
   import ExamTableCard from '../../components/student/examtables/ExamTableCard.vue'
-  import { useTablesExamAdmin } from '../../services/admin/useTablesExamAdmin'
+  import { useAdminTablesStore } from '../../stores/adminTables.js'
 
-  // Inicializa servicios para interactuar con la API
-  const { fetchTablesExamByCareer, deleteTableExam } = useTablesExamAdmin()
+  // Inicializa el store de tablas admin
+  const adminTablesStore = useAdminTablesStore()
 
   // Propiedades reactivas para el estado del componente
-  const mesasAgrupadasPorCarrera = ref([]) // Almacena las mesas de examen agrupadas por carrera
-  const loading = ref(true) // Indica si los datos están cargando.
   const openPanels = ref([]) // Controla qué paneles de expansión están abiertos
   const showDeleteDialog = ref(false) // Controla la visibilidad del diálogo de eliminación
   const selectedMesaToDelete = ref(null) // Mesa de examen seleccionada para eliminación
@@ -139,6 +137,10 @@
     message: '',
     color: '',
   })
+
+  // Estados del store (reutilizados)
+  const mesasAgrupadasPorCarrera = computed(() => adminTablesStore.examTablesGrouped || [])
+  const loading = computed(() => adminTablesStore.isLoadingTables)
 
   // Propiedad computada para ordenar las mesas por carrera
   const sortedMesasAgrupadasPorCarrera = computed(() => {
@@ -228,13 +230,13 @@
     deleteLoading.value = { ...deleteLoading.value, [mesaId]: true }
 
     try {
-      const result = await deleteTableExam(mesaId)
+      await adminTablesStore.deleteExamTable(mesaId)
       snackbar.value = {
         show: true,
-        message: result.message || 'Mesa de examen eliminada exitosamente.',
+        message: 'Mesa de examen eliminada exitosamente.',
         color: 'success',
       }
-      await loadMesas() // Recargar las mesas después de la eliminación
+      // El store maneja la limpieza automática del cache
     } catch (error) {
       console.error('Error al eliminar mesa de examen:', error)
       snackbar.value = {
@@ -248,28 +250,9 @@
     }
   }
 
-  /**
-   * Carga todas las mesas de examen agrupadas por carrera
-   */
-  const loadMesas = async () => {
-    loading.value = true // Activa el estado de carga
-    try {
-      // Obtiene las mesas de examen de la API
-      const responseData = await fetchTablesExamByCareer()
-      mesasAgrupadasPorCarrera.value = Array.isArray(responseData)
-        ? responseData
-        : []
-    } catch (error) {
-      console.error('Error al cargar mesas de examen por carrera:', error)
-      mesasAgrupadasPorCarrera.value = []
-    } finally {
-      loading.value = false // Desactiva el estado de carga
-    }
-  }
-
   // Hook de ciclo de vida: se ejecuta cuando el componente se monta
   onMounted(async () => {
-    await loadMesas() // Carga las mesas de examen
+    await adminTablesStore.fetchExamTablesGrouped() // Carga las mesas desde el store con cache
     // Abre el primer panel si hay mesas disponibles
     openPanels.value = sortedMesasAgrupadasPorCarrera.value.length > 0 ? [0] : []
   })
