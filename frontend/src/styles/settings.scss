@@ -10,22 +10,10 @@
   $color-pack: false
 );
 
-/* Recrear el diseño del v-application */
+/* Gradiente para el v-application (backgroud) */
 .v-application {
   background:
-    /* Top-Right Light Blue Band */
-    linear-gradient(45deg, transparent 88%, #0097d5 88%, #0097d5 89%, transparent 89%) right top / 100% 100% no-repeat,
-    /* Additional Line */
-    linear-gradient(45deg, transparent 85%, #ffffff 85%, #ffffff 86%, transparent 86%) right top / 100% 100% no-repeat,
-    /* Top-Right Darker Blue Triangle */
-    linear-gradient(45deg, transparent 86%, #004572 86%) right top / 100% 100% no-repeat,
-    /* Bottom-Left Light Blue Band */
-    linear-gradient(45deg, transparent 11%, #0097d5 11%, #0097d5 12%, transparent 12%) left bottom / 100% 100% no-repeat,
-    /* Additional Line */
-    linear-gradient(45deg, transparent 14%, #ffffff 14%, #ffffff 15%, transparent 15%) left bottom / 100% 100% no-repeat,
-    /* Bottom-Left Darker Blue Triangle */
-    linear-gradient(45deg, #004572 14%, transparent 14%) left bottom / 100% 100% no-repeat,
-    /* Main Gradient Background */
+    /* Gradiente principal */
     radial-gradient(circle at center, #4577a2 0%, #145381 100%);
 }
 
@@ -37,7 +25,7 @@
 
 /* Gradiente para el v-card (containers) */
 .v-card {
-  background: linear-gradient(to right, rgba(39, 98, 145, 0.7), rgba(30, 84, 131, 0.7)) !important;
+  background: linear-gradient(to right, #276291, #1e5483) !important;
   box-shadow: 10px 10px 5px rgba(0, 0, 0, 0.7) !important;
   border: 1px solid !important;
 }

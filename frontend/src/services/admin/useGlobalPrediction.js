@@ -1,22 +1,22 @@
 import axios from 'axios'
 
-// Hook para obtener las cantidad de inscripciones de una carrera
-export function useGlobalRegistrations () {
+// Hook para obtener la predicción de rendimiento de una carrera
+export function usePrediccionGlobalCarrera () {
   /**
-   * Obtiene la cantidad de inscripciones de una carrera específica desde la API
+   * Obtiene la predicción de rendimiento de una carrera específica desde la API
    * @param {number} carreraId - El ID de la carrera
-   * @returns {Promise<object|null>} - Retorna una promesa con los datos de cantidad de inscripciones o null
+   * @returns {Promise<object|null>} - Retorna una promesa con los datos de predicción de rendimiento o null
    * @throws {Error} - Lanza un error si la petición falla
    */
-  const fetchGlobalRegistrations = async carreraId => {
+  const fetchGlobalPrediction = async carreraId => {
     // Verifica si se proporcionó un ID de carrera
     if (!carreraId) {
-      console.warn('fetchGlobalRegistrations: No se proporcionó carreraId')
+      console.warn('fetchGlobalPrediction: No se proporcionó carreraId')
       return null
     }
     try {
-      // Realiza la petición GET para obtener la cantidad de inscripciones de la carrera
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/carreras/${carreraId}/cantidad_inscripciones`, {
+      // Realiza la petición GET para obtener la predicción de rendimiento de la carrera
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/carreras/${carreraId}/prediccion_rendimiento`, {
         headers: { Accept: 'application/json' },
         responseType: 'json',
       })
@@ -24,11 +24,11 @@ export function useGlobalRegistrations () {
       return response.data
     } catch (error) {
       // Manejo de errores en caso de fallo en la petición
-      console.error(`Error al obtener la cantidad de inscripciones de la carrera ${carreraId}:`, error)
+      console.error(`Error al obtener la predicción de rendimiento de la carrera ${carreraId}:`, error)
       if (error.response) {
         // El servidor respondió con un estado de error
         console.error('Respuesta de error del servidor:', error.response.data)
-        throw new Error(error.response.data.detail || 'Error al obtener la cantidad de inscripciones de la carrera')
+        throw new Error(error.response.data.detail || 'Error al obtener la predicción de rendimiento de la carrera')
       } else if (error.request) {
         // La petición fue hecha pero no se recibió respuesta
         console.error('No se recibió respuesta del servidor:', error.request)
@@ -42,7 +42,7 @@ export function useGlobalRegistrations () {
   }
 
   return {
-    // Expone la función fetchGlobalRegistrations para ser usada en otros componentes
-    fetchGlobalRegistrations,
+    // Expone la función fetchGlobalPrediction para ser usada en otros componentes
+    fetchGlobalPrediction,
   }
 }

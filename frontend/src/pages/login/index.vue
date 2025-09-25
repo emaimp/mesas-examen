@@ -1,11 +1,14 @@
 <template>
-  <!-- Contenedor principal del formulario de identificación -->
-  <v-container class="identification-form-container gradient-background" fill-height fluid>
+  <v-container fill-height fluid>
     <v-row align="center" justify="center">
       <v-col cols="12" lg="8" md="8" sm="8">
         <!-- Tarjeta que contiene el formulario de login -->
         <v-card class="elevation-12 pa-3">
-          <img alt="IESN6 Logo" class="login-logo" src="@/assets/iesn6_icon.png">
+          <img
+            alt="Iesn6"
+            class="login-logo"
+            src="@/assets/iesn6_logo_350px.webp"
+          >
           <v-card-text class="px-3 py-3">
 
             <p class="mb-10 text-center">Ingrese su usuario y contraseña.</p>
@@ -85,7 +88,7 @@
 
 <script>
   import axios from 'axios' // Para realizar peticiones HTTP
-  import { jwtDecode } from 'jwt-decode' // Para decodificar tokens JWT
+  import { jwtDecode } from 'jwt-decode' // Decodifica tokens JWT (autenticación)
   import { useAppStore } from '@/stores/app' // Store de Pinia para la gestión del estado de la aplicación
 
   export default {
@@ -186,7 +189,7 @@
 
 <style scoped>
 /* Estilos para el contenedor principal del formulario de identificación */
-.identification-form-container {
+.v-container {
   min-height: 100vh; /* Altura mínima del 100% del viewport */
   display: flex; /* Usa flexbox para centrar el contenido */
   align-items: center; /* Centra verticalmente */
@@ -207,7 +210,6 @@
 /* Estilos para el logo de login */
 .login-logo {
   max-width: 100%; /* Ancho máximo del 100% del contenedor */
-  width: 350px; /* Ancho fijo */
   height: auto; /* Altura automática para mantener la proporción */
   display: block; /* Hace que la imagen sea un bloque para centrarla */
   margin: 0 auto; /* Centra la imagen horizontalmente */

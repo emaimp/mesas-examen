@@ -392,6 +392,21 @@ class EnrollmentCareer(SQLModel):
         from_attributes = True
 
 """
+SCHEMAS: APROBADOS EN MESAS DE EXAMEN DE UNA CARRERA
+"""
+# Calcula la cantidad de aprobados y desaprobados en mesas de examen de una carrera
+class ExamApprovalCareer(SQLModel):
+    carrera_id: int
+    carrera_nombre: str
+    aprobados_count: int
+    aprobados_percentage: float
+    desaprobados_count: int
+    desaprobados_percentage: float
+    total_examenes_evaluados: int
+    class Config:
+        from_attributes = True
+
+"""
 SCHEMAS: OLLAMA CHAT
 """
 # Crea un mensaje

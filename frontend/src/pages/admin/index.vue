@@ -2,11 +2,15 @@
   <v-container max-width="1200">
     <div>
       <v-img
-        class="mb-10 mx-auto"
-        height="250"
-        max-width="500"
-        src="@/assets/iesn6_logo.png"
+        alt="Iesn6"
+        class="mb-5 mx-auto"
+        src="@/assets/iesn6_logo_500px.webp"
+        width="500"
       />
+      <h3
+        class="text-center mb-10 text-h5 font-weight-bold"
+        style="color: black !important;"
+      >INSTITUTO DE EDUCACIÓN SUPERIOR</h3>
       <v-row justify="center">
         <v-col
           v-for="link in links"

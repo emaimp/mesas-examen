@@ -9,9 +9,6 @@
         <div v-else-if="error" class="text-center text-red">
           <p>{{ error }}</p>
         </div>
-        <div v-else-if="!registrationsData || registrationsData.total_inscripciones === 0" class="text-center">
-          <p>No hay datos de inscripciones disponibles.</p>
-        </div>
         <div v-else>
           <v-row class="my-0" justify="space-around">
             <v-col class="text-center" cols="12" sm="6">
@@ -19,17 +16,19 @@
                 color="green_color"
                 :value="registrationsData.activos_percentage"
               />
-              <p class="mt-2">Activas ({{ registrationsData.activos_count }} inscripciones)</p>
+              <p class="mt-2">Activas</p>
+              <p class="mt-1">({{ registrationsData.activos_count }} inscripciones)</p>
             </v-col>
             <v-col class="text-center" cols="12" sm="6">
               <PercentageCircle
                 color="red_color"
                 :value="registrationsData.cancelados_percentage"
               />
-              <p class="mt-2">Canceladas ({{ registrationsData.cancelados_count }} inscripciones)</p>
+              <p class="mt-2">Canceladas</p>
+              <p class="mt-1">({{ registrationsData.cancelados_count }} inscripciones)</p>
             </v-col>
           </v-row>
-          <div class="text-center mt-6">
+          <div class="text-center mt-5">
             <p><strong>Total de inscripciones: {{ registrationsData.total_inscripciones }}</strong></p>
           </div>
         </div>
@@ -39,7 +38,6 @@
 </template>
 
 <script setup>
-  import { watch } from 'vue'
   import { useAdminDashboardStore } from '@/stores/adminDashboard'
   import PercentageCircle from './PercentageCircle.vue'
 
@@ -55,7 +53,7 @@
 
   // Función para cargar registros usando el store con cache
   const loadRegistrations = async careerId => {
-    await adminDashboardStore.fetchExamRegistrations(careerId)
+    await adminDashboardStore.fetchGlobalRegistration(careerId)
   }
 
   // Observa cambios en el ID de la carrera
@@ -66,7 +64,7 @@
   }, { immediate: true })
 
   // Reactive computeds para pasar al template
-  const registrationsData = computed(() => adminDashboardStore.examRegistrations || {
+  const registrationsData = computed(() => adminDashboardStore.globalRegistration || {
     carrera_id: null,
     carrera_nombre: 'Selecciona una carrera',
     activos_count: 0,
@@ -75,8 +73,8 @@
     cancelados_percentage: 0,
     total_inscripciones: 0,
   })
-  const loading = computed(() => adminDashboardStore.isLoadingRegistrations)
-  const error = computed(() => adminDashboardStore.registrationsError)
+  const loading = computed(() => adminDashboardStore.isLoadingRegistration)
+  const error = computed(() => adminDashboardStore.registrationError)
 </script>
 
 <style scoped>

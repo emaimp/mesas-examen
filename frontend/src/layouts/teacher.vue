@@ -24,7 +24,7 @@
           link
           prepend-icon="mdi-account-details"
           title="Perfil"
-          :to="user ? '/teacher/' + encodeURIComponent(user.nombre) + '/profile' : ''"
+          :to="user ? `/teacher/${encodeURIComponent(user.nombre)}/profile` : ''"
           value="teacher-profile"
           @click="appStore.setSelectedSection('teacher-profile')"
         />
@@ -87,10 +87,12 @@
     </v-navigation-drawer>
 
     <v-main class="d-flex align-center justify-center">
-      <router-view v-slot="{ Component }">
-        <keep-alive>
-          <component :is="Component" />
-        </keep-alive>
+      <router-view v-slot="{ Component, route }">
+        <transition mode="out-in" name="fade">
+          <keep-alive :max="5">
+            <component :is="Component" :key="route.path" />
+          </keep-alive>
+        </transition>
       </router-view>
     </v-main>
 
@@ -117,6 +119,8 @@
   const drawer = ref(true)
   // Estado reactivo para controlar la visibilidad del indicador de carga
   const isLoading = ref(false)
+  // Timeout para delay en mostrar carga
+  let loadingTimeout = null
   // Inicializa el store de la aplicación
   const appStore = useAppStore()
   // Inicializa el enrutador de Vue
@@ -124,14 +128,22 @@
   // Desestructura propiedades del servicio de autenticación de usuario
   const { user, fetchAuthUser } = useAuthUser()
 
-  // Configura los guards de navegación para mostrar siempre el indicador de carga
-  // Mostrar carga para toda navegación en teacher
+  // Configura los guards de navegación con delay para mostrar carga
   router.beforeEach((to, from, next) => {
-    isLoading.value = true
+    // Solo mostrar carga si no es navegación interna rápida
+    if (to.path !== from.path) {
+      loadingTimeout = setTimeout(() => {
+        isLoading.value = true
+      }, 100)
+    }
     next()
   })
 
   router.afterEach(() => {
+    if (loadingTimeout) {
+      clearTimeout(loadingTimeout)
+      loadingTimeout = null
+    }
     isLoading.value = false
   })
 
@@ -148,10 +160,18 @@
   }
 
   // Hook de ciclo de vida: se ejecuta cuando el componente se monta
-  onMounted(() => {
+  onMounted(async () => {
     // Verifica si existe un token de acceso
     if (localStorage.getItem('access_token')) {
-      fetchAuthUser() // Si existe, intenta obtener los datos del usuario
+      await fetchAuthUser() // Si existe, intenta obtener los datos del usuario
+      // Precarga inteligente de rutas críticas teacher para acelerar primeras cargas
+      if (navigator.connection && navigator.connection.effectiveType !== 'slow-2g' && navigator.connection.effectiveType !== '2g') {
+        // Solo en conexiones no lentas
+        setTimeout(() => {
+          router.preload(`/teacher/${encodeURIComponent(user.value.nombre)}/tables-assigned`)
+          router.preload(`/teacher/${encodeURIComponent(user.value.nombre)}/digital-acts`)
+        }, 100) // Reducido retardo para acelerar
+      }
     } else {
       router.replace('/login') // Si no existe, redirige a la página de login
     }
@@ -179,5 +199,13 @@
 /* Estilo para mantener siempre activo el item 'Cerrar Sesión' */
 .logout-active {
   color: rgba(255, 0, 0, 0.9) !important; /* Color del texto y del icono */
+}
+
+/* Transición fade para cambios de pestaña */
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
 }
 </style>

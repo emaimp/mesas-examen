@@ -1,9 +1,12 @@
 <template>
-  <!-- Tarjeta que contiene el formulario de cambio de contraseña -->
   <v-card class="elevation-12 pa-3">
     <v-card-text class="px-3 py-3">
 
-      <img alt="IESN6 Logo" class="login-logo" src="@/assets/key.png">
+      <img
+        alt="Key"
+        class="key-logo"
+        src="@/assets/key_logo.webp"
+      >
       <div class="mb-7" />
 
       <!-- Formulario de cambio de contraseña con validación y envío -->
@@ -200,9 +203,8 @@
 }
 
 /* Estilos para el logo */
-.login-logo {
+.key-logo {
   max-width: 100%; /* Ancho máximo del 100% del contenedor */
-  width: 130px; /* Ancho fijo */
   height: auto; /* Altura automática para mantener la proporción */
   display: block; /* Hace que la imagen sea un bloque para centrarla */
   margin: 0 auto; /* Centra la imagen horizontalmente */

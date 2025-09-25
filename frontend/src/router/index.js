@@ -4,6 +4,8 @@
  * Automatic routes for `./src/pages/*.vue`
  */
 
+// Decodifica tokens JWT (autenticación)
+import { jwtDecode } from 'jwt-decode'
 // Composables
 import { setupLayouts } from 'virtual:generated-layouts'
 // eslint-disable-next-line import/no-duplicates
@@ -15,7 +17,7 @@ import { routes } from 'vue-router/auto-routes'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL, { base: '/' }), // Establecer explícitamente la base a '/'
   routes: [
-    ...setupLayouts(routes), // Usar rutas auto-generadas con lazy loading automático
+    ...setupLayouts(routes), // Rutas auto-generadas con lazy loading automático
   ],
   // Configuraciones de performance
   scrollBehavior (to, savedPosition) {
@@ -47,123 +49,49 @@ router.onError(err => {
   }
 })
 
-// Mapa para rastrear rutas ya precargadas (evita duplicados y sobrecarga)
-const preloadedRoutes = new Set()
-// Límite de precargas simultáneas para no bloquear recursos
-const MAX_CONCURRENT_PRELOADS = 3
-let currentPreloads = 0
+// Guard de autenticación para proteger rutas y gestionar login
+router.beforeEach((to, from, next) => {
+  const token = localStorage.getItem('access_token')
 
-// Función para precargar rutas de forma inteligente usando requestIdleCallback
-const preloadRoutes = async routesToPreload => {
-  // Si ya se alcanzó el límite de precargas simultáneas, esperar
-  if (currentPreloads >= MAX_CONCURRENT_PRELOADS) {
-    return
-  }
+  // Si se intenta acceder a login estando autenticado se redirecciona al layout
+  if (to.name === '/login/' && token) {
+    try {
+      const decoded = jwtDecode(token)
+      const role = decoded.role
 
-  // Filtrar rutas no precargadas
-  const routes = routesToPreload.filter(route => !preloadedRoutes.has(route))
-
-  if (routes.length === 0) {
-    return
-  }
-
-  // Usar requestIdleCallback para tiempo de inactividad del navegador
-  const preloadInIdle = () => {
-    if (window.requestIdleCallback) {
-      window.requestIdleCallback(() => performPreloads(routes), { timeout: 2000 })
-    } else {
-      // Fallback a setTimeout si no está disponible (IE, viejos browsers)
-      setTimeout(() => performPreloads(routes), 1000)
-    }
-  }
-
-  const performPreloads = async routes => {
-    for (const route of routes) {
-      if (currentPreloads >= MAX_CONCURRENT_PRELOADS) {
-        break
-      }
-      if (preloadedRoutes.has(route)) {
-        continue
-      }
-
-      currentPreloads++
-      try {
-        await router.resolve(route) // Resuelve la ruta sin cambiarla
-        preloadedRoutes.add(route)
-      } catch (error) {
-        console.warn(`Failed to preload route ${route}:`, error)
-      } finally {
-        currentPreloads--
-      }
-    }
-  }
-
-  preloadInIdle()
-}
-
-// Preloading inteligente basado en navegación del usuario
-// Solo precarga rutas críticas de forma asíncrona, no forzadamente
-router.beforeEach(to => {
-  // Detectar conexión lenta para saltar precargas agresivas
-  const isSlowConnection = navigator.connection
-    && (navigator.connection.effectiveType === 'slow-2g'
-      || navigator.connection.effectiveType === '2g'
-      || navigator.connection.saveData === true)
-
-  if (isSlowConnection) {
-    return // Saltar precargas en conexiones lentas
-  }
-
-  const userRole = localStorage.getItem('userRole')
-
-  if (userRole === 'admin' && to.path.startsWith('/admin')) {
-    // Precargar solo las rutas más probables/críticas en admin (no todas)
-    const criticalRoutes = [
-      '/admin/administration-tables', // Gestión común
-      '/admin/management-tables', // Creación frecuente
-      '/admin/administration-dashboard', // Dashboard para insights
-    ]
-    preloadRoutes(criticalRoutes)
-  } else if (userRole === 'student' && to.path.startsWith('/student')) {
-    // Precargar rutas comunes de estudiante, priorizando perfil y notas
-    const criticalRoutes = [
-      '/student/[name]/profile', // Perfil personal
-      '/student/[name]/ratings', // Notas importantes
-    ]
-    preloadRoutes(criticalRoutes)
-  } else if (userRole === 'teacher' && to.path.startsWith('/teacher')) {
-    // Precargar rutas críticas de profesor
-    const criticalRoutes = [
-      '/teacher/[name]/profile', // Perfil personal
-      '/teacher/[name]/tables-assigned', // Mesas asignadas
-    ]
-    preloadRoutes(criticalRoutes)
-  }
-})
-
-// Preloading en hover para enlaces críticos
-if (typeof window !== 'undefined') {
-  // Precargar al hacer hover sobre enlaces de navegación
-  document.addEventListener('mouseenter', e => {
-    // Asegurarse de que e.target es un Element antes de usar closest
-    if (e.target && typeof e.target.closest === 'function') {
-      const target = e.target.closest('a[href]')
-      if (target && target.hostname === window.location.hostname) {
-        const href = target.getAttribute('href')
-
-        // Solo precargar rutas internas importantes
-        if (href && (href.includes('admin') || href.includes('student') || href.includes('teacher'))
-          // Usar requestIdleCallback para no bloquear UI
-          && window.requestIdleCallback) {
-          window.requestIdleCallback(() => {
-            router.resolve(href)
-          })
+      switch (role) {
+        case 'admin': {
+          return next({ name: 'admin' })
+        }
+        case 'teacher': {
+          return next({ name: 'teacher', params: { name: decoded.nombre } })
+        }
+        case 'student': {
+          return next({ name: 'student', params: { name: decoded.nombre } })
+        }
+        default: {
+          // Rol desconocido, limpiar token
+          localStorage.removeItem('access_token')
+          return next()
         }
       }
+    } catch {
+      // Token inválido, limpiar
+      localStorage.removeItem('access_token')
+      return next()
     }
-  }, true)
-}
+  }
 
+  // Si se intenta acceder a rutas protegidas sin token se redirecciona a login
+  const publicRoutes = ['/login/', '/']
+  if (!publicRoutes.includes(to.name) && !token) {
+    return next({ name: '/login/' })
+  }
+
+  next()
+})
+
+// Limpia flag-errores de módulos dinámicos Vite (usado en router.onError)
 router.isReady().then(() => {
   localStorage.removeItem('vuetify:dynamic-reload')
 })

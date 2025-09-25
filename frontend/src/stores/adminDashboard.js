@@ -29,24 +29,29 @@ function setCachedData (key, data) {
 // Definición del store 'adminDashboard' usando Pinia
 export const useAdminDashboardStore = defineStore('adminDashboard', {
   state: () => ({
-    // Datos de rendimiento gloñal de carrera
+    // Datos de rendimiento global de carrera
     globalPerformance: null,
     // Datos de predicción de rendimiento
-    performancePrediction: null,
+    globalPrediction: null,
     // Datos de registros en exámenes
-    examRegistrations: null,
+    globalRegistration: null,
+    // Datos de aprobación de exámenes
+    globalApproved: null,
     // Loading states
-    isLoadingGlobalPerformance: false,
+    isLoadingPerformance: false,
     isLoadingPrediction: false,
-    isLoadingRegistrations: false,
+    isLoadingRegistration: false,
+    isLoadingApproved: false,
     // Error states
-    globalPerformanceError: null,
+    performanceError: null,
     predictionError: null,
-    registrationsError: null,
+    registrationError: null,
+    approvedError: null,
     // Timestamp de última carga
-    lastLoadedGlobal: null,
+    lastLoadedPerformance: null,
     lastLoadedPrediction: null,
-    lastLoadedRegistrations: null,
+    lastLoadedRegistration: null,
+    lastLoadedApproved: null,
   }),
 
   actions: {
@@ -56,15 +61,15 @@ export const useAdminDashboardStore = defineStore('adminDashboard', {
         return null
       }
 
-      this.isLoadingGlobalPerformance = true
-      this.globalPerformanceError = null
+      this.isLoadingPerformance = true
+      this.performanceError = null
 
       // Revisar cache si no forceRefresh
       if (!forceRefresh) {
         const cached = getCachedData(`globalPerformance_${careerId}`)
         if (cached) {
           this.globalPerformance = cached
-          this.isLoadingGlobalPerformance = false
+          this.isLoadingPerformance = false
           return cached
         }
       }
@@ -78,20 +83,20 @@ export const useAdminDashboardStore = defineStore('adminDashboard', {
         if (data) {
           this.globalPerformance = data
           setCachedData(`globalPerformance_${careerId}`, data)
-          this.lastLoadedGlobal = Date.now()
+          this.lastLoadedPerformance = Date.now()
         }
         return data
       } catch (error) {
-        this.globalPerformanceError = error.message || 'Error al cargar rendimiento global'
+        this.performanceError = error.message || 'Error al cargar rendimiento global'
         console.error('Error fetching global performance:', error)
         return null
       } finally {
-        this.isLoadingGlobalPerformance = false
+        this.isLoadingPerformance = false
       }
     },
 
     // Obtener predicción de rendimiento con cache
-    async fetchPerformancePrediction (careerId, forceRefresh = false) {
+    async fetchGlobalPrediction (careerId, forceRefresh = false) {
       if (!careerId) {
         return null
       }
@@ -102,19 +107,19 @@ export const useAdminDashboardStore = defineStore('adminDashboard', {
       if (!forceRefresh) {
         const cached = getCachedData(`prediction_${careerId}`)
         if (cached) {
-          this.performancePrediction = cached
+          this.globalPrediction = cached
           this.isLoadingPrediction = false
           return cached
         }
       }
 
       try {
-        const { usePredictionPerformance } = await import('@/services/admin/usePredictionPerformance')
-        const { fetchPredictedPerformance } = usePredictionPerformance()
-        const data = await fetchPredictedPerformance(careerId)
+        const { usePrediccionGlobalCarrera } = await import('@/services/admin/useGlobalPrediction')
+        const { fetchGlobalPrediction } = usePrediccionGlobalCarrera()
+        const data = await fetchGlobalPrediction(careerId)
 
         if (data) {
-          this.performancePrediction = data
+          this.globalPrediction = data
           setCachedData(`prediction_${careerId}`, data)
           this.lastLoadedPrediction = Date.now()
         }
@@ -129,40 +134,78 @@ export const useAdminDashboardStore = defineStore('adminDashboard', {
     },
 
     // Obtener registros de exámenes con cache
-    async fetchExamRegistrations (careerId, forceRefresh = false) {
+    async fetchGlobalRegistration (careerId, forceRefresh = false) {
       if (!careerId) {
         return null
       }
 
-      this.isLoadingRegistrations = true
-      this.registrationsError = null
+      this.isLoadingRegistration = true
+      this.registrationError = null
 
       if (!forceRefresh) {
         const cached = getCachedData(`registrations_${careerId}`)
         if (cached) {
-          this.examRegistrations = cached
-          this.isLoadingRegistrations = false
+          this.globalRegistration = cached
+          this.isLoadingRegistration = false
           return cached
         }
       }
 
       try {
-        const { useGlobalRegistrations } = await import('@/services/admin/useGlobalRegistrations')
-        const { fetchRegistrationsByCareer } = useGlobalRegistrations()
-        const data = await fetchRegistrationsByCareer(careerId)
+        const { useRegistroGlobalCarrera } = await import('@/services/admin/useGlobalRegistration')
+        const { fetchGlobalRegistration } = useRegistroGlobalCarrera()
+        const data = await fetchGlobalRegistration(careerId)
 
         if (data) {
-          this.examRegistrations = data
+          this.globalRegistration = data
           setCachedData(`registrations_${careerId}`, data)
-          this.lastLoadedRegistrations = Date.now()
+          this.lastLoadedRegistration = Date.now()
         }
         return data
       } catch (error) {
-        this.registrationsError = error.message || 'Error al cargar registros de exámenes'
+        this.registrationError = error.message || 'Error al cargar registros de exámenes'
         console.error('Error fetching exam registrations:', error)
         return null
       } finally {
-        this.isLoadingRegistrations = false
+        this.isLoadingRegistration = false
+      }
+    },
+
+    // Obtener aprobación de exámenes con cache
+    async fetchGlobalApproved (careerId, forceRefresh = false) {
+      if (!careerId) {
+        return null
+      }
+
+      this.isLoadingApproved = true
+      this.approvedError = null
+
+      if (!forceRefresh) {
+        const cached = getCachedData(`approved_${careerId}`)
+        if (cached) {
+          this.globalApproved = cached
+          this.isLoadingApproved = false
+          return cached
+        }
+      }
+
+      try {
+        const { useAprobadosGlobalCarrera } = await import('@/services/admin/useGlobalApproved')
+        const { fetchGlobalApproved } = useAprobadosGlobalCarrera()
+        const data = await fetchGlobalApproved(careerId)
+
+        if (data) {
+          this.globalApproved = data
+          setCachedData(`approved_${careerId}`, data)
+          this.lastLoadedApproved = Date.now()
+        }
+        return data
+      } catch (error) {
+        this.approvedError = error.message || 'Error al cargar aprobación de exámenes'
+        console.error('Error fetching exam approvals:', error)
+        return null
+      } finally {
+        this.isLoadingApproved = false
       }
     },
 
@@ -171,15 +214,19 @@ export const useAdminDashboardStore = defineStore('adminDashboard', {
       if (type === 'global' && careerId) {
         localStorage.removeItem(`adminDashboard_globalPerformance_${careerId}`)
         this.globalPerformance = null
-        this.lastLoadedGlobal = null
+        this.lastLoadedPerformance = null
       } else if (type === 'prediction' && careerId) {
         localStorage.removeItem(`adminDashboard_prediction_${careerId}`)
-        this.performancePrediction = null
+        this.globalPrediction = null
         this.lastLoadedPrediction = null
       } else if (type === 'registrations' && careerId) {
         localStorage.removeItem(`adminDashboard_registrations_${careerId}`)
-        this.examRegistrations = null
-        this.lastLoadedRegistrations = null
+        this.globalRegistration = null
+        this.lastLoadedRegistration = null
+      } else if (type === 'approved' && careerId) {
+        localStorage.removeItem(`adminDashboard_approved_${careerId}`)
+        this.globalApproved = null
+        this.lastLoadedApproved = null
       } else {
         // Limpiar todo el cache del store
         for (const key of Object.keys(localStorage)) {
@@ -188,11 +235,13 @@ export const useAdminDashboardStore = defineStore('adminDashboard', {
           }
         }
         this.globalPerformance = null
-        this.performancePrediction = null
-        this.examRegistrations = null
-        this.lastLoadedGlobal = null
+        this.globalPrediction = null
+        this.globalRegistration = null
+        this.globalApproved = null
+        this.lastLoadedPerformance = null
         this.lastLoadedPrediction = null
-        this.lastLoadedRegistrations = null
+        this.lastLoadedRegistration = null
+        this.lastLoadedApproved = null
       }
     },
 
@@ -201,10 +250,32 @@ export const useAdminDashboardStore = defineStore('adminDashboard', {
       const lastLoaded = this[`lastLoaded${type.charAt(0).toUpperCase() + type.slice(1)}`]
       return lastLoaded && (Date.now() - lastLoaded < CACHE_TTL)
     },
+
+    // Resetear todo el estado del store
+    resetAll () {
+      this.globalPerformance = null
+      this.globalPrediction = null
+      this.globalRegistration = null
+      this.globalApproved = null
+      this.isLoadingPerformance = false
+      this.isLoadingPrediction = false
+      this.isLoadingRegistration = false
+      this.isLoadingApproved = false
+      this.performanceError = null
+      this.predictionError = null
+      this.registrationError = null
+      this.approvedError = null
+      this.lastLoadedPerformance = null
+      this.lastLoadedPrediction = null
+      this.lastLoadedRegistration = null
+      this.lastLoadedApproved = null
+      // Opcional: limpiar cache completo del store
+      this.clearCache()
+    },
   },
 
   // Persistencia básica del estado (no cache, solo estado UI)
   persist: {
-    paths: ['lastLoadedGlobal', 'lastLoadedPrediction', 'lastLoadedRegistrations'],
+    paths: ['lastLoadedPerformance', 'lastLoadedPrediction', 'lastLoadedRegistration', 'lastLoadedApproved'],
   },
 })

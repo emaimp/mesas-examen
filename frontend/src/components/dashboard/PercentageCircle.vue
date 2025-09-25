@@ -5,7 +5,7 @@
       :model-value="animatedValue"
       :rotate="360"
       :size="circleSize"
-      :width="30"
+      :width="15"
     >
       <template #default> {{ animatedValue }} % </template>
     </v-progress-circular>
@@ -33,10 +33,15 @@
 
   // Propiedad computada para determinar el tamaño del círculo basado en el tamaño de la pantalla
   const circleSize = computed(() => {
-    if (display.smAndDown.value) {
-      return 150 // Tamaño más pequeño para pantallas pequeñas
+    if (display.xs.value) {
+      return 60 // Para pantallas muy pequeñas
+    } else if (display.smAndDown.value) {
+      return 80 // Para sm
+    } else if (display.mdAndUp.value) {
+      return 100 // Para md y lg
+    } else {
+      return 120 // Para xl muy grandes
     }
-    return 200 // Tamaño predeterminado para pantallas medianas y grandes
   })
 
   // Estado reactivo para el valor animado del porcentaje
@@ -91,6 +96,6 @@
 <style scoped>
 /* Estilos para el círculo de progreso */
 .v-progress-circular {
-  margin: 1rem; /* Margen alrededor del círculo */
+  margin: 0rem 1rem 1rem 1rem; /* Margin reducido arriba, mismo en lados e inferior */
 }
 </style>

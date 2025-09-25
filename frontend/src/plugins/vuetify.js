@@ -21,10 +21,15 @@ export default createVuetify({
     defaultTheme: 'dark',
     themes: {
       light: {
-        dark: false,
+        dark: true,
         colors: {
           primary: colors.blue.lighten4,
           secondary: colors.blue.lighten4,
+          surface: '#FFFFFF',
+          green_color: '#2ed22e',
+          yellow_color: '#ff7900',
+          red_color: '#f3180b',
+          border: '#000000',
         },
       },
       dark: {

@@ -1,12 +1,9 @@
 <template>
   <v-container class="d-flex align-center justify-center" fluid>
-    <v-card class="student-card">
-      <v-card-title class="text-h6 text-center text-wrap mt-4 card-title-custom">
-        {{ user ? user.carrera_nombre || 'Perfil del Estudiante' : 'Perfil del Estudiante' }}
-      </v-card-title>
-      <v-card-text class="pt-3 fill-height">
-        <v-row align="center" justify="center">
-          <v-col class="col-border" cols="12" md="7">
+    <v-card>
+      <v-card-text>
+        <v-row justify="center">
+          <v-col cols="12" md="7">
             <div v-if="user">
               <v-row>
                 <v-col cols="12">
@@ -38,8 +35,11 @@
             <v-alert v-else-if="!loading && !user" text="No se encontraron datos para el estudiante." type="warning" />
             <v-alert v-else-if="error" text="Error al cargar los datos del estudiante." type="error" />
           </v-col>
-          <v-col class="d-flex align-center justify-center col-border" cols="12" md="5">
-            <img alt="Graduation Cap" class="graduation-logo" src="@/assets/graduation.png">
+          <v-col class="d-flex align-center justify-center" cols="12" md="5">
+            <img
+              alt="Birrete"
+              src="@/assets/birrete_logo_280px.webp"
+            >
           </v-col>
         </v-row>
       </v-card-text>
@@ -60,42 +60,34 @@
 </script>
 
 <style scoped>
-/* Estilos para la tarjeta del estudiante */
-.student-card {
-  max-width: 800px; /* Ancho máximo */
-  width: 100%; /* Ocupa el 100% del ancho disponible hasta el max-width */
-  padding: 10px; /* Relleno interno */
-  display: flex; /* Hace que la tarjeta sea un contenedor flex */
-  flex-direction: column; /* Apila los elementos hijos verticalmente */
-}
-
-/* Estilos para el logo de graduación */
-.graduation-logo {
-  max-width: 280px; /* Ancho máximo */
-  height: auto; /* Altura automática para mantener la proporción */
-  display: block; /* Hace que la imagen sea un bloque para centrarla */
-}
-
-/* Estilos para el tamaño de la fuente */
-.student-card .v-list-item-title {
-  font-size: 1rem; /* Aumenta el tamaño de la fuente para los títulos */
-}
-
-.student-card .v-list-item-subtitle {
-  font-size: 1rem; /* Aumenta el tamaño de la fuente para los subtítulos */
-  line-height: 1.2; /* Aumenta la altura de línea para más espacio vertical al texto */
+/* Estilos para sobreescribir el .v-card */
+.v-card {
+  border: none !important;
+  max-width: 750px; /* Ancho máximo */
+  background: linear-gradient(to right, #ffffff) !important;
 }
 
 /* Estilos para el título de la tarjeta personalizado */
-.card-title-custom {
+.v-card-title {
   font-size: 1.7rem !important; /* Ajusta el tamaño. !important es necesario para anular estilos de Vuetify. */
   line-height: 1.2; /* Ajusta el interlineado si es necesario */
+  color: black !important;
 }
 
-/* Estilos para el contenido de la tarjeta */
-.v-card-text.fill-height {
-  flex-grow: 1; /* Hace que ocupe el espacio restante */
-  display: flex; /* Usa flexbox para que el contenido interno se ajuste */
-  flex-direction: column; /* Asegura que los elementos internos se apilen verticalmente */
+.v-list-item-subtitle {
+  font-size: 1rem; /* Aumenta el tamaño de la fuente para los subtítulos */
+  line-height: 1.2; /* Aumenta la altura de línea para más espacio vertical al texto */
+  color: black !important;
+}
+
+/* Estilos para el tamaño de la fuente */
+.v-list-item-title {
+  font-size: 1rem; /* Aumenta el tamaño de la fuente para los títulos */
+  color: black !important;
+}
+
+/* Estilos para los alerts */
+.v-alert {
+  color: black !important;
 }
 </style>
