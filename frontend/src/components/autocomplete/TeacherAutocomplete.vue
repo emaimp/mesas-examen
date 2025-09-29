@@ -6,6 +6,7 @@
     clearable
     :disabled="!careerId"
     :filter-items="false"
+    hide-details="auto"
     :hide-no-data="true"
     item-title="nombre"
     item-value="id"

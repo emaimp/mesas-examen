@@ -446,7 +446,7 @@ def mesas_examen_por_profesor(profesor_id: int, session: Session) -> List[schema
 #
 # Devuelve el detalle de todos los examenes por profesor
 #
-def mesas_examen_detalle_examen(profesor_id: int, session: Session) -> List[schemas.TablesStudentExamDetailPerCareer]:
+def mesas_examen_detalle_examen(profesor_id: int, limit: int, offset: int, session: Session) -> List[schemas.TablesStudentExamDetailPerCareer]:
     # Consulta mesas de examen, estudiantes inscritos, el estado de la inscripción y las notas de examen
     statement = (
         select(models.Mesas_Examen, models.Usuarios, models.Inscripciones_Examen, models.Notas_Examen)
@@ -457,11 +457,18 @@ def mesas_examen_detalle_examen(profesor_id: int, session: Session) -> List[sche
             models.Notas_Examen.materia_carrera_id == models.Mesas_Examen.materia_carrera_id
         ))
         .where(models.Mesas_Examen.profesor_id == profesor_id)
+        .where(models.Inscripciones_Examen.estado == models.Inscripciones_Examen.EstadoInscripcion.activo.value)
+        .where(
+            (models.Mesas_Examen.primer_llamado >= date.today()) |
+            (models.Mesas_Examen.segundo_llamado >= date.today())
+        )
         .options(
             selectinload(models.Mesas_Examen.materia_carrera).selectinload(models.Materia_Carreras.materia),
             selectinload(models.Mesas_Examen.materia_carrera).selectinload(models.Materia_Carreras.carrera),
             selectinload(models.Mesas_Examen.profesor_usuario)
         )
+        .limit(limit)
+        .offset(offset)
     )
     results = session.exec(statement).all()
 

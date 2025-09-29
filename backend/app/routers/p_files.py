@@ -32,4 +32,4 @@ def excel_carreras_materias_correlativas(file: UploadFile = File(...), session: 
     if not file.filename.endswith('.xlsx'):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="El archivo debe tener extensión .xlsx")
     file_bytes = file.file.read()
-    return crud.u_files.cargar_carreras_materias_correlativas_excel(file_bytes, session)
+    return crud.u_files.cargar_plan_estudio_excel(file_bytes, session)

@@ -31,17 +31,6 @@
 
         <v-list-item
           v-if="user"
-          :active="appStore.selectedSection === 'administration-chatbot'"
-          link
-          prepend-icon="mdi-robot"
-          title="Chat Bot"
-          to="/admin/administration-chatbot"
-          value="administration-chatbot"
-          @click="appStore.setSelectedSection('administration-chatbot')"
-        />
-
-        <v-list-item
-          v-if="user"
           :active="appStore.selectedSection === 'management-tables'"
           link
           prepend-icon="mdi-calendar-check"
@@ -152,8 +141,6 @@
       </router-view>
     </v-main>
 
-    <ChatBotButton v-if="viewRoute.path !== '/admin/administration-chatbot'" />
-
     <v-overlay
       class="align-center justify-center"
       contained
@@ -171,7 +158,6 @@
 
 <script setup>
   import axios from 'axios' // Para realizar peticiones HTTP
-  import ChatBotButton from '@/components/chatbot/ChatBotButton.vue'
   import { useAppStore } from '@/stores/app' // Store de Pinia para la gestión del estado de la aplicación
 
   // Estado reactivo para controlar la visibilidad del menú lateral
@@ -186,8 +172,6 @@
   const user = appStore.user
   // Inicializa el enrutador de Vue
   const router = useRouter()
-  // Obtiene la ruta actual
-  const viewRoute = useRoute()
 
   // Configura los guards de navegación con delay para mostrar carga
   router.beforeEach((to, from, next) => {
@@ -252,10 +236,11 @@
       if (navigator.connection && navigator.connection.effectiveType !== 'slow-2g' && navigator.connection.effectiveType !== '2g') {
         // Solo en conexiones no lentas
         setTimeout(() => {
-          // Precarga de pestañas
-          router.preload('/admin/management-tables')
-          router.preload('/admin/administration-tables')
-          router.preload('/admin/administration-dashboard')
+          // Precarga de pestañas mediante imports dinámicos
+          import('../pages/admin/management-tables.vue').catch(() => {})
+          import('../pages/admin/administration-tables.vue').catch(() => {})
+          import('../pages/admin/download-acts.vue').catch(() => {})
+          import('../pages/admin/administration-dashboard.vue').catch(() => {})
           // Precarga chunks de components internos via dynamic import
           import('../components/admin/DateTimePicker.vue').catch(() => {})
           import('../components/autocomplete/CareerAutocomplete.vue').catch(() => {})
@@ -270,11 +255,6 @@
 </script>
 
 <style scoped>
-/* Estilos para el cajón de navegación (menú lateral) */
-.v-navigation-drawer {
-  z-index: 9999 !important; /* Asegura que el menú esté por encima de otros elementos */
-}
-
 /* Estilo para mantener siempre activo el item 'Cambiar Contraseña' */
 .change-active {
   color: rgba(250, 210, 1, 0.9) !important; /* Color del texto y del icono */

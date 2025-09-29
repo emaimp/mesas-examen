@@ -45,8 +45,8 @@ def mesas_examen_por_profesor_id(profesor_id: int, session: Session = Depends(db
 # Endpoint: Devuelve el detalle de todos los examenes por profesor (id)
 #
 @router.get("/{profesor_id}/detalle/examen", response_model=List[schemas.TablesStudentExamDetailPerCareer])
-def mesas_examen_detalle_examen_por_profesor_id(profesor_id: int, session: Session = Depends(db.get_session)):
-    return crud.cr_mesas_examen.mesas_examen_detalle_examen(profesor_id, session)
+def mesas_examen_detalle_examen_por_profesor_id(profesor_id: int, limit: int = 50, offset: int = 0, session: Session = Depends(db.get_session)):
+    return crud.cr_mesas_examen.mesas_examen_detalle_examen(profesor_id, limit, offset, session)
 
 #
 # Endpoint: Modifica el estado de una inscripción (id)

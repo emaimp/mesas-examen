@@ -1,27 +1,27 @@
 <template>
-  <v-container class="fill-height" fluid>
-    <v-row align="center" class="fill-height" justify="center">
-      <v-col cols="12" lg="4" md="5" sm="6">
-        <v-card class="pa-6">
+  <v-container>
+    <v-row align="center" justify="center">
+      <v-col lg="4">
+        <v-card class="pa-4">
           <v-card-text>
 
             <CareerAutocomplete
               v-model="selectedCareerId"
-              class="mt-4 mb-4"
+              class="mt-1 mb-10"
               label="Carrera"
             />
 
             <SubjectAutocomplete
               v-model="selectedSubjectId"
               :career-id="selectedCareerId"
-              class="mb-4"
+              class="mb-10"
               label="Materia"
             />
 
             <TeacherAutocomplete
               v-model="selectedProfessorId"
               :career-id="selectedCareerId"
-              class="mb-4"
+              class="mb-8"
               label="Profesor"
             />
 
@@ -29,7 +29,6 @@
               <h3 class="mb-2">Primer Llamado</h3>
               <DateTimePicker
                 v-model="selectedDateTime"
-                class="mb-4"
                 label="Fecha y Hora del primer llamado"
               />
             </div>
@@ -38,7 +37,7 @@
               <h3 class="mb-2">Segundo Llamado</h3>
               <DateTimePicker
                 v-model="selectedDateTime2nd"
-                class="mb-4"
+                class="mb-1"
                 label="Fecha y hora del segundo llamado"
               />
             </div>

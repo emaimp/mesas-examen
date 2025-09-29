@@ -5,6 +5,7 @@
  */
 
 // Plugins
+import VueApexCharts from 'vue3-apexcharts'
 import { registerPlugins } from '@/plugins'
 
 // Components
@@ -20,5 +21,8 @@ import 'unfonts.css'
 const app = createApp(App)
 
 registerPlugins(app)
+
+// Registrar ApexCharts globalmente
+app.component('apexchart', VueApexCharts)
 
 app.mount('#app')

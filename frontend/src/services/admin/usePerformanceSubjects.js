@@ -1,22 +1,22 @@
 import axios from 'axios'
 
-// Hook para obtener el rendimiento global de una carrera
-export function useRendimientoGlobalCarrera () {
+// Hook para obtener el promedio de notas por materia de una carrera
+export function usePromedioNotasMaterias () {
   /**
-   * Obtiene el rendimiento global de una carrera específica desde la API
+   * Obtiene el promedio de notas por materia de una carrera específica desde la API
    * @param {number} carreraId - El ID de la carrera
-   * @returns {Promise<object|null>} - Retorna una promesa con los datos de rendimiento o null
+   * @returns {Promise<object|null>} - Retorna una promesa con los datos del promedio de las notas o null
    * @throws {Error} - Lanza un error si la petición falla
    */
-  const fetchGlobalPerformance = async carreraId => {
+  const fetchPerformanceSubjects = async carreraId => {
     // Verifica si se proporcionó un ID de carrera
     if (!carreraId) {
-      console.warn('fetchRendimientoGlobalCarrera: No se proporcionó carreraId')
+      console.warn('fetchPerformanceSubjects: No se proporcionó carreraId')
       return null
     }
     try {
-      // Realiza la petición GET para obtener el promedio de notas de la carrera
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/carreras/${carreraId}/notas_promedio`, {
+      // Realiza la petición GET para obtener el promedio de notas por materia
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/carreras/${carreraId}/promedio_notas_materia`, {
         headers: { Accept: 'application/json' },
         responseType: 'json',
       })
@@ -24,11 +24,11 @@ export function useRendimientoGlobalCarrera () {
       return response.data
     } catch (error) {
       // Manejo de errores en caso de fallo en la petición
-      console.error(`Error al obtener el rendimiento global de la carrera ${carreraId}:`, error)
+      console.error(`Error al obtener el promedio de notas por materia de la carrera ${carreraId}:`, error)
       if (error.response) {
         // El servidor respondió con un estado de error
         console.error('Respuesta de error del servidor:', error.response.data)
-        throw new Error(error.response.data.detail || 'Error al obtener el rendimiento global de la carrera')
+        throw new Error(error.response.data.detail || 'Error al obtener el promedio de notas por materia de la carrera')
       } else if (error.request) {
         // La petición fue hecha pero no se recibió respuesta
         console.error('No se recibió respuesta del servidor:', error.request)
@@ -42,7 +42,7 @@ export function useRendimientoGlobalCarrera () {
   }
 
   return {
-    // Expone la función fetchGlobalPerformance para ser usada en otros componentes
-    fetchGlobalPerformance,
+    // Expone la función fetchPerformanceSubjects para ser usada en otros componentes
+    fetchPerformanceSubjects,
   }
 }

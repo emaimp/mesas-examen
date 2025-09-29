@@ -1,21 +1,21 @@
 import axios from 'axios'
 
 // Hook para obtener la predicción de rendimiento de una carrera
-export function usePrediccionGlobalCarrera () {
+export function usePrediccionRendimientoCarrera () {
   /**
    * Obtiene la predicción de rendimiento de una carrera específica desde la API
    * @param {number} carreraId - El ID de la carrera
-   * @returns {Promise<object|null>} - Retorna una promesa con los datos de predicción de rendimiento o null
+   * @returns {Promise<object|null>} - Retorna una promesa con los datos de predicción o null
    * @throws {Error} - Lanza un error si la petición falla
    */
-  const fetchGlobalPrediction = async carreraId => {
+  const fetchPerformancePrediction = async carreraId => {
     // Verifica si se proporcionó un ID de carrera
     if (!carreraId) {
-      console.warn('fetchGlobalPrediction: No se proporcionó carreraId')
+      console.warn('fetchPerformancePrediction: No se proporcionó carreraId')
       return null
     }
     try {
-      // Realiza la petición GET para obtener la predicción de rendimiento de la carrera
+      // Realiza la petición GET para obtener la predicción de rendimiento
       const response = await axios.get(`${import.meta.env.VITE_API_URL}/carreras/${carreraId}/prediccion_rendimiento`, {
         headers: { Accept: 'application/json' },
         responseType: 'json',
@@ -42,7 +42,7 @@ export function usePrediccionGlobalCarrera () {
   }
 
   return {
-    // Expone la función fetchGlobalPrediction para ser usada en otros componentes
-    fetchGlobalPrediction,
+    // Expone la función fetchPerformancePrediction para ser usada en otros componentes
+    fetchPerformancePrediction,
   }
 }

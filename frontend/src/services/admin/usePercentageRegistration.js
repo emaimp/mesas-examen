@@ -1,22 +1,22 @@
 import axios from 'axios'
 
-// Hook para obtener la aprobación de exámenes en una carrera
-export function useAprobadosGlobalCarrera () {
+// Hook para obtener el porcentaje de inscripciones de una carrera
+export function usePorcentajeRegistrosCarrera () {
   /**
-   * Obtiene la aprobación de exámenes en una carrera específica desde la API
+   * Obtiene el porcentaje de inscripciones de una carrera específica desde la API
    * @param {number} carreraId - El ID de la carrera
-   * @returns {Promise<object|null>} - Retorna una promesa con los datos de aprobación en exámenes o null
+   * @returns {Promise<object|null>} - Retorna una promesa con los datos del porcentaje de inscripciones o null
    * @throws {Error} - Lanza un error si la petición falla
    */
-  const fetchGlobalApproved = async carreraId => {
+  const fetchPercentageRegistration = async carreraId => {
     // Verifica si se proporcionó un ID de carrera
     if (!carreraId) {
-      console.warn('fetchGlobalApproved: No se proporcionó carreraId')
+      console.warn('fetchPercentageRegistration: No se proporcionó carreraId')
       return null
     }
     try {
-      // Realiza la petición GET para obtener la aprobación de exámenes en la carrera
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/carreras/${carreraId}/aprobacion_examenes`, {
+      // Realiza la petición GET para obtener el porcentaje de inscripciones
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/carreras/${carreraId}/porcentaje_inscripciones`, {
         headers: { Accept: 'application/json' },
         responseType: 'json',
       })
@@ -24,11 +24,11 @@ export function useAprobadosGlobalCarrera () {
       return response.data
     } catch (error) {
       // Manejo de errores en caso de fallo en la petición
-      console.error(`Error al obtener la aprobación de exámenes en la carrera ${carreraId}:`, error)
+      console.error(`Error al obtener el porcentaje de inscripciones de la carrera ${carreraId}:`, error)
       if (error.response) {
         // El servidor respondió con un estado de error
         console.error('Respuesta de error del servidor:', error.response.data)
-        throw new Error(error.response.data.detail || 'Error al obtener la aprobación de exámenes en la carrera')
+        throw new Error(error.response.data.detail || 'Error al obtener el porcentaje de inscripciones de la carrera')
       } else if (error.request) {
         // La petición fue hecha pero no se recibió respuesta
         console.error('No se recibió respuesta del servidor:', error.request)
@@ -42,7 +42,7 @@ export function useAprobadosGlobalCarrera () {
   }
 
   return {
-    // Expone la función fetchGlobalApproved para ser usada en otros componentes
-    fetchGlobalApproved,
+    // Expone la función fetchPercentageRegistration para ser usada en otros componentes
+    fetchPercentageRegistration,
   }
 }

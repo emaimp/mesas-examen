@@ -5,7 +5,7 @@
       :model-value="animatedValue"
       :rotate="360"
       :size="circleSize"
-      :width="15"
+      :width="13"
     >
       <template #default> {{ animatedValue }} % </template>
     </v-progress-circular>
@@ -96,6 +96,6 @@
 <style scoped>
 /* Estilos para el círculo de progreso */
 .v-progress-circular {
-  margin: 0rem 1rem 1rem 1rem; /* Margin reducido arriba, mismo en lados e inferior */
+  margin: 0.5rem 1rem 0rem 1rem; /* Margin reducido arriba, mismo en lados e inferior */
 }
 </style>

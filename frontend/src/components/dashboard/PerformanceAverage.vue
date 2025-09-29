@@ -1,43 +1,43 @@
 <template>
-  <v-card class="pa-4">
+  <v-card class="pa-5">
     <v-card-text>
       <v-row justify="center">
         <div v-if="loading" class="text-center">
           <v-progress-circular indeterminate />
           <p>Cargando rendimiento...</p>
         </div>
-        <div v-else-if="error" class="text-center text-red">
+        <div v-else-if="error" class="text-center">
           <p>{{ error }}</p>
         </div>
         <div v-else>
-          <v-row class="my-0" justify="space-around">
-            <v-col class="text-center" cols="12" sm="4">
+          <v-row justify="space-around">
+            <v-col class="text-center" sm="4">
               <PercentageCircle
                 color="green_color"
                 :value="performanceData.promocionados_percentage"
               />
-              <p class="mt-2">Promocionados</p>
-              <p class="mt-1">({{ performanceData.promocionados_count }} notas)</p>
+              <p class="mt-2 text-caption">Promocionados</p>
+              <p class="mt-0 text-caption">({{ performanceData.promocionados_count }} notas)</p>
             </v-col>
-            <v-col class="text-center" cols="12" sm="4">
+            <v-col class="text-center" sm="4">
               <PercentageCircle
                 color="yellow_color"
                 :value="performanceData.regulares_percentage"
               />
-              <p class="mt-2">Regulares</p>
-              <p class="mt-1">({{ performanceData.regulares_count }} notas)</p>
+              <p class="mt-2 text-caption">Regulares</p>
+              <p class="mt-0 text-caption">({{ performanceData.regulares_count }} notas)</p>
             </v-col>
-            <v-col class="text-center" cols="12" sm="4">
+            <v-col class="text-center" sm="4">
               <PercentageCircle
                 color="red_color"
                 :value="performanceData.libres_percentage"
               />
-              <p class="mt-2">Libres</p>
-              <p class="mt-1">({{ performanceData.libres_count }} notas)</p>
+              <p class="mt-2 text-caption">Libres</p>
+              <p class="mt-0 text-caption">({{ performanceData.libres_count }} notas)</p>
             </v-col>
           </v-row>
-          <div class="text-center mt-5">
-            <p><strong>Total de notas evaluadas: {{ performanceData.total_notas_evaluadas }}</strong></p>
+          <div class="text-center mt-4">
+            <p>Total de notas evaluadas: {{ performanceData.total_notas_evaluadas }}</p>
           </div>
         </div>
       </v-row>
@@ -60,19 +60,19 @@
   const adminDashboardStore = useAdminDashboardStore()
 
   // Función para cargar rendimiento usando el store con cache
-  const loadPerformance = async careerId => {
-    await adminDashboardStore.fetchGlobalPerformance(careerId)
+  const loadPerformanceAverage = async careerId => {
+    await adminDashboardStore.fetchPerformanceAverage(careerId)
   }
 
   // Observa cambios en el ID de la carrera
   watch(() => props.careerId, newId => {
     if (newId) {
-      loadPerformance(newId)
+      loadPerformanceAverage(newId)
     }
   }, { immediate: true })
 
   // Reactive computeds para pasar al template
-  const performanceData = computed(() => adminDashboardStore.globalPerformance || {
+  const performanceData = computed(() => adminDashboardStore.careerPerformanceAverage || {
     carrera_id: null,
     carrera_nombre: 'Selecciona una carrera',
     promocionados_count: 0,
@@ -83,8 +83,8 @@
     libres_percentage: 0,
     total_notas_evaluadas: 0,
   })
-  const loading = computed(() => adminDashboardStore.isLoadingPerformance)
-  const error = computed(() => adminDashboardStore.performanceError)
+  const loading = computed(() => adminDashboardStore.isLoadingPerformanceAverage)
+  const error = computed(() => adminDashboardStore.performanceAverageError)
 </script>
 
 <style scoped>

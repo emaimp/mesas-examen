@@ -1,9 +1,9 @@
 <template>
   <v-container>
     <v-row justify="center">
-      <v-col cols="12" md="7" sm="10">
-        <v-row class="mt-4" justify="center">
-          <v-col cols="12" md="7" sm="10">
+      <v-col md="7">
+        <v-row class="mt-6" justify="center">
+          <v-col>
             <CareerAutocomplete
               v-model="selectedCareerId"
               label="Seleccionar Carrera"
@@ -11,26 +11,34 @@
           </v-col>
         </v-row>
         <!-- Primera fila: Inscripciones y Aprobados -->
-        <v-row class="mb-4">
-          <v-col cols="12" md="6">
-            <h3 class="text-center my-4">Inscripciones en Exámenes</h3>
+        <v-row>
+          <v-col>
+            <h3 class="text-center my-3">Inscripciones en Exámenes</h3>
             <CareerRegistrationsPanel :career-id="selectedCareerId" />
           </v-col>
-          <v-col cols="12" md="6">
-            <h3 class="text-center my-4">Aprobados en Exámenes</h3>
+          <v-col>
+            <h3 class="text-center my-3">Aprobados en Exámenes</h3>
             <CareerApprovedPanel :career-id="selectedCareerId" />
           </v-col>
         </v-row>
 
         <!-- Segunda fila: Rendimiento y Predicción -->
-        <v-row class="mb-8">
-          <v-col cols="12" md="6">
-            <h3 class="text-center my-4">Rendimiento Académico</h3>
+        <v-row>
+          <v-col>
+            <h3 class="text-center my-3">Rendimiento Académico</h3>
             <CareerPerformancePanel :career-id="selectedCareerId" />
           </v-col>
-          <v-col cols="12" md="6">
-            <h3 class="text-center my-4">Predicción de Rendimiento Académico</h3>
+          <v-col>
+            <h3 class="text-center my-3">Predicción de Rendimiento</h3>
             <CareerPredictionPanel :career-id="selectedCareerId" />
+          </v-col>
+        </v-row>
+
+        <!-- Tercera fila: Gráfico de Barras -->
+        <v-row class="mb-9">
+          <v-col>
+            <h3 class="text-center my-3">Promedio por Materia</h3>
+            <CareerBarChartPanel :career-id="selectedCareerId" />
           </v-col>
         </v-row>
       </v-col>
@@ -40,10 +48,11 @@
 
 <script setup>
   import CareerAutocomplete from '@/components/autocomplete/CareerAutocomplete.vue'
-  import CareerApprovedPanel from '@/components/dashboard/CareerApprovedPanel.vue'
-  import CareerPerformancePanel from '@/components/dashboard/CareerPerformancePanel.vue'
-  import CareerPredictionPanel from '@/components/dashboard/CareerPredictionPanel.vue'
-  import CareerRegistrationsPanel from '@/components/dashboard/CareerRegistrationPanel.vue'
+  import CareerRegistrationsPanel from '@/components/dashboard/PercentageRegistration.vue'
+  import CareerPerformancePanel from '@/components/dashboard/PerformanceAverage.vue'
+  import CareerPredictionPanel from '@/components/dashboard/PerformancePrediction.vue'
+  import CareerBarChartPanel from '@/components/dashboard/PerformanceSubjects.vue'
+  import CareerApprovedPanel from '@/components/dashboard/PerformanceTableExam.vue'
   import { useAdminDashboardStore } from '@/stores/adminDashboard'
 
   // Inicializar el store de dashboard admin

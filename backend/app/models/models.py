@@ -22,8 +22,6 @@ class Usuarios(SQLModel, table=True):
     # Relaciones con otras tablas
     # Un usuario (estudiante) puede tener muchas notas
     notas: List["Notas"] = Relationship(back_populates="estudiante_user")
-    # Un usuario (estudiante) puede tener muchos prácticos
-    practicos: List["Practicos"] = Relationship(back_populates="estudiante_user")
     # Un usuario (estudiante) puede tener muchas inscripciones a examen
     inscripciones: List["Inscripciones_Examen"] = Relationship(back_populates="estudiante_user")
     # Un usuario (estudiante) puede tener muchas asignaciones como estudiante
@@ -140,8 +138,6 @@ class Materia_Carreras(SQLModel, table=True):
     profesores: List["Profesores"] = Relationship(back_populates="materia_carrera")
     # Una asociación materia_carrera puede tener muchas notas de examen
     notas_examen: List["Notas_Examen"] = Relationship(back_populates="materia_carrera")
-    # Una asociación materia_carrera puede tener muchos prácticos
-    practicos: List["Practicos"] = Relationship(back_populates="materia_carrera")
 
     # Propiedades para obtener nombres de carrera y materia
     @property
@@ -206,34 +202,6 @@ class Notas_Examen(SQLModel, table=True):
     @property
     def materia(self):
         return self.materia_carrera.materia_nombre if self.materia_carrera else None
-
-"""
-TABLA: PRACTICOS
-"""
-# Almacena las notas de los trabajos prácticos de los estudiantes.
-class Practicos(SQLModel, table=True):
-    __table_args__ = (
-        UniqueConstraint('estudiante_id', 'materia_carrera_id', name='uq_estudiante_materia_practico'),
-    )
-    id: int = Field(default=None, primary_key=True)
-    estudiante_id: int = Field(foreign_key="usuarios.id") # ID del estudiante (FK a Usuarios)
-    materia_carrera_id: int = Field(foreign_key="materia_carreras.id") # ID de materia_carrera (FK a Materia_Carreras)
-    tp_1: int = Field(..., ge=0, le=10)
-    tp_2: int = Field(..., ge=0, le=10)
-    tp_3: int = Field(..., ge=0, le=10)
-    tp_4: int = Field(..., ge=0, le=10)
-    tp_5: int = Field(..., ge=0, le=10) # Nota de los Trabajos Prácticos (hasta 10)
-    tp_6: int = Field(..., ge=0, le=10)
-    tp_7: int = Field(..., ge=0, le=10)
-    tp_8: int = Field(..., ge=0, le=10)
-    tp_9: int = Field(..., ge=0, le=10)
-    tp_10: int = Field(..., ge=0, le=10)
-
-    # Relaciones con otras tablas
-    # Referencia al usuario estudiante
-    estudiante_user: "Usuarios" = Relationship(back_populates="practicos")
-    # Referencia a la asociación materia_carrera
-    materia_carrera: "Materia_Carreras" = Relationship(back_populates="practicos")
 
 """
 TABLA: CORRELATIVAS
@@ -341,7 +309,7 @@ class Actas_Digitales(SQLModel, table=True):
     upload_date: datetime = Field(default_factory=datetime.utcnow) # Fecha y hora de la subida
 
     # Campos para la firma digital
-    is_signed: bool = Field(default=False) # Indica si el PDF ha sido firmado digitalmente
+    signed: bool = Field(default=False) # Indica si el PDF ha sido firmado digitalmente
     signed_user_id: Optional[int] = Field(default=None, foreign_key="usuarios.id") # ID del profesor que firmó (FK a Usuarios)
     signature_date: Optional[datetime] = Field(default=None) # Fecha y hora de la firma
 

@@ -12,7 +12,7 @@ export function useDetailExam () {
    * @param {number|string} profesor_id - El ID del profesor
    * @returns {Promise<Array>} - Retorna una promesa con un array de detalles de examen
    */
-  const fetchDetailExams = async profesor_id => {
+  const fetchDetailExams = async (profesor_id, limit = 50, offset = 0) => {
     if (!profesor_id) {
       detailExams.value = []
       loading.value = false
@@ -30,7 +30,7 @@ export function useDetailExam () {
         return []
       }
       // Construye la URL para obtener los detalles de examen por ID de profesor
-      const url = `${import.meta.env.VITE_API_URL}/mesas/${numericProfesorId}/detalle/examen`
+      const url = `${import.meta.env.VITE_API_URL}/mesas/${numericProfesorId}/detalle/examen?limit=${limit}&offset=${offset}`
       // Realiza la petición GET a la API
       const response = await axios.get(url)
       detailExams.value = response.data || [] // Almacena los datos

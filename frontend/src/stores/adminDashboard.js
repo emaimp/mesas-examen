@@ -29,204 +29,251 @@ function setCachedData (key, data) {
 // Definición del store 'adminDashboard' usando Pinia
 export const useAdminDashboardStore = defineStore('adminDashboard', {
   state: () => ({
-    // Datos de rendimiento global de carrera
-    globalPerformance: null,
-    // Datos de predicción de rendimiento
-    globalPrediction: null,
-    // Datos de registros en exámenes
-    globalRegistration: null,
-    // Datos de aprobación de exámenes
-    globalApproved: null,
+    // Datos: Rendimiento promedio
+    careerPerformanceAverage: null,
+    // Datos: Predicción de rendimiento
+    careerPerformancePrediction: null,
+    // Datos: Registros en mesas de examen
+    careerPercentageRegistration: null,
+    // Datos: Rendimiento en mesas de examen
+    careerPerformanceTableExam: null,
+    // Datos: Promedio de notas por materia
+    careerPerformanceSubjects: null,
     // Loading states
-    isLoadingPerformance: false,
-    isLoadingPrediction: false,
-    isLoadingRegistration: false,
-    isLoadingApproved: false,
+    isLoadingPerformanceAverage: false,
+    isLoadingPerformancePrediction: false,
+    isLoadingPercentageRegistration: false,
+    isLoadingPerformanceTableExam: false,
+    isLoadingPerformanceSubjects: false,
     // Error states
-    performanceError: null,
-    predictionError: null,
-    registrationError: null,
-    approvedError: null,
+    performanceAverageError: null,
+    performancePredictionError: null,
+    percentageRegistrationError: null,
+    performanceTableExamError: null,
+    performanceSubjectsError: null,
     // Timestamp de última carga
-    lastLoadedPerformance: null,
-    lastLoadedPrediction: null,
-    lastLoadedRegistration: null,
-    lastLoadedApproved: null,
+    lastLoadedPerformanceAverage: null,
+    lastLoadedPerformancePrediction: null,
+    lastLoadedPercentageRegistration: null,
+    lastLoadedPerformanceTableExam: null,
+    lastLoadedPerformanceSubjects: null,
   }),
 
   actions: {
-    // Obtener rendimiento global con cache
-    async fetchGlobalPerformance (careerId, forceRefresh = false) {
+    // Obtener rendimiento promedio con cache
+    async fetchPerformanceAverage (careerId, forceRefresh = false) {
       if (!careerId) {
         return null
       }
 
-      this.isLoadingPerformance = true
-      this.performanceError = null
+      this.isLoadingPerformanceAverage = true
+      this.performanceAverageError = null
 
       // Revisar cache si no forceRefresh
       if (!forceRefresh) {
-        const cached = getCachedData(`globalPerformance_${careerId}`)
+        const cached = getCachedData(`performanceAverage_${careerId}`)
         if (cached) {
-          this.globalPerformance = cached
-          this.isLoadingPerformance = false
+          this.careerPerformanceAverage = cached
+          this.isLoadingPerformanceAverage = false
           return cached
         }
       }
 
       try {
         // Import dinámico para evitar bundles grandes
-        const { useRendimientoGlobalCarrera } = await import('@/services/admin/useGlobalPerformance')
-        const { fetchGlobalPerformance } = useRendimientoGlobalCarrera()
-        const data = await fetchGlobalPerformance(careerId)
+        const { useRendimientoPromedioCarrera } = await import('@/services/admin/usePerformanceAverage')
+        const { fetchPerformanceAverage } = useRendimientoPromedioCarrera()
+        const data = await fetchPerformanceAverage(careerId)
 
         if (data) {
-          this.globalPerformance = data
-          setCachedData(`globalPerformance_${careerId}`, data)
-          this.lastLoadedPerformance = Date.now()
+          this.careerPerformanceAverage = data
+          setCachedData(`performanceAverage_${careerId}`, data)
+          this.lastLoadedPerformanceAverage = Date.now()
         }
         return data
       } catch (error) {
-        this.performanceError = error.message || 'Error al cargar rendimiento global'
-        console.error('Error fetching global performance:', error)
+        this.performanceAverageError = error.message || 'Error al cargar rendimiento promedio'
+        console.error('Error fetching performance average:', error)
         return null
       } finally {
-        this.isLoadingPerformance = false
+        this.isLoadingPerformanceAverage = false
       }
     },
 
     // Obtener predicción de rendimiento con cache
-    async fetchGlobalPrediction (careerId, forceRefresh = false) {
+    async fetchPerformancePrediction (careerId, forceRefresh = false) {
       if (!careerId) {
         return null
       }
 
-      this.isLoadingPrediction = true
-      this.predictionError = null
+      this.isLoadingPerformancePrediction = true
+      this.performancePredictionError = null
 
       if (!forceRefresh) {
-        const cached = getCachedData(`prediction_${careerId}`)
+        const cached = getCachedData(`performancePrediction_${careerId}`)
         if (cached) {
-          this.globalPrediction = cached
-          this.isLoadingPrediction = false
+          this.careerPerformancePrediction = cached
+          this.isLoadingPerformancePrediction = false
           return cached
         }
       }
 
       try {
-        const { usePrediccionGlobalCarrera } = await import('@/services/admin/useGlobalPrediction')
-        const { fetchGlobalPrediction } = usePrediccionGlobalCarrera()
-        const data = await fetchGlobalPrediction(careerId)
+        const { usePrediccionRendimientoCarrera } = await import('@/services/admin/usePerformancePrediction')
+        const { fetchPerformancePrediction } = usePrediccionRendimientoCarrera()
+        const data = await fetchPerformancePrediction(careerId)
 
         if (data) {
-          this.globalPrediction = data
-          setCachedData(`prediction_${careerId}`, data)
-          this.lastLoadedPrediction = Date.now()
+          this.careerPerformancePrediction = data
+          setCachedData(`performancePrediction_${careerId}`, data)
+          this.lastLoadedPerformancePrediction = Date.now()
         }
         return data
       } catch (error) {
-        this.predictionError = error.message || 'Error al cargar predicción de rendimiento'
+        this.performancePredictionError = error.message || 'Error al cargar predicción de rendimiento'
         console.error('Error fetching performance prediction:', error)
         return null
       } finally {
-        this.isLoadingPrediction = false
+        this.isLoadingPerformancePrediction = false
       }
     },
 
     // Obtener registros de exámenes con cache
-    async fetchGlobalRegistration (careerId, forceRefresh = false) {
+    async fetchPercentageRegistration (careerId, forceRefresh = false) {
       if (!careerId) {
         return null
       }
 
-      this.isLoadingRegistration = true
-      this.registrationError = null
+      this.isLoadingPercentageRegistration = true
+      this.percentageRegistrationError = null
 
       if (!forceRefresh) {
-        const cached = getCachedData(`registrations_${careerId}`)
+        const cached = getCachedData(`percentageRegistrations_${careerId}`)
         if (cached) {
-          this.globalRegistration = cached
-          this.isLoadingRegistration = false
+          this.careerPercentageRegistration = cached
+          this.isLoadingPercentageRegistration = false
           return cached
         }
       }
 
       try {
-        const { useRegistroGlobalCarrera } = await import('@/services/admin/useGlobalRegistration')
-        const { fetchGlobalRegistration } = useRegistroGlobalCarrera()
-        const data = await fetchGlobalRegistration(careerId)
+        const { usePorcentajeRegistrosCarrera } = await import('@/services/admin/usePercentageRegistration')
+        const { fetchPercentageRegistration } = usePorcentajeRegistrosCarrera()
+        const data = await fetchPercentageRegistration(careerId)
 
         if (data) {
-          this.globalRegistration = data
-          setCachedData(`registrations_${careerId}`, data)
-          this.lastLoadedRegistration = Date.now()
+          this.careerPercentageRegistration = data
+          setCachedData(`percentageRegistrations_${careerId}`, data)
+          this.lastLoadedPercentageRegistration = Date.now()
         }
         return data
       } catch (error) {
-        this.registrationError = error.message || 'Error al cargar registros de exámenes'
-        console.error('Error fetching exam registrations:', error)
+        this.percentageRegistrationError = error.message || 'Error al cargar el porcentaje de registros en mesas de examen'
+        console.error('Error fetching percentage registrations:', error)
         return null
       } finally {
-        this.isLoadingRegistration = false
+        this.isLoadingPercentageRegistration = false
       }
     },
 
-    // Obtener aprobación de exámenes con cache
-    async fetchGlobalApproved (careerId, forceRefresh = false) {
+    // Obtener el rendimiento en mesas de examen con cache
+    async fetchPerformanceTableExam (careerId, forceRefresh = false) {
       if (!careerId) {
         return null
       }
 
-      this.isLoadingApproved = true
-      this.approvedError = null
+      this.isLoadingPerformanceTableExam = true
+      this.performanceTableExamError = null
 
       if (!forceRefresh) {
-        const cached = getCachedData(`approved_${careerId}`)
+        const cached = getCachedData(`performanceTableExam_${careerId}`)
         if (cached) {
-          this.globalApproved = cached
-          this.isLoadingApproved = false
+          this.careerPerformanceTableExam = cached
+          this.isLoadingPerformanceTableExam = false
           return cached
         }
       }
 
       try {
-        const { useAprobadosGlobalCarrera } = await import('@/services/admin/useGlobalApproved')
-        const { fetchGlobalApproved } = useAprobadosGlobalCarrera()
-        const data = await fetchGlobalApproved(careerId)
+        const { useRendimientoMesasExamenCarrera } = await import('@/services/admin/usePerformanceTableExam')
+        const { fetchPerformanceTableExam } = useRendimientoMesasExamenCarrera()
+        const data = await fetchPerformanceTableExam(careerId)
 
         if (data) {
-          this.globalApproved = data
-          setCachedData(`approved_${careerId}`, data)
-          this.lastLoadedApproved = Date.now()
+          this.careerPerformanceTableExam = data
+          setCachedData(`performanceTableExam_${careerId}`, data)
+          this.lastLoadedPerformanceTableExam = Date.now()
         }
         return data
       } catch (error) {
-        this.approvedError = error.message || 'Error al cargar aprobación de exámenes'
-        console.error('Error fetching exam approvals:', error)
+        this.performanceTableExamError = error.message || 'Error al cargar el rendimiento en mesas de examen'
+        console.error('Error fetching performance table exam:', error)
         return null
       } finally {
-        this.isLoadingApproved = false
+        this.isLoadingPerformanceTableExam = false
+      }
+    },
+
+    // Obtener el promedio de notas por materia con cache
+    async fetchPerformanceSubjects (careerId, forceRefresh = false) {
+      if (!careerId) {
+        return null
+      }
+
+      this.isLoadingPerformanceSubjects = true
+      this.performanceSubjectsError = null
+
+      if (!forceRefresh) {
+        const cached = getCachedData(`performanceSubjects_${careerId}`)
+        if (cached) {
+          this.careerPerformanceSubjects = cached
+          this.isLoadingPerformanceSubjects = false
+          return cached
+        }
+      }
+
+      try {
+        const { usePromedioNotasMaterias } = await import('@/services/admin/usePerformanceSubjects')
+        const { fetchPerformanceSubjects } = usePromedioNotasMaterias()
+        const data = await fetchPerformanceSubjects(careerId)
+
+        if (data) {
+          this.careerPerformanceSubjects = data
+          setCachedData(`performanceSubjects_${careerId}`, data)
+          this.lastLoadedPerformanceSubjects = Date.now()
+        }
+        return data
+      } catch (error) {
+        this.performanceSubjectsError = error.message || 'Error al cargar el promedio de notas por materia'
+        console.error('Error fetching performance subjects:', error)
+        return null
+      } finally {
+        this.isLoadingPerformanceSubjects = false
       }
     },
 
     // Limpiar cache específica o completa
     clearCache (type = null, careerId = null) {
-      if (type === 'global' && careerId) {
-        localStorage.removeItem(`adminDashboard_globalPerformance_${careerId}`)
-        this.globalPerformance = null
-        this.lastLoadedPerformance = null
-      } else if (type === 'prediction' && careerId) {
-        localStorage.removeItem(`adminDashboard_prediction_${careerId}`)
-        this.globalPrediction = null
-        this.lastLoadedPrediction = null
-      } else if (type === 'registrations' && careerId) {
-        localStorage.removeItem(`adminDashboard_registrations_${careerId}`)
-        this.globalRegistration = null
-        this.lastLoadedRegistration = null
-      } else if (type === 'approved' && careerId) {
-        localStorage.removeItem(`adminDashboard_approved_${careerId}`)
-        this.globalApproved = null
-        this.lastLoadedApproved = null
+      if (type === 'rendimientoPromedio' && careerId) {
+        localStorage.removeItem(`adminDashboard_performanceAverage_${careerId}`)
+        this.careerPerformanceAverage = null
+        this.lastLoadedPerformanceAverage = null
+      } else if (type === 'prediccionRendimiento' && careerId) {
+        localStorage.removeItem(`adminDashboard_performancePrediction_${careerId}`)
+        this.careerPerformancePrediction = null
+        this.lastLoadedPerformancePrediction = null
+      } else if (type === 'porcentajeInscripciones' && careerId) {
+        localStorage.removeItem(`adminDashboard_percentageRegistrations_${careerId}`)
+        this.careerPercentageRegistration = null
+        this.lastLoadedPercentageRegistration = null
+      } else if (type === 'rendimientoMesasExamen' && careerId) {
+        localStorage.removeItem(`adminDashboard_performanceTableExam_${careerId}`)
+        this.careerPerformanceTableExam = null
+        this.lastLoadedPerformanceTableExam = null
+      } else if (type === 'promedioNotasMaterias' && careerId) {
+        localStorage.removeItem(`adminDashboard_performanceSubjects_${careerId}`)
+        this.careerPerformanceSubjects = null
+        this.lastLoadedPerformanceSubjects = null
       } else {
         // Limpiar todo el cache del store
         for (const key of Object.keys(localStorage)) {
@@ -234,41 +281,55 @@ export const useAdminDashboardStore = defineStore('adminDashboard', {
             localStorage.removeItem(key)
           }
         }
-        this.globalPerformance = null
-        this.globalPrediction = null
-        this.globalRegistration = null
-        this.globalApproved = null
-        this.lastLoadedPerformance = null
-        this.lastLoadedPrediction = null
-        this.lastLoadedRegistration = null
-        this.lastLoadedApproved = null
+        this.careerPerformanceAverage = null
+        this.careerPerformancePrediction = null
+        this.careerPercentageRegistration = null
+        this.careerPerformanceTableExam = null
+        this.careerPerformanceSubjects = null
+        this.lastLoadedPerformanceAverage = null
+        this.lastLoadedPerformancePrediction = null
+        this.lastLoadedPercentageRegistration = null
+        this.lastLoadedPerformanceTableExam = null
+        this.lastLoadedPerformanceSubjects = null
       }
     },
 
     // Verificar si data está actualizada
     isDataFresh (type) {
-      const lastLoaded = this[`lastLoaded${type.charAt(0).toUpperCase() + type.slice(1)}`]
+      const typeMap = {
+        rendimientoPromedio: 'PerformanceAverage',
+        prediccionRendimiento: 'PerformancePrediction',
+        porcentajeInscripciones: 'PercentageRegistration',
+        rendimientoMesasExamen: 'PerformanceTableExam',
+        promedioNotasMaterias: 'PerformanceSubjects',
+      }
+      const suffix = typeMap[type] || type.charAt(0).toUpperCase() + type.slice(1)
+      const lastLoaded = this[`lastLoaded${suffix}`]
       return lastLoaded && (Date.now() - lastLoaded < CACHE_TTL)
     },
 
     // Resetear todo el estado del store
     resetAll () {
-      this.globalPerformance = null
-      this.globalPrediction = null
-      this.globalRegistration = null
-      this.globalApproved = null
-      this.isLoadingPerformance = false
-      this.isLoadingPrediction = false
-      this.isLoadingRegistration = false
-      this.isLoadingApproved = false
-      this.performanceError = null
-      this.predictionError = null
-      this.registrationError = null
-      this.approvedError = null
-      this.lastLoadedPerformance = null
-      this.lastLoadedPrediction = null
-      this.lastLoadedRegistration = null
-      this.lastLoadedApproved = null
+      this.careerPerformanceAverage = null
+      this.careerPerformancePrediction = null
+      this.careerPercentageRegistration = null
+      this.careerPerformanceTableExam = null
+      this.careerPerformanceSubjects = null
+      this.isLoadingPerformanceAverage = false
+      this.isLoadingPerformancePrediction = false
+      this.isLoadingPercentageRegistration = false
+      this.isLoadingPerformanceTableExam = false
+      this.isLoadingPerformanceSubjects = false
+      this.performanceAverageError = null
+      this.performancePredictionError = null
+      this.percentageRegistrationError = null
+      this.performanceTableExamError = null
+      this.performanceSubjectsError = null
+      this.lastLoadedPerformanceAverage = null
+      this.lastLoadedPerformancePrediction = null
+      this.lastLoadedPercentageRegistration = null
+      this.lastLoadedPerformanceTableExam = null
+      this.lastLoadedPerformanceSubjects = null
       // Opcional: limpiar cache completo del store
       this.clearCache()
     },
@@ -276,6 +337,6 @@ export const useAdminDashboardStore = defineStore('adminDashboard', {
 
   // Persistencia básica del estado (no cache, solo estado UI)
   persist: {
-    paths: ['lastLoadedPerformance', 'lastLoadedPrediction', 'lastLoadedRegistration', 'lastLoadedApproved'],
+    paths: ['lastLoadedPerformanceAverage', 'lastLoadedPerformancePrediction', 'lastLoadedPercentageRegistration', 'lastLoadedPerformanceTableExam'],
   },
 })

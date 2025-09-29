@@ -1,5 +1,4 @@
 import { defineStore } from 'pinia'
-import { useOllamaChat } from '@/services/admin/useOllamaChat'
 
 // Definición del store 'app' usando Pinia
 export const useAppStore = defineStore('app', {
@@ -34,12 +33,7 @@ export const useAppStore = defineStore('app', {
       this.selectedSection = section
     },
     // Acciones para limpiar los datos del usuario (cerrar sesión)
-    async clearUser () {
-      const { clearOllamaChatHistory } = useOllamaChat()
-      // Llama a la funcion para limpiar el historial de chat.
-      // Los errores ya se manejan dentro de clearOllamaChatHistory.
-      await clearOllamaChatHistory()
-
+    clearUser () {
       this.user.id = null
       this.user.username = null
       this.user.role = null

@@ -18,18 +18,18 @@ import 'vuetify/styles'
 
 export default createVuetify({
   theme: {
-    defaultTheme: 'dark',
+    // defaultTheme: 'dark',
     themes: {
       light: {
         dark: true,
         colors: {
           primary: colors.blue.lighten4,
           secondary: colors.blue.lighten4,
-          surface: '#FFFFFF',
+          surface: '#000000',
           green_color: '#2ed22e',
           yellow_color: '#ff7900',
           red_color: '#f3180b',
-          border: '#000000',
+          border: '#FFFFFF',
         },
       },
       dark: {

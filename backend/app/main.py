@@ -23,7 +23,6 @@ app.include_router(routers.gp_notas.router)
 app.include_router(routers.gp_mesas_examen.router)
 app.include_router(routers.p_actas_digitales.router)
 app.include_router(routers.p_files.router)
-app.include_router(routers.g_ollama.router)
 app.include_router(routers.g_perfomance.router)
 
 #

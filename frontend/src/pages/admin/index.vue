@@ -8,7 +8,7 @@
         width="500"
       />
       <h3
-        class="text-center mb-10 text-h5 font-weight-bold"
+        class="text-center font-weight-bold mb-10 text-h5"
         style="color: black !important;"
       >INSTITUTO DE EDUCACIÓN SUPERIOR</h3>
       <v-row justify="center">
@@ -35,10 +35,12 @@
         </v-col>
       </v-row>
     </div>
+    <ChatBot />
   </v-container>
 </template>
 
 <script setup>
+  import ChatBot from '@/components/ChatBot.vue'
   // Define un array de objetos para los enlaces de la página
   const links = [
     {

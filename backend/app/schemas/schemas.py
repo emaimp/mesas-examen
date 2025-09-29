@@ -360,9 +360,9 @@ class RegistrationExamUpdateStatus(SQLModel):
     estado: str
 
 """
-SCHEMAS: RENDIMIENTO DE UNA CARRERA
+SCHEMAS: ESTADISTICAS DE UNA CARRERA
 """
-# Calcula el rendimiento de una carrera
+# Calcula el rendimiento promedio en base a las notas (carrera)
 class PerformanceCareer(SQLModel):
     carrera_id: int
     carrera_nombre: str
@@ -376,10 +376,23 @@ class PerformanceCareer(SQLModel):
     class Config:
         from_attributes = True
 
-"""
-SCHEMAS: INSCRIPCIONES EN MESAS DE EXAMEN DE UNA CARRERA
-"""
-# Calcula la cantidad de inscripciones activas y canceladas en mesas de examen de una carrera
+# Calcula el promedio de las notas (materias)
+class SubjectGradeAverage(SQLModel):
+    materia_nombre: str
+    materia_promedio: float
+    total_students: int
+    class Config:
+        from_attributes = True
+
+# Devuelve el promedio de las notas por materia (carrera)
+class GradesAverageCareer(SQLModel):
+    carrera_id: int
+    carrera_nombre: str
+    materias: List[SubjectGradeAverage]
+    class Config:
+        from_attributes = True
+
+# Calcula el porcentaje de inscripciones activas y canceladas en mesas de examen (carrera)
 class EnrollmentCareer(SQLModel):
     carrera_id: int
     carrera_nombre: str
@@ -391,10 +404,7 @@ class EnrollmentCareer(SQLModel):
     class Config:
         from_attributes = True
 
-"""
-SCHEMAS: APROBADOS EN MESAS DE EXAMEN DE UNA CARRERA
-"""
-# Calcula la cantidad de aprobados y desaprobados en mesas de examen de una carrera
+# Calcula el porcentaje de aprobados y desaprobados en mesas de examen (carrera)
 class ExamApprovalCareer(SQLModel):
     carrera_id: int
     carrera_nombre: str
@@ -405,14 +415,3 @@ class ExamApprovalCareer(SQLModel):
     total_examenes_evaluados: int
     class Config:
         from_attributes = True
-
-"""
-SCHEMAS: OLLAMA CHAT
-"""
-# Crea un mensaje
-class MessageRequest(SQLModel):
-    message: str
-
-# Devuelve un mensaje
-class MessageResponse(SQLModel):
-    response: str

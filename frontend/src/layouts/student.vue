@@ -168,10 +168,10 @@
       if (navigator.connection && navigator.connection.effectiveType !== 'slow-2g' && navigator.connection.effectiveType !== '2g') {
         // Solo en conexiones no lentas
         setTimeout(() => {
-          // Precarga de pestañas
-          router.preload(`/student/${encodeURIComponent(user.value.nombre)}/ratings`)
-          router.preload(`/student/${encodeURIComponent(user.value.nombre)}/tables-exam`)
-          router.preload(`/student/${encodeURIComponent(user.value.nombre)}/tables-registered`)
+          // Precarga de pestañas mediante imports dinámicos
+          import('../pages/student/[name]/ratings.vue').catch(() => {})
+          import('../pages/student/[name]/tables-exam.vue').catch(() => {})
+          import('../pages/student/[name]/tables-registered.vue').catch(() => {})
         }, 100) // Reducido retardo para acelerar
       }
     } else {
@@ -181,11 +181,6 @@
 </script>
 
 <style scoped>
-/* Estilos para el cajón de navegación (menú lateral) */
-.v-navigation-drawer {
-  z-index: 9999 !important; /* Asegura que el menú esté por encima de otros elementos */
-}
-
 /* Estilos para el subtítulo del email en el menú */
 .email-subtitle {
   font-size: 0.70rem; /* Tamaño de fuente reducido */

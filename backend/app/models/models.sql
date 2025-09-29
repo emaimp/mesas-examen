@@ -18,7 +18,7 @@ CREATE TABLE profesores (
     id INT PRIMARY KEY AUTO_INCREMENT,
     profesor_id INT NOT NULL,
     materia_carrera_id INT NOT NULL,
-    anio_asignado INT NOT NULL,
+    anio_asignado INT,
     UNIQUE (profesor_id, materia_carrera_id, anio_asignado),
     FOREIGN KEY (profesor_id) REFERENCES usuarios(id),
     FOREIGN KEY (materia_carrera_id) REFERENCES materia_carreras(id)
@@ -29,7 +29,7 @@ CREATE TABLE estudiantes (
     id INT PRIMARY KEY AUTO_INCREMENT,
     estudiante_id INT NOT NULL,
     carrera_id INT NOT NULL,
-    anio_ingreso INT NOT NULL,
+    anio_ingreso INT,
     UNIQUE (estudiante_id, carrera_id, anio_ingreso),
     FOREIGN KEY (estudiante_id) REFERENCES usuarios(id),
     FOREIGN KEY (carrera_id) REFERENCES carreras(id)
@@ -81,36 +81,6 @@ CREATE TABLE notas (
     CHECK (rec_3 BETWEEN 0 AND 10)
 );
 
--- Tabla: Practicos
-CREATE TABLE practicos (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    estudiante_id INT NOT NULL,
-    materia_carrera_id INT NOT NULL,
-    tp_1 INT NOT NULL,
-    tp_2 INT NOT NULL,
-    tp_3 INT NOT NULL,
-    tp_4 INT NOT NULL,
-    tp_5 INT NOT NULL,
-    tp_6 INT NOT NULL,
-    tp_7 INT NOT NULL,
-    tp_8 INT NOT NULL,
-    tp_9 INT NOT NULL,
-    tp_10 INT NOT NULL,
-    UNIQUE (estudiante_id, materia_carrera_id),
-    FOREIGN KEY (estudiante_id) REFERENCES usuarios(id),
-    FOREIGN KEY (materia_carrera_id) REFERENCES materia_carreras(id),
-    CHECK (tp_1 BETWEEN 0 AND 10),
-    CHECK (tp_2 BETWEEN 0 AND 10),
-    CHECK (tp_3 BETWEEN 0 AND 10),
-    CHECK (tp_4 BETWEEN 0 AND 10),
-    CHECK (tp_5 BETWEEN 0 AND 10),
-    CHECK (tp_6 BETWEEN 0 AND 10),
-    CHECK (tp_7 BETWEEN 0 AND 10),
-    CHECK (tp_8 BETWEEN 0 AND 10),
-    CHECK (tp_9 BETWEEN 0 AND 10),
-    CHECK (tp_10 BETWEEN 0 AND 10)
-);
-
 -- Tabla: Correlativas
 CREATE TABLE correlativas (
     id INT PRIMARY KEY AUTO_INCREMENT,
@@ -121,13 +91,29 @@ CREATE TABLE correlativas (
     FOREIGN KEY (correlativa_id) REFERENCES materia_carreras(id)
 );
 
+-- Tabla: Notas_Examen
+CREATE TABLE notas_examen (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    estudiante_id INT NOT NULL,
+    materia_carrera_id INT NOT NULL,
+    primer_examen INT,
+    segundo_examen INT,
+    tercer_examen INT,
+    UNIQUE (estudiante_id, materia_carrera_id),
+    FOREIGN KEY (estudiante_id) REFERENCES usuarios(id),
+    FOREIGN KEY (materia_carrera_id) REFERENCES materia_carreras(id),
+    CHECK (primer_examen BETWEEN 0 AND 4),
+    CHECK (segundo_examen BETWEEN 0 AND 4),
+    CHECK (tercer_examen BETWEEN 0 AND 4)
+);
+
 -- Tabla: Mesas_Examen
 CREATE TABLE mesas_examen (
     id INT PRIMARY KEY AUTO_INCREMENT,
     materia_carrera_id INT NOT NULL,
     profesor_id INT NOT NULL,
-    fecha DATETIME NOT NULL,
-    UNIQUE (materia_carrera_id, fecha),
+    primer_llamado DATETIME,
+    segundo_llamado DATETIME,
     FOREIGN KEY (materia_carrera_id) REFERENCES materia_carreras(id),
     FOREIGN KEY (profesor_id) REFERENCES usuarios(id)
 );
@@ -137,9 +123,27 @@ CREATE TABLE inscripciones_examen (
     id INT PRIMARY KEY AUTO_INCREMENT,
     estudiante_id INT NOT NULL,
     mesa_examen_id INT NOT NULL,
-    fecha_inscripcion DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    estado VARCHAR(20) DEFAULT 'active' NOT NULL,
+    fecha_inscripcion DATETIME DEFAULT CURRENT_TIMESTAMP,
+    llamado_inscrito VARCHAR(30),
+    examen VARCHAR(30),
+    tipo_inscripcion VARCHAR(10),
+    estado VARCHAR(20) DEFAULT 'active',
+    asistencia ENUM('presente', 'ausente') DEFAULT 'ausente',
     UNIQUE (estudiante_id, mesa_examen_id),
     FOREIGN KEY (estudiante_id) REFERENCES usuarios(id),
     FOREIGN KEY (mesa_examen_id) REFERENCES mesas_examen(id)
+);
+
+-- Tabla: Actas_Digitales
+CREATE TABLE actas_digitales (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    filename VARCHAR(255) UNIQUE NOT NULL,
+    filepath TEXT NOT NULL,
+    uploaded_user_id INT NOT NULL,
+    upload_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    signed BOOLEAN DEFAULT FALSE,
+    signed_user_id INT,
+    signature_date DATETIME,
+    FOREIGN KEY (uploaded_user_id) REFERENCES usuarios(id),
+    FOREIGN KEY (signed_user_id) REFERENCES usuarios(id)
 );
