@@ -120,12 +120,19 @@
 </template>
 
 <script setup>
-  import { computed, onMounted, ref } from 'vue'
   import ExamTableCard from '../../components/student/examtables/ExamTableCard.vue'
   import { useAdminTablesStore } from '../../stores/adminTables.js'
 
   // Inicializa el store de tablas admin
   const adminTablesStore = useAdminTablesStore()
+
+  // Watcher para cambios en el contador de actualizaciones de mesas
+  watch(() => adminTablesStore.changeCounter, (newVal, oldVal) => {
+    if (newVal > oldVal && oldVal !== undefined) {
+      // Fuerza recarga si el contador cambió (debido a creación o eliminación en otra vista)
+      adminTablesStore.fetchExamTablesGrouped(true)
+    }
+  })
 
   // Propiedades reactivas para el estado del componente
   const openPanels = ref([]) // Controla qué paneles de expansión están abiertos

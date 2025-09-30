@@ -32,7 +32,7 @@
     v-model="snackbar.show"
     class="centered-snackbar"
     :color="snackbar.color"
-    timeout="6000"
+    timeout="9000"
   >
     {{ snackbar.message }}
     <template v-if="snackbar.errors">

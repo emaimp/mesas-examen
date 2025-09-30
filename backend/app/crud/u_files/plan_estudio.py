@@ -200,7 +200,7 @@ def cargar_plan_estudio_excel(file_bytes: bytes, session: Session) -> schemas.Ap
             session.commit()
             return schemas.ApiResponse(
                 success=registros_exitosos_totales > 0 and not errores_globales,
-                message=f"{registros_exitosos_totales} registros (carreras, materias y correlativas) cargados correctamente"
+                message=f"{registros_exitosos_totales} registros cargados correctamente (carreras, materias y correlativas)."
                            if registros_exitosos_totales > 0 else "No se cargaron registros",
                 errors=errores_globales
             )

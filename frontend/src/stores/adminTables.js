@@ -37,6 +37,8 @@ export const useAdminTablesStore = defineStore('adminTables', {
     tablesError: null,
     // Timestamp de última carga
     lastLoadedTables: null,
+    // Contador para notificar cambios en mesas
+    changeCounter: 0,
   }),
 
   actions: {
@@ -86,6 +88,7 @@ export const useAdminTablesStore = defineStore('adminTables', {
 
         // Actualizar cache removiendo la mesa eliminada
         this.clearCache() // Forzar recarga del cache después de eliminar
+        this.notifyChange() // Notificar cambio para actualizar otras vistas
 
         return true
       } catch (error) {
@@ -110,6 +113,24 @@ export const useAdminTablesStore = defineStore('adminTables', {
     isDataFresh () {
       return this.lastLoadedTables && (Date.now() - this.lastLoadedTables < CACHE_TTL)
     },
+
+    // Notificar cambio en mesas (incrementa contador)
+    notifyChange () {
+      this.changeCounter++
+    },
+
+    // Reset de la notificación de cambio
+    resetNotification () {
+      this.changeCounter = 0
+    },
+  },
+
+  getters: {
+    // Retorna true si hay cambios pendientes de actualización
+    hasPendingUpdate: state => state.changeCounter > 0,
+
+    // Obtiene la versión actual del contador de cambios
+    updateVersion: state => state.changeCounter,
   },
 
   // Persistencia básica del estado

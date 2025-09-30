@@ -195,7 +195,7 @@ def cargar_usuarios_excel(file_bytes: bytes, session: Session) -> schemas.ApiRes
         ignored_info = f" {registros_ignorados_totales} usuarios ignorados (usuarios existentes)." if registros_ignorados_totales > 0 else ""
 
         if registros_exitosos_totales > 0 and len(errores_globales) == 0:
-            final_message = f"{registros_exitosos_totales} usuarios cargados correctamente.{ignored_info}"
+            final_message = f"{registros_exitosos_totales} usuarios fueron cargados correctamente.{ignored_info}"
             success_status = True
         elif registros_exitosos_totales > 0 and len(errores_globales) > 0:
             final_message = f"{registros_exitosos_totales} usuarios cargados, pero ocurrieron {len(errores_globales)} errores.{ignored_info}"

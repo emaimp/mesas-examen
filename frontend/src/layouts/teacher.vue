@@ -30,17 +30,6 @@
         />
 
         <v-list-item
-          v-if="false"
-          :active="appStore.selectedSection === 'students-subject'"
-          link
-          prepend-icon="mdi-account-school"
-          title="Estudiantes Asignados"
-          :to="user ? `/teacher/${encodeURIComponent(user.nombre)}/students-subject` : ''"
-          value="students-subject"
-          @click="appStore.setSelectedSection('students-subject')"
-        />
-
-        <v-list-item
           v-if="user"
           :active="appStore.selectedSection === 'tables-assigned'"
           link

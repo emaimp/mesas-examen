@@ -73,6 +73,7 @@
   import SubjectAutocomplete from '../../components/autocomplete/SubjectAutocomplete.vue'
   import TeacherAutocomplete from '../../components/autocomplete/TeacherAutocomplete.vue'
   import { useCrearMesa } from '../../services/admin/useCreateTable'
+  import { useAdminTablesStore } from '../../stores/adminTables.js'
 
   // Estados reactivos para los campos del formulario
   const selectedCareerId = ref(null) // ID de la carrera seleccionada
@@ -90,6 +91,9 @@
 
   // Inicializa el servicio para crear mesas.
   const { createTable } = useCrearMesa()
+
+  // Inicializa el store de adminTables para notificaciones de cambios
+  const adminTablesStore = useAdminTablesStore()
 
   /**
    * Formatea un objeto Date a una cadena de fecha y hora compatible con el backend (ISO 8601 con offset)
@@ -190,6 +194,8 @@
       selectedProfessorId.value = null
       selectedDateTime.value = null
       selectedDateTime2nd.value = null
+      // Notifica cambio en el store para actualizar otras vistas
+      adminTablesStore.notifyChange()
     } else {
       // Muestra mensajes de error
       snackbar.value.message = errorMessages.join(' ') || 'Error desconocido al crear las mesas.'

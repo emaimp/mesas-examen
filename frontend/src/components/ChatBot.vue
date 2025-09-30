@@ -10,7 +10,7 @@
 
   onMounted(() => {
     chatApp = createChat({
-      webhookUrl: '',
+      webhookUrl: 'http://localhost:5678/webhook/ae016bc3-cf50-40b8-8f4a-456ed8f58fe2/chat',
       webhookConfig: {
         method: 'POST',
         headers: {},
