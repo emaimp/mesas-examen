@@ -3,7 +3,7 @@ from sqlmodel import Session
 from typing import List, Optional
 from fastapi import APIRouter, Query, Depends
 
-router = APIRouter(prefix="/carreras", tags=["Consulta de Carreras"])
+router = APIRouter(prefix="/carreras", tags=["Carreras"])
 
 #
 # Endpoint: Devuelve todas las carrera (query)

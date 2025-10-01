@@ -9,3 +9,4 @@ from .cr_usuarios import *
 from .r_carreras import *
 from .r_perfomance import *
 from .u_files import *
+from .u_inscripcion import *

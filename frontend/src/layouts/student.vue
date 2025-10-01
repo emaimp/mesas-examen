@@ -89,7 +89,7 @@
     <v-main class="d-flex align-center align-center">
       <router-view v-slot="{ Component, route }">
         <transition mode="out-in" name="fade">
-          <keep-alive :max="5">
+          <keep-alive :max="1">
             <component :is="Component" :key="route.path" />
           </keep-alive>
         </transition>

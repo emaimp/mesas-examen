@@ -3,13 +3,13 @@ from typing import List
 from sqlalchemy.orm import Session
 from fastapi import APIRouter, Depends, HTTPException, status
 
-router = APIRouter(prefix="/profesores", tags=["Profesores"], responses={404: {"description": "Not found"}})
+router = APIRouter(prefix="/profesores", tags=["Profesores"])
 
 #
 # Endpoint: Obtiene todos los profesores
 #
 @router.get("/", response_model=List[models.Profesores])
-async def get_all_profesores(
+async def profesores(
     db: Session = Depends(db.get_session),
     current_user: models.Usuarios = Depends(core.get_current_user)
 ):
@@ -22,10 +22,10 @@ async def get_all_profesores(
     return profesores
 
 #
-# Endpoint: Obtiene un profesor por su ID
+# Endpoint: Obtiene un profesor (id)
 #
 @router.get("/{profesor_id}", response_model=models.Profesores)
-async def get_profesor_by_id(
+async def profesor_id(
     profesor_id: int,
     db: Session = Depends(db.get_session),
     current_user: models.Usuarios = Depends(core.get_current_user)

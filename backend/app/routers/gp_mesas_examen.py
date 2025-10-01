@@ -49,17 +49,6 @@ def mesas_examen_detalle_examen_por_profesor_id(profesor_id: int, limit: int = 5
     return crud.cr_mesas_examen.mesas_examen_detalle_examen(profesor_id, limit, offset, session)
 
 #
-# Endpoint: Modifica el estado de una inscripción (id)
-#
-@router.patch("/inscripciones/{inscripcion_id}/estado", response_model=schemas.ApiResponse, status_code=status.HTTP_200_OK)
-def actualizar_estado_mesa_examen(
-    inscripcion_id: int,
-    nuevo_estado: schemas.RegistrationExamUpdateStatus,
-    session: Session = Depends(db.get_session)
-):
-    return crud.cr_mesas_examen.actualizar_estado_inscripcion(inscripcion_id, nuevo_estado, session)
-
-#
 # Endpoint: Elimina una mesa de examen (id)
 #
 @router.delete("/{mesa_examen_id}", response_model=schemas.ApiResponse, status_code=status.HTTP_200_OK)

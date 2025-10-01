@@ -43,7 +43,7 @@
                   :items="actas"
                   :loading="loading"
                   loading-text="Cargando actas..."
-                  no-data-text="Realiza una búsqueda para ver las actas."
+                  no-data-text="Realiza una búsqueda."
                 >
                   <template #item.upload_date="{ item }">
                     {{ new Date(item.upload_date).toLocaleDateString() }}
@@ -85,7 +85,7 @@
   const headers = [
     { title: 'Nombre de Archivo', key: 'filename' },
     { title: 'Fecha de Subida', key: 'upload_date' },
-    { title: 'Subido por', key: 'uploaded_by_name' },
+    { title: 'Profesor', key: 'uploaded_by_name' },
     { title: 'Acción', key: 'action', sortable: false },
   ]
 

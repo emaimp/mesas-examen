@@ -2,7 +2,7 @@ from app import db, crud, schemas
 from sqlmodel import Session
 from fastapi import APIRouter, Depends
 
-router = APIRouter(prefix="/carreras", tags=["Desempeño Académico"])
+router = APIRouter(prefix="/carreras", tags=["Estadísticas"])
 
 #
 # Endpoint: Devuelve el porcentaje de inscripciones activas y canceladas en mesas de examen (id)

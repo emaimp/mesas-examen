@@ -142,6 +142,7 @@
   import { useExamNotes } from '../../../services/teacher/useNotesExam'
   import { useTableExamTeacher } from '../../../services/teacher/useTableExamTeacher'
   import { useAuthUser } from '../../../services/user/useAuthUser'
+  import { useStudentTableStore } from '../../../stores/studentTables'
   import { useTeacherDigitalActsStore } from '../../../stores/teacherDigitalActs'
   import StudentRegisteredCard from '../../teacher/examtables/StudentRegisteredCard.vue'
 
@@ -153,6 +154,8 @@
   const teacherId = computed(() => user.value?.id)
   // Store para comunicar cambios con otros componentes
   const teacherDigitalActsStore = useTeacherDigitalActsStore()
+  // Store de estudiantes para detectar cambios en registros
+  const studentTablesStore = useStudentTableStore()
 
   // Obtiene la función para obtener mesas de examen asignadas a un profesor
   const { fetchExamTables } = useTableExamTeacher()
@@ -299,6 +302,14 @@
       openPanels.value = sortedEstudiantesAgrupadosPorCarrera.value.length > 0 ? [0] : []
     }
   }, { immediate: true }) // Ejecuta el watcher inmediatamente al montar el componente
+
+  // Watcher para cambios en el contador de registros de estudiantes (cross-layout)
+  watch(() => studentTablesStore.updateVersion, (newVal, oldVal) => {
+    if (newVal > oldVal && oldVal !== undefined && teacherId.value) {
+      // Recarga los estudiantes cuando cambia el contador de registros
+      loadEstudiantes(teacherId.value)
+    }
+  })
 
   /**
    * Formatea el tipo de inscripción para mostrar la primera letra en mayúscula

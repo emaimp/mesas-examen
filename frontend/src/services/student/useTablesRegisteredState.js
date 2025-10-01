@@ -18,7 +18,7 @@ export function useTablesRegisteredState () {
     success.value = false // Reinicia el estado de éxito
     try {
       // Realiza una petición PATCH para actualizar el estado de la inscripción
-      const response = await axios.patch(`/api/mesas/inscripciones/${inscripcionId}/estado`, {
+      const response = await axios.patch(`/api/estudiantes/${inscripcionId}/estado`, {
         estado: newState, // Envía el nuevo estado en el cuerpo de la petición
       })
       // Verifica si la actualización fue exitosa según la respuesta del servidor

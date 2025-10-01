@@ -2,7 +2,7 @@ from sqlmodel import Session
 from app import db, crud, schemas
 from fastapi import APIRouter, UploadFile, HTTPException, File, Depends, status
 
-router = APIRouter(tags=["Subir Archivos"])
+router = APIRouter(tags=["Carga de Archivos"])
 
 #
 # Endpoint: Cargar archivo xlxs con los datos de los usuarios (admin, estudiantes, profesores) y sus asignaciones

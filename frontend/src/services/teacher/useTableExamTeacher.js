@@ -29,11 +29,13 @@ export function useTableExamTeacher () {
       const url = `${import.meta.env.VITE_API_URL}/mesas/${numericProfesorId}/profesor`
       // Realiza la petición GET a la API
       const response = await axios.get(url)
-      // Filtra las mesas para incluir solo aquellas con estado 'active'
-      const filteredData = (response.data || []).map(carreraData => ({
-        ...carreraData,
-        mesas: carreraData.mesas.filter(mesa => mesa.estado === 'active'),
-      }))
+      // Filtra las mesas con el estado 'active' (excluye las carreras que no tienen mesas activas)
+      const filteredData = (response.data || [])
+        .map(carreraData => ({
+          ...carreraData,
+          mesas: carreraData.mesas.filter(mesa => mesa.estado === 'active'),
+        }))
+        .filter(carreraData => carreraData.mesas.length > 0)
       examTables.value = filteredData // Almacena los datos de las mesas filtradas
       return examTables.value
     } catch (error_) {
