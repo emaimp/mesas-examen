@@ -23,7 +23,7 @@ def mesas_examen_por_nota(estudiante_id: int, session: Session) -> List[schemas.
             (models.Notas_Examen.segundo_examen == 4) |
             (models.Notas_Examen.tercer_examen == 4)
         )
-    ).subquery()
+    )
 
     statement = (
         select(models.Mesas_Examen)
@@ -47,7 +47,7 @@ def mesas_examen_por_nota(estudiante_id: int, session: Session) -> List[schemas.
             ((models.Mesas_Examen.segundo_llamado >= hoy) &
              (models.Mesas_Examen.segundo_llamado <= tres_meses)),
             # Excluye las mesas de examen si el estudiante ya aprobó con un 4 en Notas_Examen
-            ~models.Mesas_Examen.materia_carrera_id.in_(subquery_aprobado_examen)
+            ~models.Mesas_Examen.materia_carrera_id.in_(subquery_aprobado_examen.scalar_subquery())
         )
         # Carga relaciones anidadas para optimizar el acceso a datos
         .options(
