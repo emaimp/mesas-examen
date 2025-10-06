@@ -10,8 +10,8 @@
           <p>{{ error }}</p>
         </div>
         <div v-else>
-          <v-row justify="space-around">
-            <v-col class="text-center" sm="6">
+          <v-row justify="center">
+            <v-col class="text-center" xs="12" sm="6">
               <PercentageCircle
                 color="green_color"
                 :value="approvedData.aprobados_percentage"
@@ -19,7 +19,7 @@
               <p class="mt-2 text-caption">Aprobados</p>
               <p class="mt-0 text-caption">({{ approvedData.aprobados_count }} exámenes)</p>
             </v-col>
-            <v-col class="text-center" sm="6">
+            <v-col class="text-center" xs="12" sm="6">
               <PercentageCircle
                 color="red_color"
                 :value="approvedData.desaprobados_percentage"
@@ -78,5 +78,18 @@
 </script>
 
 <style scoped>
+/* Asegurar distribución uniforme de las columnas */
+.v-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
 
+/* Asegurar que el círculo esté centrado dentro de cada columna */
+.v-col > div:first-child {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
 </style>

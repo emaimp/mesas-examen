@@ -9,13 +9,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AdminFileUpload: typeof import('./src/components/admin/AdminFileUpload.vue')['default']
-    CareerApprovedPanel: typeof import('./src/components/dashboard/PerformanceTableExam.vue')['default']
     CareerAutocomplete: typeof import('./src/components/autocomplete/CareerAutocomplete.vue')['default']
-    CareerBarChartPanel: typeof import('./src/components/dashboard/PerformanceSubjects.vue')['default']
-    CareerPerformancePanel: typeof import('./src/components/dashboard/PerformanceAverage.vue')['default']
-    CareerPerformanceTableExam: typeof import('./src/components/dashboard/PerformanceTableExam.vue')['default']
-    CareerPredictionPanel: typeof import('./src/components/dashboard/PerformancePrediction.vue')['default']
-    CareerRegistrationPanel: typeof import('./src/components/dashboard/PercentageRegistration.vue')['default']
     ChangePassword: typeof import('./src/components/ChangePassword.vue')['default']
     ChatBot: typeof import('./src/components/ChatBot.vue')['default']
     CorrelativeNotesPanel: typeof import('./src/components/student/ratings/CorrelativeNotesPanel.vue')['default']

@@ -94,8 +94,15 @@
 </script>
 
 <style scoped>
-/* Estilos para el círculo de progreso */
+/* Estilos responsivos para el círculo de progreso */
 .v-progress-circular {
-  margin: 0.5rem 1rem 0rem 1rem; /* Margin reducido arriba, mismo en lados e inferior */
+  margin: 0.5rem auto 0rem auto; /* Márgenes centrados automáticamente */
+}
+
+/* Ajustes adicionales para pantallas muy pequeñas */
+@media (max-width: 600px) {
+  .v-progress-circular {
+    margin: 0.25rem auto 0rem auto; /* Márgenes centrados en xs */
+  }
 }
 </style>
