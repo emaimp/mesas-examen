@@ -73,12 +73,10 @@ def cargar_usuarios_excel(file_bytes: bytes, session: Session) -> schemas.ApiRes
                         "nombre": str(row['nombre']).strip(),
                         "dni": str(row['dni']).strip(),
                         "email": str(row['email']).strip() if pd.notna(row['email']) else None,
-                        "legajo": str(row['legajo']).strip() if 'legajo' in df.columns and pd.notna(row['legajo']) else None,
-                        "libreta": str(row['libreta']).strip() if 'libreta' in df.columns and pd.notna(row['libreta']) else None,
                     }
                     user_in = schemas.UserCreate(**user_data)
 
-                    existing_user = crud.cr_usuarios.get_user_by_unique_fields(session=session, user_in=user_in)
+                    existing_user = crud.cr_usuarios.get_user_unique_fields(session=session, user_in=user_in)
 
                     if existing_user:
                         registros_ignorados_totales += 1
@@ -125,8 +123,8 @@ def cargar_usuarios_excel(file_bytes: bytes, session: Session) -> schemas.ApiRes
                     if user.role == "student":
                         if 'carrera' not in df.columns or pd.isna(row['carrera']):
                             raise ValueError("El campo 'carrera' es requerido para estudiantes")
-                        if 'añio ingreso' not in df.columns or pd.isna(row['añio ingreso']):
-                            raise ValueError("El campo 'añio ingreso' es requerido para estudiantes")
+                        if 'año ingreso' not in df.columns or pd.isna(row['año ingreso']):
+                            raise ValueError("El campo 'año ingreso' es requerido para estudiantes")
 
                         # Resolver el nombre de la carrera a su ID numérico
                         carrera_nombre = str(row['carrera']).strip()
@@ -137,8 +135,13 @@ def cargar_usuarios_excel(file_bytes: bytes, session: Session) -> schemas.ApiRes
 
                         estudiante_data = schemas.StudentCreate(
                             estudiante_id=user.id,
+                            edad=int(row['edad']) if 'edad' in df.columns and pd.notna(row['edad']) else None,
+                            genero=str(row['género']).strip() if 'género' in df.columns and pd.notna(row['género']) else None,
+                            localidad=str(row['localidad']).strip() if 'localidad' in df.columns and pd.notna(row['localidad']) else None,
+                            ocupacion=str(row['ocupación']).strip() if 'ocupación' in df.columns and pd.notna(row['ocupación']) else None,
+                            libreta=str(row['libreta']).strip() if 'libreta' in df.columns and pd.notna(row['libreta']) else None,
                             carrera_id=carrera_id_resuelto,
-                            anio_ingreso=int(row['añio ingreso'])
+                            anio_ingreso=int(row['año ingreso'])
                         )
                         crud.cr_estudiantes.create_estudiante(session=session, estudiante_in=estudiante_data)
                     
@@ -148,8 +151,8 @@ def cargar_usuarios_excel(file_bytes: bytes, session: Session) -> schemas.ApiRes
                             raise ValueError("El campo 'materia' es requerido para profesores")
                         if 'carrera' not in df.columns or pd.isna(row['carrera']):
                             raise ValueError("El campo 'carrera' es requerido para profesores")
-                        if 'añio asignado' not in df.columns or pd.isna(row['añio asignado']):
-                            raise ValueError("El campo 'añio asignado' es requerido para profesores")
+                        if 'año asignado' not in df.columns or pd.isna(row['año asignado']):
+                            raise ValueError("El campo 'año asignado' es requerido para profesores")
 
                         # Resolver los nombres de materia y carrera a materia_carrera_id numérico
                         materia_nombre = str(row['materia']).strip()
@@ -168,8 +171,9 @@ def cargar_usuarios_excel(file_bytes: bytes, session: Session) -> schemas.ApiRes
 
                         profesor_data = schemas.TeacherCreate(
                             profesor_id=user.id,
+                            legajo=str(row['legajo']).strip() if 'legajo' in df.columns and pd.notna(row['legajo']) else None,
                             materia_carrera_id=materia_carrera_id_resuelto,
-                            anio_asignado=int(row['añio asignado'])
+                            anio_asignado=int(row['año asignado'])
                         )
                         crud.cr_profesores.create_profesor(session=session, profesor_in=profesor_data)
                     

@@ -30,12 +30,19 @@ async def token_acceso(form_data: Annotated[OAuth2PasswordRequestForm, Depends()
 @router.get("/users/me/", response_model=schemas.UserResponse)
 async def usuario_actual(current_user: Annotated[models.Usuarios, Depends(core.get_current_user)]):
     user_response_data = current_user.model_dump()
-    user_response_data["carrera_id"] = None # Inicializa carrera_id a None por defecto
+    user_response_data["carrera_id"] = None
+    user_response_data["legajo"] = None
+    user_response_data["libreta"] = None
 
     if current_user.role == "student" and current_user.asignaciones_estudiante:
-        # Si el usuario es estudiante y tiene asignaciones, toma la primera carrera
+        # Si el usuario es estudiante y tiene asignaciones, toma la primera carrera y libreta
         user_response_data["carrera_id"] = current_user.asignaciones_estudiante[0].carrera_id
-    
+        user_response_data["libreta"] = current_user.asignaciones_estudiante[0].libreta
+
+    elif current_user.role == "teacher" and current_user.asignaciones_profesor:
+        # Si el usuario es profesor y tiene asignaciones, toma el primer legajo
+        user_response_data["legajo"] = current_user.asignaciones_profesor[0].legajo
+
     return schemas.UserResponse(**user_response_data)
 
 #

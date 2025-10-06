@@ -3,8 +3,8 @@ from app import models, schemas
 from fastapi import HTTPException
 from sqlmodel import Session, select
 from sklearn.metrics import accuracy_score
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LogisticRegression
 
 #
 # Predice el rendimiento futuro de una carrera usando ML (Logistic Regression)
@@ -57,28 +57,36 @@ def prediccion_rendimiento_carrera(session: Session, carrera_id: int) -> schemas
     # Agrupar por estudiante para features agregadas
     df_grouped = df.groupby('estudiante_id').agg({
         'anio_ingreso': 'first',
-        'nota_prom': 'mean',
-        'target': 'first'  # Target basado en promedio
+        'nota_prom': ['mean', 'std']
     }).reset_index()
+    # Aplanar las columnas de índice múltiple
+    df_grouped.columns = ['estudiante_id', 'anio_ingreso', 'nota_prom_mean', 'nota_prom_std']
+    # Rellenar NaN en desviación estándar con 0 (si solo hay una nota, la desviación es NaN)
+    df_grouped['nota_prom_std'] = df_grouped['nota_prom_std'].fillna(0)
+    # Calcular target basado en promedio agrupado
+    df_grouped['target'] = df_grouped['nota_prom_mean'].apply(lambda x: 0 if x >= 7.0 else 1 if x >= 4.0 else 2)
 
     if len(df_grouped) < 10:
         raise HTTPException(status_code=400, detail="Insuficientes datos históricos para modelo confiable")
 
     # Features and target
-    X = df_grouped[['anio_ingreso', 'nota_prom']]
+    X = df_grouped[['anio_ingreso', 'nota_prom_mean', 'nota_prom_std']]
     y = df_grouped['target']
 
     # Split de datos
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
+    print(f"Distribución de targets en y_train: {y_train.value_counts()}")
+    print(f"Distribución de targets en y_test: {y_test.value_counts()}")
+
     # Entrenar modelo
-    model = LogisticRegression(random_state=42)
+    model = RandomForestClassifier(random_state=42)
     model.fit(X_train, y_train)
 
     # Evaluación rápida (opcional, no devolver al usuario)
     y_pred = model.predict(X_test)
     accuracy = accuracy_score(y_test, y_pred)
-    print(f"Precisión del modelo Logistic Regression: {accuracy:.2f}")  # Debug (remueve en producción)
+    print(f"Precisión del modelo Random Forest: {accuracy:.2f}")  # Debug (remueve en producción)
 
     # Datos para predicción (estudiantes del último año)
     current_stmt = (
@@ -103,11 +111,16 @@ def prediccion_rendimiento_carrera(session: Session, carrera_id: int) -> schemas
             'nota_prom': nota_prom_val
         })
 
-    pred_df = pd.DataFrame(pred_data).drop_duplicates(subset='estudiante_id')
+    pred_df = pd.DataFrame(pred_data).groupby('estudiante_id').agg({
+        'anio_ingreso': 'first',
+        'nota_prom': ['mean', 'std']
+    }).reset_index()
+    pred_df.columns = ['estudiante_id', 'anio_ingreso', 'nota_prom_mean', 'nota_prom_std']
+    pred_df['nota_prom_std'] = pred_df['nota_prom_std'].fillna(0)
     if pred_df.empty:
         raise HTTPException(status_code=400, detail="No hay estudiantes válidos para predicción")
 
-    X_pred = pred_df[['anio_ingreso', 'nota_prom']]
+    X_pred = pred_df[['anio_ingreso', 'nota_prom_mean', 'nota_prom_std']]
     predictions = model.predict(X_pred)
 
     # Contar predicciones

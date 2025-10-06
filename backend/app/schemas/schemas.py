@@ -21,8 +21,6 @@ class UserBase(SQLModel):
     nombre: str
     dni: str
     email: Optional[str] = None
-    legajo: Optional[str] = None
-    libreta: Optional[str] = None
 
 # Crea un nuevo usuario
 class UserCreate(UserBase):
@@ -51,6 +49,8 @@ class UserResponse(UserBase):
     id: int
     role: str
     carrera_id: Optional[int] = None
+    legajo: Optional[str] = None
+    libreta: Optional[str] = None
     class Config:
         from_attributes = True
 
@@ -65,6 +65,11 @@ SCHEMAS: ESTUDIANTES
 # Base model "Estudiantes"
 class StudentBase(SQLModel):
     estudiante_id: int
+    edad: Optional[int] = None
+    genero: Optional[str] = None
+    localidad: Optional[str] = None
+    ocupacion: Optional[str] = None
+    libreta: Optional[str] = None
     carrera_id: int
     anio_ingreso: int
     class Config:
@@ -87,6 +92,7 @@ SCHEMAS: PROFESORES
 # Base model "Profesores"
 class TeacherBase(SQLModel):
     profesor_id: int
+    legajo: Optional[str] = None
     materia_carrera_id: int
     anio_asignado: int
     class Config:

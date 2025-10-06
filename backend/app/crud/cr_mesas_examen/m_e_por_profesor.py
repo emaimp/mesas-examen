@@ -9,9 +9,10 @@ from sqlalchemy.orm import selectinload
 def mesas_examen_por_profesor(profesor_id: int, session: Session) -> List[schemas.TablesExamPerCareerForTeacher]:
     # Consulta mesas de examen, estudiantes inscritos y el estado de la inscripción
     statement = (
-        select(models.Mesas_Examen, models.Usuarios, models.Inscripciones_Examen)
+        select(models.Mesas_Examen, models.Usuarios, models.Inscripciones_Examen, models.Estudiantes)
         .join(models.Inscripciones_Examen, models.Mesas_Examen.id == models.Inscripciones_Examen.mesa_examen_id)
         .join(models.Usuarios, models.Inscripciones_Examen.estudiante_id == models.Usuarios.id)
+        .join(models.Estudiantes, models.Usuarios.id == models.Estudiantes.estudiante_id)
         .where(models.Mesas_Examen.profesor_id == profesor_id)
         .options(
             selectinload(models.Mesas_Examen.materia_carrera).selectinload(models.Materia_Carreras.materia),
@@ -23,7 +24,7 @@ def mesas_examen_por_profesor(profesor_id: int, session: Session) -> List[schema
 
     # Agrupa los resultados por carrera
     agrupado: Dict[str, List[schemas.ExamWithStudentsDetail]] = {}
-    for mesa_examen, usuario_estudiante, inscripcion in results:
+    for mesa_examen, usuario_estudiante, inscripcion, estudiante in results:
         carrera_nombre = mesa_examen.carrera_nombre
         if carrera_nombre not in agrupado:
             agrupado[carrera_nombre] = []
@@ -40,7 +41,7 @@ def mesas_examen_por_profesor(profesor_id: int, session: Session) -> List[schema
                 profesor_nombre=mesa_examen.profesor_nombre,
                 estudiante_nombre=usuario_estudiante.nombre,
                 dni=usuario_estudiante.dni,
-                libreta=usuario_estudiante.libreta,
+                libreta=estudiante.libreta,
                 estado=inscripcion.estado
             )
         )

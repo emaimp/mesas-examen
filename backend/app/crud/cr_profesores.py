@@ -46,10 +46,9 @@ def profesor_id(profesor_id: int, session: Session) -> schemas.TeacherInfoRespon
         nombre=user.nombre,
         dni=user.dni,
         email=user.email,
-        legajo=user.legajo,
-        libreta=user.libreta, # Use user.libreta instead of None
         role=user.role,
         carrera_id=None,
         materia_nombre=materia_nombre,
-        carrera_nombre=carrera_nombre
+        carrera_nombre=carrera_nombre,
+        legajo=profesor_record.legajo
     )

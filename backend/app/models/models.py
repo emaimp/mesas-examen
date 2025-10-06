@@ -16,8 +16,6 @@ class Usuarios(SQLModel, table=True):
     nombre: str = Field(max_length=50, index=True) # Nombre completo del usuario
     dni: str = Field(max_length=10, unique=True)
     email: Optional[str] = Field(default=None, max_length=50, unique=True) # Opcional
-    legajo: Optional[str] = Field(default=None, max_length=10, unique=True) # Opcional
-    libreta: Optional[str] = Field(default=None, max_length=10, unique=True) # Opcional
 
     # Relaciones con otras tablas
     # Un usuario (estudiante) puede tener muchas notas
@@ -49,6 +47,7 @@ class Profesores(SQLModel, table=True):
     )
     id: int = Field(default=None, primary_key=True)
     profesor_id: int = Field(foreign_key="usuarios.id") # ID del profesor (FK a Usuarios)
+    legajo: Optional[str] = Field(default=None, max_length=10, unique=True)
     materia_carrera_id: int = Field(foreign_key="materia_carreras.id") # ID de materia_carrera (FK a Materia_Carreras)
     anio_asignado: int = None
 
@@ -68,6 +67,11 @@ class Estudiantes(SQLModel, table=True):
     )
     id: int = Field(default=None, primary_key=True)
     estudiante_id: int = Field(foreign_key="usuarios.id") # ID del estudiante (FK a Usuarios)
+    edad: Optional[int] = Field(default=None, ge=18, le=80)
+    genero: Optional[str] = Field(default=None, max_length=30)
+    localidad: Optional[str] = Field(default=None, max_length=50)
+    ocupacion: Optional[str] = Field(default=None, max_length=50)
+    libreta: Optional[str] = Field(default=None, max_length=10, unique=True)
     carrera_id: int = Field(foreign_key="carreras.id") # ID de la carrera (FK a Carreras)
     anio_ingreso: int = None
 

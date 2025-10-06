@@ -11,9 +11,10 @@ from sqlalchemy.orm import selectinload
 def mesas_examen_detalle_examen(profesor_id: int, limit: int, offset: int, session: Session) -> List[schemas.TablesStudentExamDetailPerCareer]:
     # Consulta mesas de examen, estudiantes inscritos, el estado de la inscripción y las notas de examen
     statement = (
-        select(models.Mesas_Examen, models.Usuarios, models.Inscripciones_Examen, models.Notas_Examen)
+        select(models.Mesas_Examen, models.Usuarios, models.Inscripciones_Examen, models.Notas_Examen, models.Estudiantes)
         .join(models.Inscripciones_Examen, models.Mesas_Examen.id == models.Inscripciones_Examen.mesa_examen_id)
         .join(models.Usuarios, models.Inscripciones_Examen.estudiante_id == models.Usuarios.id)
+        .join(models.Estudiantes, models.Usuarios.id == models.Estudiantes.estudiante_id)
         .outerjoin(models.Notas_Examen, and_(
             models.Notas_Examen.estudiante_id == models.Usuarios.id,
             models.Notas_Examen.materia_carrera_id == models.Mesas_Examen.materia_carrera_id
@@ -36,7 +37,7 @@ def mesas_examen_detalle_examen(profesor_id: int, limit: int, offset: int, sessi
 
     # Agrupa los resultados por carrera
     agrupado: Dict[str, List[schemas.StudentExamDetailForTeacher]] = {}
-    for mesa_examen, usuario_estudiante, inscripcion, nota_examen in results:
+    for mesa_examen, usuario_estudiante, inscripcion, nota_examen, estudiante in results:
         carrera_nombre = mesa_examen.carrera_nombre
         if carrera_nombre not in agrupado:
             agrupado[carrera_nombre] = []
@@ -59,7 +60,7 @@ def mesas_examen_detalle_examen(profesor_id: int, limit: int, offset: int, sessi
                 materia_nombre=mesa_examen.materia_nombre,
                 estudiante_nombre=usuario_estudiante.nombre,
                 dni=usuario_estudiante.dni,
-                libreta=usuario_estudiante.libreta,
+                libreta=estudiante.libreta,
                 fecha_llamado=mesa_examen.primer_llamado if inscripcion.llamado_inscrito == "primer_llamado" else mesa_examen.segundo_llamado,
                 llamado_inscrito=inscripcion.llamado_inscrito,
                 tipo_inscripcion=inscripcion.tipo_inscripcion,

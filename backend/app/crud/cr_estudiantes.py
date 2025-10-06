@@ -173,7 +173,7 @@ def obtener_mesas_inscriptas(estudiante_id: int, session: Session) -> List[schem
             profesor_nombre=mesa_obj.profesor_nombre,
             estudiante_nombre=usuario_obj.nombre,
             dni=usuario_obj.dni,
-            libreta=usuario_obj.libreta,
+            libreta=estudiante_record.libreta,
             estado=inscripcion_obj.estado,
             asistencia=inscripcion_obj.asistencia
         )

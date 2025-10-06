@@ -18,9 +18,7 @@ def create_user(session: Session, user_in: schemas.UserCreate):
         role=user_in.role,
         nombre=user_in.nombre,
         dni=user_in.dni,
-        email=user_in.email,
-        legajo=getattr(user_in, 'legajo', None),
-        libreta=getattr(user_in, 'libreta', None)
+        email=user_in.email
     )
     # Agrega el usuario a la sesión
     session.add(user)
@@ -41,9 +39,7 @@ def create_multiple_users(session: Session, users_in: List[schemas.UserCreate]) 
             role=user_in.role,
             nombre=user_in.nombre,
             dni=user_in.dni,
-            email=user_in.email,
-            legajo=getattr(user_in, 'legajo', None),
-            libreta=getattr(user_in, 'libreta', None)
+            email=user_in.email
         )
         users.append(user)
     
@@ -56,17 +52,13 @@ def create_multiple_users(session: Session, users_in: List[schemas.UserCreate]) 
 #
 # Obtiene un usuario por sus campos únicos
 #
-def get_user_by_unique_fields(session: Session, user_in: schemas.UserCreate) -> Optional[models.Usuarios]:
+def get_user_unique_fields(session: Session, user_in: schemas.UserCreate) -> Optional[models.Usuarios]:
     statement = select(models.Usuarios).where(
         (models.Usuarios.username == user_in.username) |
         (models.Usuarios.dni == user_in.dni)
     )
     if user_in.email:
         statement = statement.where(models.Usuarios.email == user_in.email)
-    if user_in.legajo:
-        statement = statement.where(models.Usuarios.legajo == user_in.legajo)
-    if user_in.libreta:
-        statement = statement.where(models.Usuarios.libreta == user_in.libreta)
     
     return session.exec(statement).first()
 
