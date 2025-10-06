@@ -39,24 +39,29 @@ export const useAdminDashboardStore = defineStore('adminDashboard', {
     careerPerformanceTableExam: null,
     // Datos: Promedio de notas por materia
     careerPerformanceSubjects: null,
+    // Datos: Rendimiento demográfico
+    careerPerformanceDemographic: null,
     // Loading states
     isLoadingPerformanceAverage: false,
     isLoadingPerformancePrediction: false,
     isLoadingPercentageRegistration: false,
     isLoadingPerformanceTableExam: false,
     isLoadingPerformanceSubjects: false,
+    isLoadingPerformanceDemographic: false,
     // Error states
     performanceAverageError: null,
     performancePredictionError: null,
     percentageRegistrationError: null,
     performanceTableExamError: null,
     performanceSubjectsError: null,
+    performanceDemographicError: null,
     // Timestamp de última carga
     lastLoadedPerformanceAverage: null,
     lastLoadedPerformancePrediction: null,
     lastLoadedPercentageRegistration: null,
     lastLoadedPerformanceTableExam: null,
     lastLoadedPerformanceSubjects: null,
+    lastLoadedPerformanceDemographic: null,
   }),
 
   actions: {
@@ -252,6 +257,44 @@ export const useAdminDashboardStore = defineStore('adminDashboard', {
       }
     },
 
+    // Obtener el rendimiento demográfico con cache
+    async fetchPerformanceDemographic (careerId, forceRefresh = false) {
+      if (!careerId) {
+        return null
+      }
+
+      this.isLoadingPerformanceDemographic = true
+      this.performanceDemographicError = null
+
+      if (!forceRefresh) {
+        const cached = getCachedData(`performanceDemographic_${careerId}`)
+        if (cached) {
+          this.careerPerformanceDemographic = cached
+          this.isLoadingPerformanceDemographic = false
+          return cached
+        }
+      }
+
+      try {
+        const { useRendimientoDemograficoCarrera } = await import('@/services/admin/usePerformanceDemographic')
+        const { fetchPerformanceDemographic } = useRendimientoDemograficoCarrera()
+        const data = await fetchPerformanceDemographic(careerId)
+
+        if (data) {
+          this.careerPerformanceDemographic = data
+          setCachedData(`performanceDemographic_${careerId}`, data)
+          this.lastLoadedPerformanceDemographic = Date.now()
+        }
+        return data
+      } catch (error) {
+        this.performanceDemographicError = error.message || 'Error al cargar el rendimiento demográfico'
+        console.error('Error fetching performance demographic:', error)
+        return null
+      } finally {
+        this.isLoadingPerformanceDemographic = false
+      }
+    },
+
     // Limpiar cache específica o completa
     clearCache (type = null, careerId = null) {
       if (type === 'rendimientoPromedio' && careerId) {
@@ -274,6 +317,10 @@ export const useAdminDashboardStore = defineStore('adminDashboard', {
         localStorage.removeItem(`adminDashboard_performanceSubjects_${careerId}`)
         this.careerPerformanceSubjects = null
         this.lastLoadedPerformanceSubjects = null
+      } else if (type === 'rendimientoDemografico' && careerId) {
+        localStorage.removeItem(`adminDashboard_performanceDemographic_${careerId}`)
+        this.careerPerformanceDemographic = null
+        this.lastLoadedPerformanceDemographic = null
       } else {
         // Limpiar todo el cache del store
         for (const key of Object.keys(localStorage)) {
@@ -286,11 +333,13 @@ export const useAdminDashboardStore = defineStore('adminDashboard', {
         this.careerPercentageRegistration = null
         this.careerPerformanceTableExam = null
         this.careerPerformanceSubjects = null
+        this.careerPerformanceDemographic = null
         this.lastLoadedPerformanceAverage = null
         this.lastLoadedPerformancePrediction = null
         this.lastLoadedPercentageRegistration = null
         this.lastLoadedPerformanceTableExam = null
         this.lastLoadedPerformanceSubjects = null
+        this.lastLoadedPerformanceDemographic = null
       }
     },
 
@@ -302,6 +351,7 @@ export const useAdminDashboardStore = defineStore('adminDashboard', {
         porcentajeInscripciones: 'PercentageRegistration',
         rendimientoMesasExamen: 'PerformanceTableExam',
         promedioNotasMaterias: 'PerformanceSubjects',
+        rendimientoDemografico: 'PerformanceDemographic',
       }
       const suffix = typeMap[type] || type.charAt(0).toUpperCase() + type.slice(1)
       const lastLoaded = this[`lastLoaded${suffix}`]
@@ -315,21 +365,24 @@ export const useAdminDashboardStore = defineStore('adminDashboard', {
       this.careerPercentageRegistration = null
       this.careerPerformanceTableExam = null
       this.careerPerformanceSubjects = null
+      this.careerPerformanceDemographic = null
       this.isLoadingPerformanceAverage = false
       this.isLoadingPerformancePrediction = false
       this.isLoadingPercentageRegistration = false
       this.isLoadingPerformanceTableExam = false
       this.isLoadingPerformanceSubjects = false
+      this.isLoadingPerformanceDemographic = false
       this.performanceAverageError = null
       this.performancePredictionError = null
-      this.percentageRegistrationError = null
       this.performanceTableExamError = null
       this.performanceSubjectsError = null
+      this.performanceDemographicError = null
       this.lastLoadedPerformanceAverage = null
       this.lastLoadedPerformancePrediction = null
       this.lastLoadedPercentageRegistration = null
       this.lastLoadedPerformanceTableExam = null
       this.lastLoadedPerformanceSubjects = null
+      this.lastLoadedPerformanceDemographic = null
       // Opcional: limpiar cache completo del store
       this.clearCache()
     },

@@ -34,13 +34,22 @@
           </v-col>
         </v-row>
 
-        <!-- Tercera fila: Gráfico de Barras -->
+        <!-- Tercera fila: Rendimiento Demográfico -->
+        <v-row>
+          <v-col>
+            <h3 class="text-center my-3">Rendimiento Demográfico</h3>
+            <PerformanceDemographic :career-id="selectedCareerId" />
+          </v-col>
+        </v-row>
+
+        <!-- Cuarta fila: Gráfico de Barras -->
         <v-row class="mb-9">
           <v-col>
             <h3 class="text-center my-3">Promedio por Materia</h3>
             <CareerBarChartPanel :career-id="selectedCareerId" />
           </v-col>
         </v-row>
+
       </v-col>
     </v-row>
   </v-container>
@@ -53,6 +62,7 @@
   import CareerPredictionPanel from '@/components/dashboard/PerformancePrediction.vue'
   import CareerBarChartPanel from '@/components/dashboard/PerformanceSubjects.vue'
   import CareerApprovedPanel from '@/components/dashboard/PerformanceTableExam.vue'
+  import PerformanceDemographic from '@/components/dashboard/PerformanceDemographic.vue'
   import { useAdminDashboardStore } from '@/stores/adminDashboard'
 
   // Inicializar el store de dashboard admin

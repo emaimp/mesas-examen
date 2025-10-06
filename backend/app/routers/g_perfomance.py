@@ -38,3 +38,10 @@ def prediccion_rendimiento_carrera(carrera_id: int, session: Session = Depends(d
 @router.get("/{carrera_id}/promedio_notas_materia", response_model=schemas.GradesAverageCareer)
 def promedio_notas_materias_carrera(carrera_id: int, session: Session = Depends(db.get_session)):
     return crud.r_perfomance.promedio_notas_materias_carrera(session, carrera_id)
+
+#
+# Endpoint: Devuelve el rendimiento demográfico de una carrera (id)
+#
+@router.get("/{carrera_id}/rendimiento_demografico", response_model=schemas.PerformanceDemographic)
+def rendimiento_demografico_carrera(carrera_id: int, session: Session = Depends(db.get_session)):
+    return crud.r_perfomance.rendimiento_demografico_carrera(session, carrera_id)

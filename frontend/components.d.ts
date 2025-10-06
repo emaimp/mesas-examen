@@ -24,6 +24,7 @@ declare module 'vue' {
     PercentageCircle: typeof import('./src/components/dashboard/PercentageCircle.vue')['default']
     PercentageRegistration: typeof import('./src/components/dashboard/PercentageRegistration.vue')['default']
     PerformanceAverage: typeof import('./src/components/dashboard/PerformanceAverage.vue')['default']
+    PerformanceDemographic: typeof import('./src/components/dashboard/PerformanceDemographic.vue')['default']
     PerformancePrediction: typeof import('./src/components/dashboard/PerformancePrediction.vue')['default']
     PerformanceSubjects: typeof import('./src/components/dashboard/PerformanceSubjects.vue')['default']
     PerformanceTableExam: typeof import('./src/components/dashboard/PerformanceTableExam.vue')['default']

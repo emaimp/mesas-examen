@@ -421,3 +421,23 @@ class ExamApprovalCareer(SQLModel):
     total_examenes_evaluados: int
     class Config:
         from_attributes = True
+
+# Calcula el rendimiento demográfico (carrera)
+class DemographicBreakdown(SQLModel):
+    promocionado: int
+    regular: int
+    libre: int
+    total: int
+    promocionado_pct: float
+    regular_pct: float
+    libre_pct: float
+    class Config:
+        from_attributes = True
+
+# Devuelve el rendimiento demográfico (carrera)
+class PerformanceDemographic(SQLModel):
+    carrera_id: int
+    carrera_nombre: str
+    demograficos: Dict[str, Dict[str, DemographicBreakdown]]
+    class Config:
+        from_attributes = True
