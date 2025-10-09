@@ -59,10 +59,10 @@
   import CareerAutocomplete from '@/components/autocomplete/CareerAutocomplete.vue'
   import CareerRegistrationsPanel from '@/components/dashboard/PercentageRegistration.vue'
   import CareerPerformancePanel from '@/components/dashboard/PerformanceAverage.vue'
+  import PerformanceDemographic from '@/components/dashboard/PerformanceDemographic.vue'
   import CareerPredictionPanel from '@/components/dashboard/PerformancePrediction.vue'
   import CareerBarChartPanel from '@/components/dashboard/PerformanceSubjects.vue'
   import CareerApprovedPanel from '@/components/dashboard/PerformanceTableExam.vue'
-  import PerformanceDemographic from '@/components/dashboard/PerformanceDemographic.vue'
   import { useAdminDashboardStore } from '@/stores/adminDashboard'
 
   // Inicializar el store de dashboard admin

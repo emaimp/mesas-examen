@@ -84,16 +84,39 @@
   // Estado reactivo para controlar el modal de pantalla completa
   const showFullscreenDialog = ref(false)
 
+  // Datos "fantasma" para mostrar cuando no hay datos reales
+  const ghostSubjects = [
+    { materia_nombre: 'Materia A', materia_promedio: 5 },
+    { materia_nombre: 'Materia B', materia_promedio: 5 },
+    { materia_nombre: 'Materia C', materia_promedio: 5 },
+    { materia_nombre: 'Materia D', materia_promedio: 5 },
+    { materia_nombre: 'Materia E', materia_promedio: 5 },
+    { materia_nombre: 'Materia F', materia_promedio: 5 },
+    { materia_nombre: 'Materia G', materia_promedio: 5 },
+    { materia_nombre: 'Materia H', materia_promedio: 5 },
+    { materia_nombre: 'Materia I', materia_promedio: 5 },
+    { materia_nombre: 'Materia J', materia_promedio: 5 },
+  ]
+
   // Reactive computeds
-  const chartData = computed(() => adminDashboardStore.careerPerformanceSubjects || {
-    carrera_id: null,
-    carrera_nombre: 'Selecciona una carrera',
-    materias: [],
+  const chartData = computed(() => {
+    const realData = adminDashboardStore.careerPerformanceSubjects
+    if (!realData || !realData.materias || realData.materias.length === 0) {
+      return {
+        carrera_id: null,
+        carrera_nombre: 'Selecciona una carrera',
+        materias: ghostSubjects,
+      }
+    }
+    return realData
   })
 
   const loading = computed(() => adminDashboardStore.isLoadingPerformanceSubjects)
   const error = computed(() => adminDashboardStore.performanceSubjectsError)
   const hasData = computed(() => chartData.value.materias && chartData.value.materias.length > 0)
+
+  // Computed para verificar si los datos actuales son los "fantasma"
+  const isGhostData = computed(() => chartData.value.materias === ghostSubjects)
 
   // Chart options para el gráfico normal (sin etiquetas del eje X)
   const chartOptions = computed(() => ({
@@ -148,10 +171,12 @@
     },
 
     // PALETA DE COLORES: Color único por barra
-    colors: [
-      '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4',
-      '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7DC6F',
-    ],
+    colors: isGhostData.value
+      ? ['#607D8B'] // Un color gris para las barras fantasma
+      : [
+        '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4',
+        '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7DC6F',
+      ],
 
     // LEYENDA: Oculta, cada barra representa una materia individual
     legend: {
@@ -293,10 +318,12 @@
     },
 
     // PALETA DE COLORES: Color único por barra
-    colors: [
-      '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4',
-      '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7DC6F',
-    ],
+    colors: isGhostData.value
+      ? ['#607D8B'] // Un color gris para las barras fantasma
+      : [
+        '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4',
+        '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7DC6F',
+      ],
 
     // LEYENDA: Oculta, cada barra representa una materia individual
     legend: {

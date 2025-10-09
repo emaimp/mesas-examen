@@ -4,17 +4,13 @@
  * Bootstraps Vuetify and other plugins then mounts the App`
  */
 
+// Composables
+import { createApp } from 'vue'
 // Plugins
 import VueApexCharts from 'vue3-apexcharts'
 import { registerPlugins } from '@/plugins'
-
 // Components
 import App from './App.vue'
-
-// Composables
-// eslint-disable-next-line perfectionist/sort-imports
-import { createApp } from 'vue'
-
 // Styles
 import 'unfonts.css'
 

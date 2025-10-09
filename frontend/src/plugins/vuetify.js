@@ -8,7 +8,6 @@
 
 import { createVuetify } from 'vuetify'
 import { VFileUpload } from 'vuetify/labs/VFileUpload'
-import { VTimePicker } from 'vuetify/labs/VTimePicker'
 // Composables
 import colors from 'vuetify/lib/util/colors'
 import { es } from 'vuetify/locale'
@@ -51,7 +50,6 @@ export default createVuetify({
     messages: { es }, // Provide Spanish messages
   },
   components: {
-    VTimePicker,
     VFileUpload,
   },
 })
