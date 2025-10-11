@@ -1,17 +1,24 @@
 <template>
   <v-container fill-height fluid>
     <v-row align="center" justify="center">
-      <v-col cols="12" lg="8" md="8" sm="8">
+      <v-col
+        cols="12"
+        lg="8"
+        md="8"
+        sm="8"
+      >
         <!-- Tarjeta que contiene el formulario de login -->
-        <v-card class="elevation-12 pa-3">
+        <v-card class="elevation-12 pa-6">
           <img
             alt="Iesn6"
             class="login-logo"
-            src="@/assets/iesn6_logo_350px.webp"
+            src="@/assets/ies-6_logo_350px.webp"
           >
-          <v-card-text class="px-3 py-3">
+          <v-card-text class="px-4 py-4">
 
-            <p class="mb-10 text-center">Ingrese su usuario y contraseña.</p>
+            <p class="mb-15 text-center">
+              Ingrese su usuario y contraseña.
+            </p>
 
             <!-- Formulario de login con validación y envío -->
             <v-form ref="loginForm" @submit.prevent="submitLogin">
@@ -28,6 +35,7 @@
                 :rules="[v => !!v || 'El usuario es requerido']"
                 variant="outlined"
               />
+
               <!-- Campo de texto para la contraseña -->
               <v-text-field
                 v-model="password"
@@ -198,12 +206,10 @@
 
 /* Estilos para la tarjeta del formulario */
 .v-card {
-  padding-bottom: 10px; /* Relleno inferior */
-  border-radius: 8px; /* Bordes redondeados */
   margin-left: auto; /* Centra la tarjeta horizontalmente */
   margin-right: auto; /* Centra la tarjeta horizontalmente */
-  max-width: 450px; /* Ancho máximo de la tarjeta */
-  width: 100%; /* Ancho completo dentro del contenedor */
+  min-height: 550px; /* Altura mínima de la tarjeta, puedes ajustar este valor */
+  max-width: 500px; /* Ancho máximo de la tarjeta */
   display: block; /* Asegura que la tarjeta se comporte como un bloque */
 }
 
@@ -213,6 +219,6 @@
   height: auto; /* Altura automática para mantener la proporción */
   display: block; /* Hace que la imagen sea un bloque para centrarla */
   margin: 0 auto; /* Centra la imagen horizontalmente */
-  padding: 10px 0; /* Relleno superior e inferior */
+  padding: 20px 0; /* Relleno superior e inferior */
 }
 </style>

@@ -28,11 +28,10 @@ export default createVuetify({
           green_color: '#2ed22e',
           yellow_color: '#ff7900',
           red_color: '#f3180b',
-          border: '#FFFFFF',
         },
       },
       dark: {
-        dark: true,
+        light: true,
         colors: {
           primary: colors.blue.darken4,
           secondary: colors.blue.darken4,
@@ -40,7 +39,6 @@ export default createVuetify({
           green_color: '#2ed22e',
           yellow_color: '#ff7900',
           red_color: '#f3180b',
-          border: '#FFFFFF',
         },
       },
     },

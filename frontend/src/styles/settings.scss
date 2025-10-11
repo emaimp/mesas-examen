@@ -14,20 +14,20 @@
 .v-application {
   background:
     /* Gradiente principal */
-    radial-gradient(circle at center, #4577a2 0%, #145381 100%);
+    radial-gradient(circle at center, #3a4e7a 0%, #5e83ba 200%);
 }
 
 /* Gradiente para el v-overlay (desenfoque) */
 .v-overlay__scrim {
-  background: linear-gradient(to right, #4577a2, #145381) !important;
+  background: linear-gradient(to right, #3a4e7a, #5e83ba) !important;
   opacity: 0.93 !important;
 }
 
 /* Gradiente para el v-card (containers) */
 .v-card {
-  background: linear-gradient(to right, #276291, #1e5483) !important;
-  box-shadow: 10px 10px 5px rgba(0, 0, 0, 0.7) !important;
-  border: 1px solid !important;
+  background: linear-gradient(to right, #131321, #1e213d) !important;
+  border: 2px;
+  box-shadow: inset 0 0 0 2px #2290e7, 10px 10px 5px rgba(0, 0, 0, 0.5) !important;
 }
 
 /* Gradiente para el v-expansion-panel-title (titulo del expansion-panel) */

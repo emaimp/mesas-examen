@@ -2,7 +2,7 @@
   <v-container>
     <v-row align="center" justify="center">
       <v-col lg="4">
-        <v-card class="pa-4">
+        <v-card class="pa-6">
           <v-card-text>
 
             <CareerAutocomplete

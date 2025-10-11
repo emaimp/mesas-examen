@@ -4,13 +4,12 @@
       <v-img
         alt="Iesn6"
         class="mb-5 mx-auto"
-        src="@/assets/iesn6_logo_500px.webp"
+        src="@/assets/ies-6_logo_500px.webp"
         width="500"
       />
-      <h3
-        class="text-center font-weight-bold mb-10 text-h5"
-        style="color: black !important;"
-      >INSTITUTO DE EDUCACIÓN SUPERIOR</h3>
+      <h3 class="text-center font-weight-bold mb-10 text-h5">
+        INSTITUTO DE EDUCACIÓN SUPERIOR
+      </h3>
       <v-row justify="center">
         <v-col
           v-for="link in links"
