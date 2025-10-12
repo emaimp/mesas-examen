@@ -1,5 +1,5 @@
 <template>
-  <v-card class="elevation-12 pa-3">
+  <v-card class="elevation-12 pa-5">
     <v-card-text class="px-3 py-3">
 
       <img
@@ -197,7 +197,7 @@
   border-radius: 8px; /* Bordes redondeados */
   margin-left: auto; /* Centra la tarjeta horizontalmente */
   margin-right: auto; /* Centra la tarjeta horizontalmente */
-  max-width: 450px; /* Ancho máximo de la tarjeta */
+  max-width: 500px; /* Ancho máximo de la tarjeta */
   width: 100%; /* Ancho completo dentro del contenedor */
   display: block; /* Asegura que la tarjeta se comporte como un bloque */
 }

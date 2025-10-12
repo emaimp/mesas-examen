@@ -78,7 +78,7 @@
           :active="appStore.selectedSection === 'download-acts'"
           link
           prepend-icon="mdi-archive-arrow-down"
-          title="Descargar Actas"
+          title="Descarga de Actas"
           to="/admin/download-acts"
           value="download-acts"
           @click="appStore.setSelectedSection('download-acts')"
@@ -89,7 +89,7 @@
           :active="appStore.selectedSection === 'administration-dashboard'"
           link
           prepend-icon="mdi-view-dashboard"
-          title="Dashboard"
+          title="Métricas Académicas"
           to="/admin/administration-dashboard"
           value="administration-dashboard"
           @click="appStore.setSelectedSection('administration-dashboard')"

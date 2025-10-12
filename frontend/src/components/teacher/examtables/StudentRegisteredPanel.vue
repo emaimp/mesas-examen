@@ -344,6 +344,6 @@
 
 /* Estilos para sobreescribir el .v-list global */
 .v-list {
-  background: linear-gradient(to right, #276291, #1e5483) !important;
+  background: linear-gradient(to right bottom, #003356, #111c35) !important;
 }
 </style>

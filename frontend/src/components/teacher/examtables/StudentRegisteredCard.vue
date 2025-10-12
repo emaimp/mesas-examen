@@ -1,7 +1,7 @@
 <template>
   <v-col cols="12" sm="6">
     <v-card
-      class="mesa-card clickable"
+      class="clickable"
       :flat="true"
       @click="emit('open-registered-dialog', estudiante)"
     >
@@ -73,7 +73,9 @@
 
 <style scoped>
 /* Estilos para la tarjeta del estudiante registrado */
-.mesa-card {
+.v-card {
   margin-bottom: 16px; /* Margen inferior para separar las tarjetas */
+  box-shadow: none !important; /* Tarjeta sin sombra */
+  background: linear-gradient(to right bottom, #001f54, #34a0a4) !important;
 }
 </style>
