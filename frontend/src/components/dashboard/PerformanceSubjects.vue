@@ -435,6 +435,11 @@
 </script>
 
 <style scoped>
+/* Estilos para el v-card */
+.v-card {
+  box-shadow: none !important; /* Tarjeta sin sombra */
+}
+
 /* Estilos para el contenedor del gráfico */
 .chart-container {
   width: 100%;

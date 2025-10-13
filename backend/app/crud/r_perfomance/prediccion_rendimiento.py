@@ -76,8 +76,8 @@ def prediccion_rendimiento_carrera(session: Session, carrera_id: int) -> schemas
     # Split de datos
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-    print(f"Distribución de targets en y_train: {y_train.value_counts()}")
-    print(f"Distribución de targets en y_test: {y_test.value_counts()}")
+    # print(f"Distribución de targets en y_train: {y_train.value_counts()}") # Debug (remueve en producción)
+    # print(f"Distribución de targets en y_test: {y_test.value_counts()}") # Debug (remueve en producción)
 
     # Entrenar modelo
     model = RandomForestClassifier(random_state=42)
@@ -86,7 +86,7 @@ def prediccion_rendimiento_carrera(session: Session, carrera_id: int) -> schemas
     # Evaluación rápida (opcional, no devolver al usuario)
     y_pred = model.predict(X_test)
     accuracy = accuracy_score(y_test, y_pred)
-    print(f"Precisión del modelo Random Forest: {accuracy:.2f}")  # Debug (remueve en producción)
+    # print(f"Precisión del modelo Random Forest: {accuracy:.2f}")  # Debug (remueve en producción)
 
     # Datos para predicción (estudiantes del último año)
     current_stmt = (

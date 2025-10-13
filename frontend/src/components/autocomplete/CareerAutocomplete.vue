@@ -14,7 +14,7 @@
     :loading="loading"
     :model-value="modelValue"
     :no-data-text="computedCareerNoDataText"
-    variant="outlined"
+    variant="solo-inverted"
     @update:model-value="onCareerSelected"
     @update:search-input="searchInput = $event"
   />

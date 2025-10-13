@@ -15,7 +15,7 @@
     :loading="loading"
     :model-value="modelValue"
     :no-data-text="computedNoDataText"
-    variant="outlined"
+    variant="solo-inverted"
     @update:model-value="onSubjectSelected"
     @update:search-input="searchInput = $event"
   />

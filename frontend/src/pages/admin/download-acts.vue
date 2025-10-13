@@ -2,38 +2,37 @@
   <v-container>
     <v-row justify="center">
       <v-col cols="12" md="7" sm="10">
-        <v-row class="mt-4" justify="center">
-          <v-col cols="12" md="7" sm="10">
-            <v-row>
-              <v-col cols="12">
-                <v-text-field
-                  v-model="searchQuery"
-                  clearable
-                  hide-details
-                  label="Nombre del Profesor"
-                  @keyup.enter="searchActs"
-                />
-              </v-col>
-              <v-col cols="12">
-                <v-btn
-                  block
-                  class="action-button"
-                  :loading="loading"
-                  @click="searchActs"
-                >
-                  <v-icon left>mdi-magnify</v-icon>
-                  Buscar Actas
-                </v-btn>
-              </v-col>
-            </v-row>
-          </v-col>
-        </v-row>
+
         <v-row>
           <v-col cols="12">
             <v-card>
-              <v-card-text>
+              <v-card-text class="pt-8">
+                <v-row class="mb-8" justify="center">
+                  <v-col cols="12" md="8" sm="10">
+                    <v-text-field
+                      v-model="searchQuery"
+                      clearable
+                      hide-details
+                      label="Nombre del Profesor"
+                      variant="solo-inverted"
+                      @keyup.enter="searchActs"
+                    />
+                  </v-col>
+                  <v-col cols="12" md="5" sm="10">
+                    <v-btn
+                      block
+                      class="action-button"
+                      :loading="loading"
+                      @click="searchActs"
+                    >
+                      <v-icon left>mdi-magnify</v-icon>
+                      Buscar Actas
+                    </v-btn>
+                  </v-col>
+                </v-row>
+                <v-divider class="my-1" />
                 <v-alert v-if="error" class="mb-4" type="error">{{ error }}</v-alert>
-                <v-alert v-if="!loading && actas.length === 0 && searchQuery" class="mb-4" type="info">
+                <v-alert v-if="!loading && actas.length === 0 && searchQuery" class="mb-4" type="error">
                   No se encontraron actas para el profesor "{{ searchQuery }}".
                 </v-alert>
                 <v-data-table

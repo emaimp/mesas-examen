@@ -207,5 +207,8 @@
 </script>
 
 <style scoped>
-
+/* Estilos para el v-card */
+.v-card {
+  box-shadow: none !important; /* Tarjeta sin sombra */
+}
 </style>

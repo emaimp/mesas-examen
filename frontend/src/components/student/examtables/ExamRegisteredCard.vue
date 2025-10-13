@@ -79,15 +79,16 @@
 /* Estilos para la tarjeta de la mesa de examen */
 .mesa-card {
   margin-bottom: 16px; /* Margen inferior para separar las tarjetas */
+  box-shadow: none !important; /* Tarjeta sin sombra */
 }
 
 /* Estilos para tarjetas de inscripción activa */
 .v-card.mesa-card.mesa-card-active {
-  background: linear-gradient(to right, #00913f, #008f39) !important;
+  background: linear-gradient(to right bottom, #054a29, #00946b) !important;
 }
 
 /* Estilos para tarjetas de inscripción cancelada */
 .v-card.mesa-card.mesa-card-canceled {
-  background: linear-gradient(to right, #d5303e, #cb3234) !important;
+  background: linear-gradient(to right bottom, #590000, #ab2836) !important;
 }
 </style>

@@ -69,7 +69,7 @@
 </script>
 
 <style scoped>
-/* Estilos para la tarjeta de la mesa de examen */
+/* Estilos para el v-card */
 .v-card {
   margin-bottom: 16px; /* Margen inferior para separar las tarjetas */
   box-shadow: none !important; /* Tarjeta sin sombra */

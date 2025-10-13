@@ -27,13 +27,14 @@
 /* Gradiente para el v-card (containers) */
 .v-card {
   background: linear-gradient(to right bottom, #003356, #111c35) !important;
-  border: 1.5px solid;
-  box-shadow: 15px 15px 1px rgba(0, 0, 0, 0.5) !important;
+  border: 1px solid;
+  box-shadow: 13px 13px 1px rgba(0, 0, 0, 0.5) !important;
 }
 
 /* Gradiente para el v-expansion-panel-title (titulo del expansion-panel) */
 .v-expansion-panel-title {
-  background: linear-gradient(to right bottom, #131321, #131321) !important;
+  background: linear-gradient(to right, #131321) !important;
+  border: 1px solid;
 }
 
 /* Transpariencia para el v-list (lista de elementos) */
