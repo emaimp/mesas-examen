@@ -9,13 +9,11 @@
               <v-card-text class="pt-8">
                 <v-row class="mb-8" justify="center">
                   <v-col cols="12" md="8" sm="10">
-                    <v-text-field
-                      v-model="searchQuery"
-                      clearable
-                      hide-details
-                      label="Nombre del Profesor"
-                      variant="solo-inverted"
-                      @keyup.enter="searchActs"
+                    <TeacherAutocomplete
+                      v-model="selectedTeacherId"
+                      use-global-search
+                      label="Seleccionar Profesor"
+                      @teacher-data-selected="onTeacherSelected"
                     />
                   </v-col>
                   <v-col cols="12" md="5" sm="10">
@@ -32,8 +30,8 @@
                 </v-row>
                 <v-divider class="my-1" />
                 <v-alert v-if="error" class="mb-4" type="error">{{ error }}</v-alert>
-                <v-alert v-if="!loading && actas.length === 0 && searchQuery" class="mb-4" type="error">
-                  No se encontraron actas para el profesor "{{ searchQuery }}".
+                <v-alert v-if="!loading && actas.length === 0 && selectedTeacherData" class="mb-4" type="error">
+                  No se encontraron actas para el profesor "{{ selectedTeacherData.nombre }}".
                 </v-alert>
                 <v-data-table
                   :headers="headers"
@@ -70,13 +68,15 @@
 
 <script setup>
   import { ref } from 'vue'
+  import TeacherAutocomplete from '@/components/autocomplete/TeacherAutocomplete.vue'
   import { useDigitalActsDownload } from '@/services/admin/useDigitalActsDownload'
   import { useDigitalActsUploader } from '@/services/admin/useDigitalActsUploader'
 
   const { fetchPdfsByUploaderName } = useDigitalActsUploader()
   const { downloadPdfById } = useDigitalActsDownload()
 
-  const searchQuery = ref('')
+  const selectedTeacherId = ref(null)
+  const selectedTeacherData = ref(null)
   const actas = ref([])
   const loading = ref(false)
   const error = ref(null)
@@ -88,16 +88,24 @@
     { title: 'Acción', key: 'action', sortable: false },
   ]
 
+  const onTeacherSelected = teacherData => {
+    selectedTeacherData.value = teacherData
+  }
+
   const searchActs = async () => {
     error.value = null
-    if (!searchQuery.value) {
+
+    // Si no hay profesor seleccionado ni datos, no hacer nada
+    if (!selectedTeacherId.value && !selectedTeacherData.value) {
       actas.value = []
       return
     }
 
     loading.value = true
     try {
-      const result = await fetchPdfsByUploaderName(searchQuery.value)
+      // Usar el nombre del profesor seleccionado para la búsqueda
+      const teacherName = selectedTeacherData.value?.nombre || ''
+      const result = await fetchPdfsByUploaderName(teacherName)
       actas.value = result
     } catch (error_) {
       error.value = error_.message || 'Error al buscar actas.'

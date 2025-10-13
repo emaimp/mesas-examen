@@ -30,7 +30,7 @@
         </v-expansion-panel-title>
 
         <v-expansion-panel-text>
-          <div class="transparent-expansion-panel-content">
+          <div class="transparent-expansion-panel">
             <v-row dense>
               <ExamTableCard
                 v-for="mesaLlamado in getFlatMesasForAnio(anioData.mesas)"
@@ -310,12 +310,12 @@
 /* Estilos para los paneles de expansión */
 .v-expansion-panel {
   background-color: transparent !important; /* Fondo transparente */
-  margin-bottom: 5px; /* Margen inferior */
+  margin-bottom: 5px; /* Espacio entre paneles */
 }
 
 /* Estilos para el contenido dentro de los paneles de expansión */
-.transparent-expansion-panel-content {
-  padding: 6px; /* Relleno interno */
+.transparent-expansion-panel {
+  padding: 25px 0px 0px 0px; /* Relleno interno */
 }
 
 /* Estilos para la barra de notificación (snackbar) */

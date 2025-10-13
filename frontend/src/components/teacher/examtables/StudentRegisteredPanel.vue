@@ -30,7 +30,7 @@
         </v-expansion-panel-title>
 
         <v-expansion-panel-text>
-          <div class="transparent-expansion-panel-content">
+          <div class="transparent-expansion-panel">
             <v-row dense>
               <StudentRegisteredCard
                 v-for="estudiante in carreraData.mesas"
@@ -330,8 +330,8 @@
 }
 
 /* Estilos para el contenido dentro de los paneles de expansión */
-.transparent-expansion-panel-content {
-  padding: 6px; /* Espaciado interno */
+.transparent-expansion-panel {
+  padding: 25px 0px 0px 0px; /* Relleno interno */
 }
 
 /* Estilos para centrar el snackbar de notificaciones */

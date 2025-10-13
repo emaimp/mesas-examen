@@ -4,7 +4,7 @@
     v-model:search="searchInput"
     autocomplete="off"
     clearable
-    :disabled="!careerId"
+    :disabled="!careerId && !useGlobalSearch"
     :filter-items="false"
     hide-details="auto"
     :hide-no-data="true"
@@ -35,12 +35,17 @@
       type: String,
       default: 'Seleccionar Profesor',
     },
+    // Si es true, busca profesores globalmente sin requerir carrera
+    useGlobalSearch: {
+      type: Boolean,
+      default: false,
+    },
   })
   // Define los eventos que el componente puede emitir
   const emit = defineEmits(['update:modelValue', 'teacher-data-selected'])
 
-  // Obtiene la función para buscar profesores por carrera desde el servicio
-  const { fetchTeachersByCareer } = useTeacherSearch()
+  // Obtiene las funciones para buscar profesores desde el servicio
+  const { fetchTeachersByCareer, fetchAllTeachers } = useTeacherSearch()
 
   // Variables reactivas para el estado del componente
   const professors = ref([]) // Almacena la lista de profesores obtenidas
@@ -51,8 +56,8 @@
 
   // Propiedad computada para el texto de "sin datos" en el autocompletado
   const computedNoDataText = computed(() => {
-    // Si no se ha seleccionado una carrera, muestra un mensaje
-    if (!props.careerId) {
+    // Si no se ha seleccionado una carrera y no es búsqueda global, muestra un mensaje
+    if (!props.careerId && !props.useGlobalSearch) {
       return 'Seleccione una carrera primero.'
     }
     // Si está cargando, muestra un mensaje de carga
@@ -71,8 +76,8 @@
     // Limpia el temporizador anterior para evitar múltiples llamadas
     clearTimeout(debounceTimer)
 
-    // Si no hay un ID de carrera, limpia la lista de profesores
-    if (!newCareerId) {
+    // Si no hay un ID de carrera y no es búsqueda global, limpia la lista de profesores
+    if (!newCareerId && !props.useGlobalSearch) {
       loading.value = false
       professors.value = []
       if (props.modelValue !== null) emit('update:modelValue', null)
@@ -100,8 +105,10 @@
     debounceTimer = setTimeout(async () => {
       loading.value = true // Activa el indicador de carga
       try {
-        // Llama a la API para obtener los profesores que coinciden con el ID de la carrera y el query
-        const fetchedProfessors = await fetchTeachersByCareer(newCareerId, trimmedProfessorQuery)
+        // Usa la función apropiada según el modo de búsqueda
+        const fetchedProfessors = props.useGlobalSearch
+          ? await fetchAllTeachers(trimmedProfessorQuery)
+          : await fetchTeachersByCareer(newCareerId, trimmedProfessorQuery)
 
         if (Array.isArray(fetchedProfessors)) {
           // Mapea los profesores para agregar la propiedad 'nombre'
@@ -111,12 +118,12 @@
           }))
         } else {
           // Muestra una advertencia si la API no devuelve un array
-          console.warn('La API no devolvió un array de profesores para la carrera:', fetchedProfessors)
+          console.warn('La API no devolvió un array de profesores:', fetchedProfessors)
           professors.value = []
         }
       } catch (error) {
         // Maneja errores durante la llamada a la API
-        console.error('Error al buscar profesores por carrera:', error)
+        console.error('Error al buscar profesores:', error)
         professors.value = []
       } finally {
         loading.value = false

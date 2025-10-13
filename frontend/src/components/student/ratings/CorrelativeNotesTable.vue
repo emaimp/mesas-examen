@@ -26,7 +26,7 @@
             </tr>
           </tbody>
         </v-table>
-        <v-divider class="my-4" />
+        <v-divider />
       </div>
     </v-expansion-panel-text>
   </v-expansion-panel>
@@ -109,7 +109,7 @@
 /* Estilos para el panel de expansión */
 .v-expansion-panel {
   background-color: transparent !important; /* Fondo transparente */
-  margin-bottom: 5px; /* Margen inferior */
+  margin-bottom: 5px; /* Espacio entre paneles */
 }
 
 /* Estilos para la tabla */

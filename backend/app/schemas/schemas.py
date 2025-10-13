@@ -102,7 +102,18 @@ class TeacherBase(SQLModel):
 class TeacherCreate(TeacherBase):
     pass
 
-# Devuelve toda la información de un profesor 
+# Devuelve todos los profesores con su nombre
+class TeacherResponse(SQLModel):
+    id: int
+    profesor_id: int
+    nombre: str
+    legajo: Optional[str] = None
+    materia_carrera_id: int
+    anio_asignado: int
+    class Config:
+        from_attributes = True
+
+# Devuelve toda la información de un profesor
 class TeacherInfoResponse(UserResponse):
     materia_nombre: Optional[str] = None
     carrera_nombre: Optional[str] = None

@@ -3,7 +3,7 @@ from typing import List, Optional, Dict
 from sqlmodel import Session, select, col
 
 #
-# Devuelve todas las carreras
+# Devuelve todas las carreras (query)
 #
 def obtener_carreras(session: Session, query: Optional[str] = None) -> List[models.Carreras]:
     statement = select(models.Carreras)

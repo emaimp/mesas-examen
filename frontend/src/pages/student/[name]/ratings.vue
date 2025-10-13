@@ -3,7 +3,7 @@
     <v-card width="900">
       <v-card-title class="text-center mb-4 mt-4">Promedios - Correlativas</v-card-title>
       <v-card-text>
-        <CorrelativeNotesPanel class="mb-4" />
+        <CorrelativeNotesPanel />
       </v-card-text>
     </v-card>
   </v-container>

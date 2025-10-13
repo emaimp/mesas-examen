@@ -86,9 +86,47 @@ export function useTeacherSearch () {
     }
   }
 
+  /**
+   * Obtiene todos los profesores con filtro opcional por nombre con cache
+   * @param {string} [query=''] - Parámetro opcional de búsqueda para profesores
+   * @returns {Promise<Array>} - Retorna una promesa con un array de profesores
+   * @throws {Error} - Lanza un error si la petición falla
+   */
+  const fetchAllTeachers = async (query = '') => {
+    const cacheKey = `all-teachers-${query || 'all'}`
+    const cached = cache.get(cacheKey)
+
+    // Verificar si hay cache válido
+    if (cached && (Date.now() - cached.timestamp) < CACHE_DURATION) {
+      return cached.data
+    }
+
+    try {
+      // Construye la URL de la API para buscar todos los profesores
+      const url = `${import.meta.env.VITE_API_URL}/profesores?query=${encodeURIComponent(query)}`
+      // Realiza la petición GET a la API
+      const response = await axios.get(url, {
+        headers: { Accept: 'application/json' },
+        responseType: 'json',
+      })
+      // Almacenar en cache
+      cache.set(cacheKey, {
+        data: response.data,
+        timestamp: Date.now(),
+      })
+      // Retorna los datos de la respuesta
+      return response.data
+    } catch (error) {
+      // Manejo de errores en la obtención de todos los profesores
+      console.error('Error al obtener todos los profesores:', error)
+      throw error
+    }
+  }
+
   return {
     // Expone las funciones de búsqueda de profesores
     fetchTeachersByCareer,
     fetchTeacherById,
+    fetchAllTeachers,
   }
 }

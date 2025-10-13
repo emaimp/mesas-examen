@@ -1,7 +1,7 @@
 from app import db, crud, models, schemas
 from sqlmodel import Session
 from typing import List, Optional
-from fastapi import APIRouter, Query, Depends
+from fastapi import APIRouter, Depends, Query
 
 router = APIRouter(prefix="/carreras", tags=["Carreras"])
 
