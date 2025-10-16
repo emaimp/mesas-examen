@@ -6,7 +6,7 @@
 
     <v-expansion-panel-text>
       <div>
-        <v-table density="compact">
+        <v-table density="comfortable">
           <thead>
             <tr>
               <th class="text-center small-text">Código</th>

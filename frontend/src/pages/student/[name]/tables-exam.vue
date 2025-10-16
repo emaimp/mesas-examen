@@ -1,6 +1,6 @@
 <template>
   <v-container class="d-flex align-center justify-center" fluid>
-    <v-card width="900">
+    <v-card width="1000">
       <v-card-title class="text-center mb-4 mt-4">Mesas de Examen Disponibles</v-card-title>
       <v-card-text>
         <ExamTablePanel />

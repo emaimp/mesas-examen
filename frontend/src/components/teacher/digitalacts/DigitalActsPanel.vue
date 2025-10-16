@@ -1,7 +1,12 @@
 <template>
   <v-card style="position: relative;" width="750">
     <v-card style="padding-bottom: 50px;">
-      <v-card-title class="text-center mb-2 mt-3">Acta Digital</v-card-title>
+      <v-img
+        src="@/assets/iesn6_logo_dark_200px.webp"
+        max-width="200"
+        class="mx-auto mt-4"
+      />
+      <v-card-title class="text-center">Acta Digital</v-card-title>
       <v-card-text>
         <v-alert
           v-if="loading"

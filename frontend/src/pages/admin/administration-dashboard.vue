@@ -11,15 +11,12 @@
               />
             </v-col>
           </v-row>
-          <!-- Primera fila: Inscripciones y Aprobados -->
+
+          <!-- Primera fila: Rendimiento Demográfico -->
           <v-row>
             <v-col>
-              <h3 class="text-center my-6">Inscripciones en Exámenes</h3>
-              <CareerRegistrationsPanel :career-id="selectedCareerId" />
-            </v-col>
-            <v-col>
-              <h3 class="text-center my-6">Aprobados en Exámenes</h3>
-              <CareerApprovedPanel :career-id="selectedCareerId" />
+              <h3 class="text-center my-3">Rendimiento Demográfico</h3>
+              <PerformanceDemographic :career-id="selectedCareerId" />
             </v-col>
           </v-row>
 
@@ -35,15 +32,19 @@
             </v-col>
           </v-row>
 
-          <!-- Tercera fila: Rendimiento Demográfico -->
+          <!-- Tercera fila: Inscripciones y Aprobados -->
           <v-row>
             <v-col>
-              <h3 class="text-center my-3">Rendimiento Demográfico</h3>
-              <PerformanceDemographic :career-id="selectedCareerId" />
+              <h3 class="text-center my-6">Inscripciones en Exámenes</h3>
+              <CareerRegistrationsPanel :career-id="selectedCareerId" />
+            </v-col>
+            <v-col>
+              <h3 class="text-center my-6">Aprobados en Exámenes</h3>
+              <CareerApprovedPanel :career-id="selectedCareerId" />
             </v-col>
           </v-row>
 
-          <!-- Cuarta fila: Gráfico de Barras -->
+          <!-- Cuarta fila: Rendimiento de Materias (gráfico de barras) -->
           <v-row>
             <v-col class="mb-3">
               <h3 class="text-center my-3">Promedio por Materia</h3>
