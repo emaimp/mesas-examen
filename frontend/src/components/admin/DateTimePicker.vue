@@ -23,7 +23,7 @@
           v-model="date"
           color="primary"
           full-width
-          header-color="primary"
+          header-color="#0085d0"
           no-title
           scrollable
         />

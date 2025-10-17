@@ -4,7 +4,7 @@ import axios from 'axios'
 export function useDigitalActsUploader () {
   // Función auxiliar para obtener el token de autenticación
   const getAuthHeaders = () => {
-    const token = localStorage.getItem('access_token')
+    const token = sessionStorage.getItem('access_token')
     return {
       Accept: 'application/json',
       Authorization: token ? `Bearer ${token}` : '', // Incluye el token si existe

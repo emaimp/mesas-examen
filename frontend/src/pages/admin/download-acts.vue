@@ -30,9 +30,6 @@
                 </v-row>
                 <v-divider class="my-1" />
                 <v-alert v-if="error" class="mb-4" type="error">{{ error }}</v-alert>
-                <v-alert v-if="!loading && actas.length === 0 && selectedTeacherData" class="mb-4" type="error">
-                  No se encontraron actas para el profesor "{{ selectedTeacherData.nombre }}".
-                </v-alert>
                 <v-data-table
                   :headers="headers"
                   hide-default-footer
@@ -80,6 +77,7 @@
   const actas = ref([])
   const loading = ref(false)
   const error = ref(null)
+  const hasSearched = ref(false)
 
   const headers = [
     { title: 'Nombre de Archivo', key: 'filename' },
@@ -94,6 +92,7 @@
 
   const searchActs = async () => {
     error.value = null
+    hasSearched.value = true
 
     // Si no hay profesor seleccionado ni datos, no hacer nada
     if (!selectedTeacherId.value && !selectedTeacherData.value) {

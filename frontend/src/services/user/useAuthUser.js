@@ -16,7 +16,7 @@ export function useAuthUser () {
       const response = await axios.get(`${import.meta.env.VITE_API_URL}/auth/users/me/`, {
         headers: {
           Accept: 'application/json', // Indica que se espera una respuesta JSON
-          Authorization: `Bearer ${localStorage.getItem('access_token')}`, // Envía el token de autenticación
+          Authorization: `Bearer ${sessionStorage.getItem('access_token')}`, // Envía el token de autenticación
         },
       })
       user.value = response.data // Almacena los datos del usuario

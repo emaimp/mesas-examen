@@ -1,6 +1,6 @@
 <template>
   <v-card style="position: relative;" width="750">
-    <v-card style="padding-bottom: 50px;">
+    <v-card id="pdf-content" style="padding-bottom: 50px;">
       <v-img
         src="@/assets/iesn6_logo_dark_200px.webp"
         max-width="200"
@@ -181,7 +181,7 @@
 
   // Función para exportar a PDF
   const exportToPDF = async () => {
-    const element = document.querySelector('#digital-acts-content')
+    const element = document.querySelector('#pdf-content')
     if (element) {
       try {
         const pdfBlob = await html2pdf().from(element).outputPdf('blob')
@@ -218,6 +218,7 @@
 .v-card {
   border: none !important;
   background: #ffffff !important;
+  box-shadow: none !important;
 }
 
 #digital-acts-content .v-card {

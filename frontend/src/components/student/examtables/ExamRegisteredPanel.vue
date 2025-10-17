@@ -44,50 +44,44 @@
       </v-expansion-panel>
     </v-expansion-panels>
 
-    <v-dialog v-model="showInscripcionDialog" max-width="500">
+    <v-dialog v-model="showInscripcionDialog" height="630" max-width="500">
       <v-card>
-        <v-card-title class="text-h5 text-center mt-2 mx-2">
+        <v-card-title class="text-h5 text-center mt-2">
           Mesa de Examen
         </v-card-title>
         <v-card-text v-if="selectedMesa">
-          <v-list dense>
-            <v-list-item>
-              <v-list-item-title class="font-weight-bold">Estudiante:</v-list-item-title>
-              <v-list-item-subtitle>{{
-                selectedMesa.nombre_estudiante
-              }}</v-list-item-subtitle>
-            </v-list-item>
-            <v-list-item>
+          <v-list>
+            <v-list-item class="mb-4">
               <v-list-item-title class="font-weight-bold">DNI:</v-list-item-title>
               <v-list-item-subtitle>{{
                 selectedMesa.dni
               }}</v-list-item-subtitle>
             </v-list-item>
-            <v-list-item>
+            <v-list-item class="mb-4">
               <v-list-item-title class="font-weight-bold">Libreta:</v-list-item-title>
               <v-list-item-subtitle>{{
                 selectedMesa.libreta
               }}</v-list-item-subtitle>
             </v-list-item>
-            <v-list-item>
+            <v-list-item class="mb-4">
               <v-list-item-title class="font-weight-bold">Materia:</v-list-item-title>
               <v-list-item-subtitle>{{
                 selectedMesa.materia_nombre
               }}</v-list-item-subtitle>
             </v-list-item>
-            <v-list-item>
+            <v-list-item class="mb-4">
               <v-list-item-title class="font-weight-bold">Profesor:</v-list-item-title>
               <v-list-item-subtitle>{{
                 selectedMesa.profesor_nombre
               }}</v-list-item-subtitle>
             </v-list-item>
-            <v-list-item>
+            <v-list-item class="mb-4">
               <v-list-item-title class="font-weight-bold">Llamado:</v-list-item-title>
               <v-list-item-subtitle>{{
                 selectedMesa.llamado_inscrito === 'primer_llamado' ? 'Primer Llamado' : 'Segundo Llamado'
               }}</v-list-item-subtitle>
             </v-list-item>
-            <v-list-item>
+            <v-list-item class="mb-4">
               <v-list-item-title class="font-weight-bold">Tipo de Inscripción:</v-list-item-title>
               <v-list-item-subtitle>{{
                 formatTipoInscripcion(selectedMesa.tipo_inscripcion)

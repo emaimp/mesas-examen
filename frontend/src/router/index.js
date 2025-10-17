@@ -49,7 +49,7 @@ router.onError(err => {
 
 // Guard de autenticación para proteger rutas y gestionar login
 router.beforeEach((to, from, next) => {
-  const token = localStorage.getItem('access_token')
+  const token = sessionStorage.getItem('access_token')
 
   // Si se intenta acceder a login estando autenticado se redirecciona al layout
   if (to.name === '/login/' && token) {
@@ -69,13 +69,13 @@ router.beforeEach((to, from, next) => {
         }
         default: {
           // Rol desconocido, limpiar token
-          localStorage.removeItem('access_token')
+          sessionStorage.removeItem('access_token')
           return next()
         }
       }
     } catch {
       // Token inválido, limpiar
-      localStorage.removeItem('access_token')
+      sessionStorage.removeItem('access_token')
       return next()
     }
   }

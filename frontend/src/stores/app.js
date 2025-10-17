@@ -41,6 +41,8 @@ export const useAppStore = defineStore('app', {
       this.user.nombre = null
     },
   },
-  // Persistencia: Habilita que el estado del store se guarde (ej: en localStorage)
-  persist: true,
+  // Persistencia: Habilita que el estado del store se guarde (ej: en sessionStorage)
+  persist: {
+    storage: sessionStorage,
+  },
 })

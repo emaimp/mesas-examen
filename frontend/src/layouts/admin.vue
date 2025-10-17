@@ -198,7 +198,7 @@
    */
   const logout = () => {
     appStore.clearUser() // Limpia los datos del usuario en el store
-    localStorage.removeItem('access_token') // Elimina el token de acceso del almacenamiento local
+    sessionStorage.removeItem('access_token') // Elimina el token de acceso del almacenamiento de sesión
     nextTick(() => {
       router.replace('/login') // Redirige a la página de login
     })
@@ -213,14 +213,14 @@
       const response = await axios.get(`${import.meta.env.VITE_API_URL}/auth/users/me/`, {
         headers: {
           Accept: 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('access_token')}`, // Incluye el token de autenticación
+          Authorization: `Bearer ${sessionStorage.getItem('access_token')}`, // Incluye el token de autenticación
         },
       })
       appStore.setUser(response.data) // Establece los datos del usuario en el store
     } catch (error) {
       console.error('Error fetching user data in admin layout:', error)
       appStore.clearUser() // Limpia los datos del usuario en caso de error
-      localStorage.removeItem('access_token') // Elimina el token de acceso
+      sessionStorage.removeItem('access_token') // Elimina el token de acceso
       nextTick(() => {
         router.replace('/login') // Redirige a la página de login
       })
@@ -230,7 +230,7 @@
   // Hook de ciclo de vida: se ejecuta cuando el componente se monta
   onMounted(async () => {
     // Verifica si existe un token de acceso
-    if (localStorage.getItem('access_token')) {
+    if (sessionStorage.getItem('access_token')) {
       await fetchUserData() // Si existe, intenta obtener los datos del usuario
       // Precarga inteligente de rutas críticas admin para acelerar primeras cargas
       if (navigator.connection && navigator.connection.effectiveType !== 'slow-2g' && navigator.connection.effectiveType !== '2g') {

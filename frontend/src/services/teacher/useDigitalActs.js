@@ -19,7 +19,7 @@ export function useDigitalActsService () {
       const formData = new FormData() // Crea un nuevo objeto FormData
       formData.append('file', pdfBlob, filename) // Añade el archivo PDF al FormData
 
-      const authToken = localStorage.getItem('access_token') // Obtiene el token de autenticación del almacenamiento local
+      const authToken = sessionStorage.getItem('access_token') // Obtiene el token de autenticación del almacenamiento de sesión
 
       // Realiza la petición POST para subir el archivo PDF
       const response = await axios.post(

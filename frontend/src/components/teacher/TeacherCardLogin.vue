@@ -2,46 +2,43 @@
   <v-container class="d-flex align-center justify-center" fluid>
     <v-card>
       <v-card-text>
-        <v-row justify="center">
-          <v-col cols="12" md="7">
-            <div v-if="user">
-              <v-row>
-                <v-col cols="12">
-                  <v-list-item>
-                    <v-list-item-title class="font-weight-bold">Nombre:</v-list-item-title>
-                    <v-list-item-subtitle>{{ user.nombre }}</v-list-item-subtitle>
-                  </v-list-item>
-                </v-col>
-                <v-col cols="12">
-                  <v-list-item>
-                    <v-list-item-title class="font-weight-bold">DNI:</v-list-item-title>
-                    <v-list-item-subtitle>{{ user.dni }}</v-list-item-subtitle>
-                  </v-list-item>
-                </v-col>
-                <v-col cols="12">
-                  <v-list-item>
-                    <v-list-item-title class="font-weight-bold">Legajo:</v-list-item-title>
-                    <v-list-item-subtitle>{{ user.legajo || 'N/A' }}</v-list-item-subtitle>
-                  </v-list-item>
-                </v-col>
-                <v-col cols="12">
-                  <v-list-item>
-                    <v-list-item-title class="font-weight-bold">Email:</v-list-item-title>
-                    <v-list-item-subtitle>{{ user.email || 'N/A' }}</v-list-item-subtitle>
-                  </v-list-item>
-                </v-col>
-              </v-row>
-            </div>
-            <v-alert v-else-if="!loading && !user" text="No se encontraron datos para el profesor." type="warning" />
-            <v-alert v-else-if="error" text="Error al cargar los datos del profesor." type="error" />
-          </v-col>
-          <v-col class="d-flex align-center justify-center" cols="12" md="5">
-            <img
-              alt="Birrete"
-              src="@/assets/birrete_logo_280px.webp"
-            >
-          </v-col>
-        </v-row>
+        <div class="d-flex flex-column align-center pt-12 px-6">
+          <img
+            alt="Academic User"
+            src="@/assets/student_logo_200px.webp"
+            class="mb-13"
+          >
+          <div v-if="user">
+            <v-row>
+              <v-col cols="12">
+                <v-list-item>
+                  <v-list-item-title class="font-weight-bold">Nombre:</v-list-item-title>
+                  <v-list-item-subtitle>{{ user.nombre }}</v-list-item-subtitle>
+                </v-list-item>
+              </v-col>
+              <v-col cols="12">
+                <v-list-item>
+                  <v-list-item-title class="font-weight-bold">DNI:</v-list-item-title>
+                  <v-list-item-subtitle>{{ user.dni }}</v-list-item-subtitle>
+                </v-list-item>
+              </v-col>
+              <v-col cols="12">
+                <v-list-item>
+                  <v-list-item-title class="font-weight-bold">Legajo:</v-list-item-title>
+                  <v-list-item-subtitle>{{ user.legajo || 'N/A' }}</v-list-item-subtitle>
+                </v-list-item>
+              </v-col>
+              <v-col cols="12">
+                <v-list-item>
+                  <v-list-item-title class="font-weight-bold">Email:</v-list-item-title>
+                  <v-list-item-subtitle>{{ user.email || 'N/A' }}</v-list-item-subtitle>
+                </v-list-item>
+              </v-col>
+            </v-row>
+          </div>
+          <v-alert v-else-if="!loading && !user" text="No se encontraron datos para el profesor." type="warning" />
+          <v-alert v-else-if="error" text="Error al cargar los datos del profesor." type="error" />
+        </div>
       </v-card-text>
     </v-card>
   </v-container>
@@ -60,34 +57,32 @@
 </script>
 
 <style scoped>
-/* Estilos para sobreescribir el .v-card */
+/* Estilos para el v-card */
 .v-card {
-  border: none !important;
-  max-width: 750px; /* Ancho máximo */
-  background: linear-gradient(to right, #ffffff) !important;
+  height: 680px; /* Alto máximo */
+  max-width: 600px; /* Ancho máximo */
 }
 
-/* Estilos para el título de la tarjeta personalizado */
+/* Estilos para el título */
 .v-card-title {
   font-size: 1.7rem !important; /* Ajusta el tamaño. !important es necesario para anular estilos de Vuetify. */
   line-height: 1.2; /* Ajusta el interlineado si es necesario */
-  color: black !important;
 }
 
 .v-list-item-subtitle {
   font-size: 1rem; /* Aumenta el tamaño de la fuente para los subtítulos */
   line-height: 1.2; /* Aumenta la altura de línea para más espacio vertical al texto */
-  color: black !important;
 }
 
-/* Estilos para el tamaño de la fuente */
+/* Estilos para la fuente */
 .v-list-item-title {
   font-size: 1rem; /* Aumenta el tamaño de la fuente para los títulos */
-  color: black !important;
 }
 
-/* Estilos para los alerts */
-.v-alert {
-  color: black !important;
+/* Estilos del v-list-item */
+.v-list-item {
+  background-image: repeating-linear-gradient(-45deg, transparent, transparent 10px, rgba(128,128,128,0.1) 10px, rgba(128,128,128,0.1) 11px);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  padding: 8px;
 }
 </style>

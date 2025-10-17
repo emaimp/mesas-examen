@@ -4,7 +4,7 @@ import axios from 'axios'
 export function useFileUpload () {
   // Obtiene los encabezados de autorización, incluyendo el token si existe
   const getAuthHeaders = () => {
-    const token = localStorage.getItem('access_token')
+    const token = sessionStorage.getItem('access_token')
     if (token) {
       return {
         'Content-Type': 'multipart/form-data', // Tipo de contenido para subida de archivos

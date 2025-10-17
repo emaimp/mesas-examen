@@ -44,21 +44,21 @@
       </v-expansion-panel>
     </v-expansion-panels>
 
-    <v-dialog v-model="showInscripcionDialog" max-width="500">
+    <v-dialog v-model="showInscripcionDialog" height="470" max-width="450">
       <v-card>
-        <v-card-title class="text-h5 text-center mt-2 mx-2">
+        <v-card-title class="text-h5 text-center mt-2">
           Confirmar Inscripción
         </v-card-title>
-        <v-card-text v-if="selectedMesa">
+        <v-card-text v-if="selectedMesa" class="my-2">
           Deseas inscribirte a la siguiente mesa de examen?
-          <v-list dense>
-            <v-list-item>
+          <v-list class="mt-9">
+            <v-list-item class="mb-6">
               <v-list-item-title class="font-weight-bold">Materia:</v-list-item-title>
               <v-list-item-subtitle>{{
                 selectedMesa.materia_nombre
               }}</v-list-item-subtitle>
             </v-list-item>
-            <v-list-item>
+            <v-list-item class="mb-6">
               <v-list-item-title class="font-weight-bold">Profesor:</v-list-item-title>
               <v-list-item-subtitle>{{
                 selectedMesa.profesor_nombre

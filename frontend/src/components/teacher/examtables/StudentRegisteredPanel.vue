@@ -47,7 +47,7 @@
     <v-dialog v-model="showInscripcionDialog" max-width="500">
       <v-card>
         <v-card-title class="text-h5 text-center mt-2 mx-2">
-          Resgistrar Nota del Estudiante
+          Registrar Nota del Estudiante
         </v-card-title>
         <v-card-text v-if="selectedEstudiante">
           <v-list dense>

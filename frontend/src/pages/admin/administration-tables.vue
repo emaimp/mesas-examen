@@ -52,27 +52,27 @@
       </v-card-text>
     </v-card>
 
-    <v-dialog v-model="showDeleteDialog" max-width="500">
+    <v-dialog v-model="showDeleteDialog" height="500" max-width="500">
       <v-card>
-        <v-card-title class="text-h5 text-center mt-2 mx-2">
+        <v-card-title class="text-h5 text-center mt-2">
           Confirmar Eliminación
         </v-card-title>
-        <v-card-text v-if="selectedMesaToDelete">
+        <v-card-text v-if="selectedMesaToDelete" class="my-2">
           Deseas eliminar la siguiente mesa de examen?
-          <v-list dense>
-            <v-list-item>
+          <v-list class="mt-7">
+            <v-list-item class="mb-5">
               <v-list-item-title class="font-weight-bold">Materia:</v-list-item-title>
               <v-list-item-subtitle>{{
                 selectedMesaToDelete.materia_nombre
               }}</v-list-item-subtitle>
             </v-list-item>
-            <v-list-item>
+            <v-list-item class="mb-5">
               <v-list-item-title class="font-weight-bold">Profesor:</v-list-item-title>
               <v-list-item-subtitle>{{
                 selectedMesaToDelete.profesor_nombre
               }}</v-list-item-subtitle>
             </v-list-item>
-            <v-list-item>
+            <v-list-item class="mb-5">
               <v-list-item-title class="font-weight-bold">Llamado:</v-list-item-title>
               <v-list-item-subtitle>{{
                 selectedMesaToDelete.tipo_llamado

@@ -20,7 +20,19 @@
             </v-col>
           </v-row>
 
-          <!-- Segunda fila: Rendimiento y Predicción -->
+          <!-- Segunda fila: Inscripciones y Aprobados -->
+          <v-row>
+            <v-col>
+              <h3 class="text-center my-3">Inscripciones en Exámenes</h3>
+              <CareerRegistrationsPanel :career-id="selectedCareerId" />
+            </v-col>
+            <v-col>
+              <h3 class="text-center my-3">Aprobados en Exámenes</h3>
+              <CareerApprovedPanel :career-id="selectedCareerId" />
+            </v-col>
+          </v-row>
+
+          <!-- Tercera fila: Rendimiento y Predicción -->
           <v-row>
             <v-col>
               <h3 class="text-center my-3">Rendimiento Académico</h3>
@@ -29,18 +41,6 @@
             <v-col>
               <h3 class="text-center my-3">Predicción de Rendimiento</h3>
               <CareerPredictionPanel :career-id="selectedCareerId" />
-            </v-col>
-          </v-row>
-
-          <!-- Tercera fila: Inscripciones y Aprobados -->
-          <v-row>
-            <v-col>
-              <h3 class="text-center my-6">Inscripciones en Exámenes</h3>
-              <CareerRegistrationsPanel :career-id="selectedCareerId" />
-            </v-col>
-            <v-col>
-              <h3 class="text-center my-6">Aprobados en Exámenes</h3>
-              <CareerApprovedPanel :career-id="selectedCareerId" />
             </v-col>
           </v-row>
 

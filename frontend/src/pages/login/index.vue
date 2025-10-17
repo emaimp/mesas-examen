@@ -138,7 +138,7 @@
             })
 
             const { access_token } = response.data // Extrae el token de acceso
-            localStorage.setItem('access_token', access_token) // Guarda el token en el almacenamiento local
+            sessionStorage.setItem('access_token', access_token) // Guarda el token en el almacenamiento de sesión
             const decodedToken = jwtDecode(access_token) // Decodifica el token para obtener los datos del usuario
             const userRole = decodedToken.role // Obtiene el rol del usuario
             const appStore = useAppStore() // Accede al store de la aplicación
@@ -170,7 +170,7 @@
               }
               default: {
                 this.errorMessage = 'Rol de usuario desconocido. Contacta al administrador.'
-                localStorage.removeItem('access_token') // Elimina el token si el rol es desconocido
+                sessionStorage.removeItem('access_token') // Elimina el token si el rol es desconocido
                 break
               }
             }
