@@ -7,8 +7,6 @@ CREATE TABLE usuarios (
     nombre VARCHAR(50) NOT NULL,
     dni VARCHAR(10) UNIQUE NOT NULL,
     email VARCHAR(50) UNIQUE,
-    legajo VARCHAR(10) UNIQUE,
-    libreta VARCHAR(10) UNIQUE,
     INDEX username_index (username),
     INDEX nombre_index (nombre)
 );
@@ -17,6 +15,7 @@ CREATE TABLE usuarios (
 CREATE TABLE profesores (
     id INT PRIMARY KEY AUTO_INCREMENT,
     profesor_id INT NOT NULL,
+    legajo VARCHAR(10) UNIQUE,
     materia_carrera_id INT NOT NULL,
     anio_asignado INT,
     UNIQUE (profesor_id, materia_carrera_id, anio_asignado),
@@ -28,6 +27,11 @@ CREATE TABLE profesores (
 CREATE TABLE estudiantes (
     id INT PRIMARY KEY AUTO_INCREMENT,
     estudiante_id INT NOT NULL,
+    edad INT,
+    genero VARCHAR(30),
+    localidad VARCHAR(50),
+    ocupacion VARCHAR(50),
+    libreta VARCHAR(10) UNIQUE,
     carrera_id INT NOT NULL,
     anio_ingreso INT,
     UNIQUE (estudiante_id, carrera_id, anio_ingreso),
@@ -138,7 +142,7 @@ CREATE TABLE inscripciones_examen (
 CREATE TABLE actas_digitales (
     id INT PRIMARY KEY AUTO_INCREMENT,
     filename VARCHAR(255) UNIQUE NOT NULL,
-    filepath TEXT NOT NULL,
+    filepath VARCHAR(500) NOT NULL,
     uploaded_user_id INT NOT NULL,
     upload_date DATETIME DEFAULT CURRENT_TIMESTAMP,
     signed BOOLEAN DEFAULT FALSE,

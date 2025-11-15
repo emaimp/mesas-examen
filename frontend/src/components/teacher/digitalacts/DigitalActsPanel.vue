@@ -84,7 +84,7 @@
         @click="exportToPDF"
       >
         <span v-if="uploadLoading">Subiendo PDF...</span>
-        <span v-else>Exportar Actas</span>
+        <span v-else>Exportar Acta</span>
       </v-btn>
     </div>
   </v-card>
